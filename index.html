@@ -25,6 +25,10 @@
             background-color: rgba(0,0,0,0.5);
             transition: opacity 0.3s ease;
         }
+        .gemini-btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
         /* Style untuk Cetak/Print */
         @media print {
             body * {
@@ -81,9 +85,6 @@
                         Login
                     </button>
                 </form>
-                <p class="text-center text-sm text-gray-600 mt-6">
-                    Belum punya akun? <a href="#" id="show-register-btn" class="font-medium text-blue-600 hover:underline">Daftar di sini</a>
-                </p>
             </div>
         </div>
 
@@ -239,9 +240,10 @@
                         
                         <div id="admin-siswa" class="admin-content hidden bg-white p-6 rounded-lg shadow-md">
                             <div class="flex justify-between items-center mb-4">
-                                <h2 class="text-xl font-semibold">Manajemen Data Siswa</h2>
+                                <h2 class="text-xl font-semibold">Manajemen User Siswa</h2>
                                 <button id="add-siswa-btn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition">Tambah Siswa</button>
                             </div>
+                             <div id="siswa-management-feedback" class="hidden mb-4 p-3 rounded-md text-sm"></div>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm text-left text-gray-500">
                                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
@@ -249,6 +251,7 @@
                                             <th scope="col" class="px-6 py-3">NIS</th>
                                             <th scope="col" class="px-6 py-3">Nama Lengkap</th>
                                             <th scope="col" class="px-6 py-3">Kelas</th>
+                                            <th scope="col" class="px-6 py-3">Password</th>
                                             <th scope="col" class="px-6 py-3 text-center">Aksi</th>
                                         </tr>
                                     </thead>
@@ -316,7 +319,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div id="admin-notifikasi" class="admin-content hidden">
                             <div class="bg-white p-6 rounded-lg shadow-md">
                                 <h2 class="text-xl font-semibold mb-4">Kirim Notifikasi ke Wali Kelas</h2>
@@ -332,9 +335,12 @@
                                     </div>
                                     <div class="mb-4">
                                         <label for="notifikasi-pesan" class="block text-sm font-medium text-gray-700 mb-1">Isi Pesan</label>
-                                        <textarea id="notifikasi-pesan" rows="5" class="w-full border border-gray-300 rounded-lg p-2" placeholder="Contoh: Ananda Ahmad Subarjo sudah 3 hari tidak masuk sekolah tanpa keterangan. Mohon konfirmasinya."></textarea>
+                                        <textarea id="notifikasi-pesan" rows="5" class="w-full border border-gray-300 rounded-lg p-2" placeholder="Klik 'Buat Pesan Otomatis' untuk bantuan AI..."></textarea>
                                     </div>
-                                    <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition">Kirim Notifikasi</button>
+                                    <div class="flex items-center gap-4">
+                                        <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition">Kirim Notifikasi</button>
+                                        <button type="button" id="generate-wk-msg-btn" class="gemini-btn bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-700 transition">✨ Buat Pesan Otomatis</button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -354,9 +360,12 @@
                                     </div>
                                     <div class="mb-4">
                                         <label for="notifikasi-ortu-pesan" class="block text-sm font-medium text-gray-700 mb-1">Isi Pesan</label>
-                                        <textarea id="notifikasi-ortu-pesan" rows="5" class="w-full border border-gray-300 rounded-lg p-2" placeholder="Contoh: Pemberitahuan mengenai kehadiran ananda Fitria Rahmawati. Mohon dapat menghubungi pihak sekolah."></textarea>
+                                        <textarea id="notifikasi-ortu-pesan" rows="5" class="w-full border border-gray-300 rounded-lg p-2" placeholder="Klik 'Buat Pesan Otomatis' untuk bantuan AI..."></textarea>
                                     </div>
-                                    <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition">Kirim Notifikasi ke Orang Tua</button>
+                                     <div class="flex items-center gap-4">
+                                        <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition">Kirim Notifikasi</button>
+                                        <button type="button" id="generate-ortu-msg-btn" class="gemini-btn bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-700 transition">✨ Buat Pesan Otomatis</button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -396,7 +405,6 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     Sakit
                                 </button>
-                                <!-- Tombol Izin Baru -->
                                 <button id="btn-izin" class="w-full sm:w-auto bg-purple-500 text-white font-bold py-2 px-5 rounded-lg hover:bg-purple-600 transition flex items-center justify-center gap-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"></path></svg>
                                     Izin
@@ -412,11 +420,15 @@
                                 <div id="file-preview" class="mt-4"></div>
                                 <button id="btn-kirim-lampiran" class="mt-4 bg-gray-700 text-white font-bold py-2 px-5 rounded-lg hover:bg-gray-800 transition">Kirim</button>
                             </div>
-                             <!-- Section untuk Keterangan Izin Baru -->
                              <div id="izin-reason-section" class="hidden mt-4 p-4 border-t">
                                 <label for="izin-reason-textarea" class="block text-sm font-medium text-gray-700 mb-2">Mohon tuliskan alasan Anda izin:</label>
-                                <textarea id="izin-reason-textarea" rows="4" class="w-full border border-gray-300 rounded-lg p-2" placeholder="Contoh: Ada acara keluarga di luar kota."></textarea>
-                                <button id="btn-kirim-izin" class="mt-4 bg-gray-700 text-white font-bold py-2 px-5 rounded-lg hover:bg-gray-800 transition">Kirim Alasan Izin</button>
+                                <textarea id="izin-reason-textarea" rows="3" class="w-full border border-gray-300 rounded-lg p-2 mb-4" placeholder="Contoh: Ada acara keluarga di luar kota."></textarea>
+                                
+                                <label for="izin-file-input" class="block text-sm font-medium text-gray-700 mb-2">Unggah dokumentasi/foto pendukung:</label>
+                                <input type="file" id="izin-file-input" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+                                <div id="izin-file-preview" class="mt-4"></div>
+                                
+                                <button id="btn-kirim-izin" class="mt-4 bg-gray-700 text-white font-bold py-2 px-5 rounded-lg hover:bg-gray-800 transition">Kirim Permohonan Izin</button>
                             </div>
                         </div>
                         <h2 class="text-xl font-semibold text-gray-800 mb-4">Ringkasan Kehadiran Anda (Bulan Ini)</h2>
@@ -454,6 +466,32 @@
                                 </table>
                             </div>
                         </div>
+                        
+                        <!-- Peringkat Siswa -->
+                        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <h2 class="text-xl font-semibold mb-4 text-green-600">🏆 5 Siswa Paling Rajin</h2>
+                                <div id="peringkat-rajin-list-siswa" class="space-y-3"></div>
+                            </div>
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <h2 class="text-xl font-semibold mb-4 text-red-600">⚠️ 5 Siswa Perlu Perhatian</h2>
+                                <div id="peringkat-perhatian-list-siswa" class="space-y-3"></div>
+                            </div>
+                        </div>
+
+                        <!-- Quotes Motivasi -->
+                        <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-xl font-semibold mb-4 text-blue-600">Kutipan Motivasi Hari Ini</h2>
+                            <blockquote class="text-center">
+                                <p id="quote-text" class="text-lg italic text-gray-700"></p>
+                                <footer id="quote-author" class="mt-2 text-sm text-gray-500"></footer>
+                            </blockquote>
+                            <div class="text-center mt-6">
+                                <button id="new-quote-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition">
+                                    Tampilkan Quote Baru
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </main>
              </div>
@@ -483,6 +521,40 @@
                     <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Simpan</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Reset Password -->
+    <div id="reset-password-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop">
+        <div class="bg-white w-full max-w-sm p-6 rounded-lg shadow-xl">
+            <h2 id="reset-modal-title" class="text-xl font-bold mb-4">Reset Password</h2>
+            <form id="reset-password-form">
+                <input type="hidden" id="reset-siswa-id">
+                <div class="mb-4">
+                    <p class="text-sm">Anda akan mereset password untuk siswa: <strong id="reset-siswa-nama"></strong>.</p>
+                </div>
+                <div class="mb-4">
+                    <label for="new-password" class="block text-sm font-medium text-gray-700">Password Baru</label>
+                    <input type="password" id="new-password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="flex justify-end mt-6 space-x-3">
+                    <button type="button" id="cancel-reset-modal-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Batal</button>
+                    <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Simpan Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ringkasan AI -->
+    <div id="ai-summary-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-backdrop">
+        <div class="bg-white w-full max-w-lg p-6 rounded-lg shadow-xl">
+            <h2 id="ai-summary-title" class="text-xl font-bold mb-4">✨ Ringkasan Kehadiran AI</h2>
+            <div id="ai-summary-content" class="text-gray-700 space-y-2">
+                <p>Memuat ringkasan...</p>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button type="button" id="close-ai-modal-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Tutup</button>
+            </div>
         </div>
     </div>
 
@@ -517,12 +589,14 @@ document.addEventListener('DOMContentLoaded', () => {
         { siswaId: 'siswa02', tanggal: '2025-09-30', status: 'H', keterangan: 'Hadir tepat waktu', lampiran: null},
         { siswaId: 'siswa03', tanggal: '2025-09-30', status: 'T', keterangan: 'Terlambat 5 menit', lampiran: null},
         { siswaId: 'siswa04', tanggal: '2025-09-30', status: 'S', keterangan: 'Surat dokter terlampir', lampiran: 'surat_dokter.jpg'},
-        { siswaId: 'siswa05', tanggal: '2025-09-30', status: 'H', keterangan: 'Hadir tepat waktu', lampiran: null},
+        { siswaId: 'siswa05', tanggal: '2025-09-30', status: 'A', keterangan: 'Tanpa Keterangan', lampiran: null},
         { siswaId: 'siswa01', tanggal: '2025-09-29', status: 'H', keterangan: 'Hadir tepat waktu', lampiran: null},
         { siswaId: 'siswa02', tanggal: '2025-09-29', status: 'T', keterangan: 'Terlambat 10 menit', lampiran: null},
         { siswaId: 'siswa03', tanggal: '2025-09-29', status: 'H', keterangan: 'Hadir tepat waktu', lampiran: null},
         { siswaId: 'siswa04', tanggal: '2025-09-29', status: 'A', keterangan: 'Tanpa keterangan', lampiran: null},
         { siswaId: 'siswa05', tanggal: '2025-09-29', status: 'D', keterangan: 'Dispen Lomba Cerdas Cermat', lampiran: 'surat_dispen.jpg'},
+        { siswaId: 'siswa05', tanggal: '2025-09-28', status: 'A', keterangan: 'Tanpa Keterangan', lampiran: null},
+        { siswaId: 'siswa03', tanggal: '2025-09-28', status: 'A', keterangan: 'Tanpa Keterangan', lampiran: null},
     ];
     
     // ===================================
@@ -531,11 +605,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentUser = null;
     let today = new Date().toISOString().slice(0, 10);
     let selectedFileBase64 = null;
+    let izinFileBase64 = null;
     let attendanceType = '';
+
+    const quotes = [
+        { text: "Pendidikan adalah senjata paling ampuh yang bisa kamu gunakan untuk mengubah dunia.", author: "Nelson Mandela" },
+        { text: "Hiduplah seolah-olah kamu akan mati besok. Belajarlah seolah-olah kamu akan hidup selamanya.", author: "Mahatma Gandhi" },
+        { text: "Satu-satunya sumber pengetahuan adalah pengalaman.", author: "Albert Einstein" },
+        { text: "Jangan pernah menyerah. Pemenang tidak pernah menyerah dan orang yang menyerah tidak pernah menang.", author: "Vince Lombardi" },
+        { text: "Masa depan adalah milik mereka yang menyiapkan hari ini.", author: "Malcolm X" }
+    ];
 
     // ===================================
     // SELEKTOR DOM
     // ===================================
+    const generateWkMsgBtn = document.getElementById('generate-wk-msg-btn');
+    const generateOrtuMsgBtn = document.getElementById('generate-ortu-msg-btn');
+    const aiSummaryModal = document.getElementById('ai-summary-modal');
+    const closeAiModalBtn = document.getElementById('close-ai-modal-btn');
+    const aiSummaryContent = document.getElementById('ai-summary-content');
     const loginView = document.getElementById('login-view');
     const registerView = document.getElementById('register-view');
     const adminView = document.getElementById('admin-view');
@@ -545,7 +633,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginError = document.getElementById('login-error');
     const registerError = document.getElementById('register-error');
     const registerSuccess = document.getElementById('register-success');
-    const showRegisterBtn = document.getElementById('show-register-btn');
     const backToLoginBtn = document.getElementById('back-to-login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const logoutBtnSiswa = document.getElementById('logout-btn-siswa');
@@ -558,18 +645,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelModalBtn = document.getElementById('cancel-modal-btn');
     const siswaForm = document.getElementById('siswa-form');
     const modalTitle = document.getElementById('modal-title');
-    // Tombol absensi siswa
+    const resetPasswordModal = document.getElementById('reset-password-modal');
+    const resetPasswordForm = document.getElementById('reset-password-form');
+    const cancelResetModalBtn = document.getElementById('cancel-reset-modal-btn');
     const btnHadir = document.getElementById('btn-hadir');
     const btnSakit = document.getElementById('btn-sakit');
     const btnIzin = document.getElementById('btn-izin');
     const btnDispen = document.getElementById('btn-dispen');
-    // Section absensi siswa
     const fileUploadSection = document.getElementById('file-upload-section');
     const izinReasonSection = document.getElementById('izin-reason-section');
     const uploadLabel = document.getElementById('upload-label');
     const fileInput = document.getElementById('file-input');
     const filePreview = document.getElementById('file-preview');
     const izinReasonTextarea = document.getElementById('izin-reason-textarea');
+    const izinFileInput = document.getElementById('izin-file-input');
+    const izinFilePreview = document.getElementById('izin-file-preview');
     const btnKirimLampiran = document.getElementById('btn-kirim-lampiran');
     const btnKirimIzin = document.getElementById('btn-kirim-izin');
     const absensiStatusDiv = document.getElementById('absensi-hari-ini-status');
@@ -579,6 +669,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const notifikasiOrtuSiswaSelect = document.getElementById('notifikasi-ortu-siswa-select');
     const rekapSiswaFilter = document.getElementById('rekap-siswa-filter');
     const rekapPeriodeFilter = document.getElementById('rekap-periode-filter');
+
+
+    // ===================================
+    // FUNGSI INTEGRASI GEMINI API
+    // ===================================
+    async function callGeminiAPI(prompt, buttonElement) {
+        const apiKey = ""; // API key akan di-handle oleh environment
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        
+        const originalButtonText = buttonElement.innerHTML;
+        buttonElement.disabled = true;
+        
+        buttonElement.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...`;
+
+        try {
+            const payload = { contents: [{ parts: [{ text: prompt }] }] };
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            return text || "Tidak ada respons dari AI.";
+
+        } catch (error) {
+            console.error("Error calling Gemini API:", error);
+            return "Terjadi kesalahan saat menghubungi AI. Silakan coba lagi.";
+        } finally {
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = originalButtonText;
+        }
+    }
+
 
     // ===================================
     // FUNGSI UTAMA
@@ -594,7 +723,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (view === 'siswa') siswaView.classList.remove('hidden');
     }
 
-    showRegisterBtn.addEventListener('click', (e) => { e.preventDefault(); showView('register'); });
     backToLoginBtn.addEventListener('click', (e) => { e.preventDefault(); showView('login'); });
 
     registerForm.addEventListener('submit', (e) => {
@@ -640,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (role === 'admin') {
             user = mockAdmins.find(u => u.username === username && u.password === password);
         } else {
-            user = mockSiswa.find(u => u.nis === username && u.password === password);
+            user = mockSiswa.find(u => u.nama.toLowerCase() === username.toLowerCase() && u.password === password);
         }
         if (user) {
             currentUser = user;
@@ -663,9 +791,6 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutBtn.addEventListener('click', logout);
     logoutBtnSiswa.addEventListener('click', logout);
     
-    // ===================================
-    // FUNGSI RENDER TAMPILAN ADMIN
-    // ===================================
     function renderAdminView() {
         if (!currentUser || currentUser.role !== 'admin') return;
         document.getElementById('admin-name').textContent = currentUser.nama;
@@ -790,8 +915,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="px-6 py-4">${siswa.nis}</td>
                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${siswa.nama}</td>
                 <td class="px-6 py-4">${siswa.kelas}</td>
-                <td class="px-6 py-4 text-center">
-                    <button data-id="${siswa.id}" class="edit-btn text-blue-600 hover:underline font-medium mr-3">Edit</button>
+                <td class="px-6 py-4 font-mono text-sm text-gray-600">${siswa.password}</td>
+                <td class="px-6 py-4 text-center space-x-2">
+                    <button data-id="${siswa.id}" class="edit-btn text-blue-600 hover:underline font-medium">Edit</button>
+                    <button data-id="${siswa.id}" class="reset-password-btn text-yellow-600 hover:underline font-medium">Reset Pass</button>
                     <button data-id="${siswa.id}" class="delete-btn text-red-600 hover:underline font-medium">Hapus</button>
                 </td>
             `;
@@ -857,6 +984,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    function displayNewQuote() {
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        document.getElementById('quote-text').textContent = `"${quote.text}"`;
+        document.getElementById('quote-author').textContent = `— ${quote.author}`;
+    }
+    
     notifikasiForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const siswaId = document.getElementById('notifikasi-siswa-select').value;
@@ -898,9 +1031,6 @@ document.addEventListener('DOMContentLoaded', () => {
         notifikasiOrtuForm.reset();
     });
 
-    // ===================================
-    // FUNGSI RENDER TAMPILAN SISWA
-    // ===================================
     function renderSiswaView() {
         if (!currentUser || currentUser.role !== 'siswa') return;
         document.getElementById('siswa-name').textContent = currentUser.nama;
@@ -919,6 +1049,8 @@ document.addEventListener('DOMContentLoaded', () => {
             izinReasonSection.classList.add('hidden');
         }
         updateSiswaDashboard();
+        displayNewQuote();
+        renderSiswaRanking();
     }
 
     function updateSiswaDashboard() {
@@ -947,6 +1079,67 @@ document.addEventListener('DOMContentLoaded', () => {
              historyTable.appendChild(tr);
         });
     }
+    
+    function renderSiswaRanking() {
+        const now = new Date();
+        const siswaScores = mockSiswa.map(siswa => {
+            const absensiBulanIni = mockAbsensi.filter(a => {
+                const tglAbsen = new Date(a.tanggal);
+                return a.siswaId === siswa.id && tglAbsen.getMonth() === now.getMonth() && tglAbsen.getFullYear() === now.getFullYear();
+            });
+            const hadirCount = absensiBulanIni.filter(a => ['H', 'T'].includes(a.status)).length;
+            const alfaCount = absensiBulanIni.filter(a => a.status === 'A').length;
+            const skor = hadirCount - (alfaCount * 2);
+            return { ...siswa, skor, alfaCount };
+        });
+
+        const peringkatRajin = [...siswaScores].sort((a, b) => b.skor - a.skor);
+        const peringkatPerhatian = [...siswaScores].sort((a, b) => b.alfaCount - a.alfaCount);
+
+        const rajinListSiswa = document.getElementById('peringkat-rajin-list-siswa');
+        const perhatianListSiswa = document.getElementById('peringkat-perhatian-list-siswa');
+        rajinListSiswa.innerHTML = '';
+        perhatianListSiswa.innerHTML = '';
+
+        peringkatRajin.slice(0, 5).forEach((siswa, index) => {
+            const isCurrentUser = siswa.id === currentUser.id;
+            const item = document.createElement('div');
+            item.className = `flex items-center justify-between p-2 rounded-md ${isCurrentUser ? 'bg-blue-100' : 'hover:bg-gray-50'}`;
+            item.innerHTML = `
+                <div class="flex items-center">
+                    <span class="text-lg font-bold text-gray-400 w-8">${index + 1}.</span>
+                    <div>
+                        <p class="font-semibold ${isCurrentUser ? 'text-blue-800' : 'text-gray-800'}">${siswa.nama} ${isCurrentUser ? '(Anda)' : ''}</p>
+                        <p class="text-xs text-gray-500">${siswa.kelas}</p>
+                    </div>
+                </div>
+                <span class="font-bold text-green-500">${siswa.skor} Poin</span>
+            `;
+            rajinListSiswa.appendChild(item);
+        });
+        
+        peringkatPerhatian.filter(s => s.alfaCount > 0).slice(0, 5).forEach((siswa, index) => {
+            const isCurrentUser = siswa.id === currentUser.id;
+            const item = document.createElement('div');
+            item.className = `flex items-center justify-between p-2 rounded-md ${isCurrentUser ? 'bg-red-100' : 'hover:bg-gray-50'}`;
+            item.innerHTML = `
+                <div class="flex items-center">
+                     <span class="text-lg font-bold text-gray-400 w-8">${index + 1}.</span>
+                    <div>
+                        <p class="font-semibold ${isCurrentUser ? 'text-red-800' : 'text-gray-800'}">${siswa.nama} ${isCurrentUser ? '(Anda)' : ''}</p>
+                        <p class="text-xs text-gray-500">${siswa.kelas}</p>
+                    </div>
+                </div>
+                <span class="font-bold text-red-500">${siswa.alfaCount} Alfa</span>
+            `;
+            perhatianListSiswa.appendChild(item);
+        });
+        
+        if (perhatianListSiswa.innerHTML === '') {
+            perhatianListSiswa.innerHTML = '<p class="text-sm text-gray-500">Tidak ada siswa dengan absensi alfa bulan ini. Pertahankan!</p>';
+        }
+    }
+
 
     function markAttendance(status, keterangan, lampiran = null) {
         mockAbsensi.push({ siswaId: currentUser.id, tanggal: today, status: status, keterangan: keterangan, lampiran: lampiran });
@@ -989,17 +1182,44 @@ document.addEventListener('DOMContentLoaded', () => {
             filePreview.innerHTML = `<p class="text-sm text-red-600">File tidak valid. Harap pilih file gambar.</p>`;
         }
     });
+
+    izinFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                izinFileBase64 = e.target.result;
+                izinFilePreview.innerHTML = `<p class="text-sm text-gray-600 mb-2">Pratinjau:</p><img src="${izinFileBase64}" class="max-h-40 rounded-lg border">`;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            izinFileBase64 = null;
+            izinFilePreview.innerHTML = `<p class="text-sm text-red-600">File tidak valid. Harap pilih file gambar.</p>`;
+        }
+    });
+
     btnKirimLampiran.addEventListener('click', () => {
         if (!selectedFileBase64) { return; }
         if (attendanceType === 'S') { markAttendance('S', 'Sakit (surat terlampir)', selectedFileBase64); } 
         else if (attendanceType === 'D') { markAttendance('D', 'Dispen (surat terlampir)', selectedFileBase64); }
         selectedFileBase64 = null; fileInput.value = ''; filePreview.innerHTML = ''; fileUploadSection.classList.add('hidden');
     });
+    
     btnKirimIzin.addEventListener('click', () => {
         const reason = izinReasonTextarea.value.trim();
-        if (!reason) { alert('Mohon isi alasan Anda izin.'); return; }
-        markAttendance('I', reason);
+        if (!reason) { 
+            alert('Mohon isi alasan Anda izin.'); 
+            return; 
+        }
+        
+        const keterangan = izinFileBase64 ? `${reason} (bukti terlampir)` : reason;
+        
+        markAttendance('I', keterangan, izinFileBase64);
+
         izinReasonTextarea.value = '';
+        izinFileInput.value = '';
+        izinFilePreview.innerHTML = '';
+        izinFileBase64 = null;
         izinReasonSection.classList.add('hidden');
     });
 
@@ -1014,7 +1234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetId = link.dataset.target;
             adminContentDivs.forEach(div => div.classList.add('hidden'));
             document.getElementById(targetId).classList.remove('hidden');
-            const titleMap = { 'admin-dashboard': 'Dashboard', 'admin-absensi': 'Absensi Hari Ini', 'admin-siswa': 'Manajemen Siswa', 'admin-rekap': 'Rekap & Laporan', 'admin-notifikasi': 'Notifikasi Wali Kelas', 'admin-notifikasi-ortu': 'Notifikasi Orang Tua' };
+            const titleMap = { 'admin-dashboard': 'Dashboard', 'admin-absensi': 'Absensi Hari Ini', 'admin-siswa': 'Manajemen User Siswa', 'admin-rekap': 'Rekap & Laporan', 'admin-notifikasi': 'Notifikasi Wali Kelas', 'admin-notifikasi-ortu': 'Notifikasi Orang Tua' };
             adminHeaderTitle.textContent = titleMap[targetId];
         });
     });
@@ -1063,8 +1283,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function closeModal() { siswaModal.classList.add('hidden'); }
+
+    function openResetPasswordModal(siswaId) {
+        const siswa = mockSiswa.find(s => s.id === siswaId);
+        if (siswa) {
+            document.getElementById('reset-siswa-id').value = siswa.id;
+            document.getElementById('reset-siswa-nama').textContent = siswa.nama;
+            resetPasswordModal.classList.remove('hidden');
+        }
+    }
+    
+    function closeResetPasswordModal() {
+        resetPasswordForm.reset();
+        resetPasswordModal.classList.add('hidden');
+    }
+
     addSiswaBtn.addEventListener('click', () => openModal('add'));
     cancelModalBtn.addEventListener('click', closeModal);
+    cancelResetModalBtn.addEventListener('click', closeResetPasswordModal);
     
     siswaForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -1085,10 +1321,30 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal();
     });
 
+    resetPasswordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const siswaId = document.getElementById('reset-siswa-id').value;
+        const newPassword = document.getElementById('new-password').value;
+        const siswaIndex = mockSiswa.findIndex(s => s.id === siswaId);
+        
+        if (siswaIndex > -1 && newPassword) {
+            mockSiswa[siswaIndex].password = newPassword;
+            const feedbackDiv = document.getElementById('siswa-management-feedback');
+            feedbackDiv.textContent = `Password untuk ${mockSiswa[siswaIndex].nama} berhasil direset!`;
+            feedbackDiv.className = 'mb-4 p-3 rounded-md text-sm bg-green-100 text-green-800';
+            feedbackDiv.classList.remove('hidden');
+            setTimeout(() => feedbackDiv.classList.add('hidden'), 3000);
+        }
+        closeResetPasswordModal();
+    });
+
     document.getElementById('siswa-table-body').addEventListener('click', (e) => {
         const target = e.target;
         if (target.classList.contains('edit-btn')) {
             openModal('edit', target.dataset.id);
+        }
+        if (target.classList.contains('reset-btn')) {
+            openResetPasswordModal(target.dataset.id);
         }
         if (target.classList.contains('delete-btn')) {
             const idToDelete = target.dataset.id;
@@ -1100,9 +1356,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Event Listeners untuk Fitur Gemini
+    generateWkMsgBtn.addEventListener('click', async () => {
+        const siswaId = document.getElementById('notifikasi-siswa-select').value;
+        const siswa = mockSiswa.find(s => s.id === siswaId);
+        const alfaCount = mockAbsensi.filter(a => a.siswaId === siswa.id && a.status === 'A').length;
+
+        const prompt = `Anda adalah asisten admin sekolah SMANIDA. Buat draf notifikasi singkat dan formal untuk wali kelas mengenai siswa bernama ${siswa.nama} dari kelas ${siswa.kelas} yang memiliki ${alfaCount} absensi alfa bulan ini. Sampaikan keprihatinan dan minta tindak lanjut.`;
+        
+        const generatedText = await callGeminiAPI(prompt, generateWkMsgBtn);
+        document.getElementById('notifikasi-pesan').value = generatedText;
+    });
+
+    generateOrtuMsgBtn.addEventListener('click', async () => {
+        const siswaId = document.getElementById('notifikasi-ortu-siswa-select').value;
+        const siswa = mockSiswa.find(s => s.id === siswaId);
+        const alfaCount = mockAbsensi.filter(a => a.siswaId === siswa.id && a.status === 'A').length;
+
+        const prompt = `Anda adalah asisten admin sekolah SMANIDA. Buat draf notifikasi singkat, formal, dan ramah untuk orang tua dari siswa bernama ${siswa.nama} (Nama Wali: ${siswa.namaOrangTua}) dari kelas ${siswa.kelas}. Siswa ini memiliki ${alfaCount} absensi alfa (tanpa keterangan) bulan ini. Sampaikan informasi dan sarankan orang tua untuk menghubungi pihak sekolah untuk diskusi lebih lanjut.`;
+        
+        const generatedText = await callGeminiAPI(prompt, generateOrtuMsgBtn);
+        document.getElementById('notifikasi-ortu-pesan').value = generatedText;
+    });
+
+    document.getElementById('new-quote-btn').addEventListener('click', displayNewQuote);
+    
+    closeAiModalBtn.addEventListener('click', () => {
+        aiSummaryModal.classList.add('hidden');
+    });
+
     // ===================================
     // INISIALISASI
     // ===================================
+
+    // Dinamisasi form login berdasarkan role
+    const roleSelect = document.getElementById('role');
+    const usernameLabel = document.querySelector('label[for="username"]');
+    const usernameInput = document.getElementById('username');
+
+    roleSelect.addEventListener('change', () => {
+        if (roleSelect.value === 'siswa') {
+            usernameLabel.textContent = 'Nama Lengkap';
+            usernameInput.placeholder = 'Masukkan nama lengkap Anda';
+        } else {
+            usernameLabel.textContent = 'Username (NIS / NIP)';
+            usernameInput.placeholder = 'Masukkan NIS atau NIP';
+        }
+    });
+
     showView('login');
     document.getElementById('app').removeAttribute('v-cloak');
 });
