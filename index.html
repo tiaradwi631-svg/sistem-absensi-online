@@ -9,8 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Tambahkan Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         html {
             cursor: url("data:image/svg+xml,%3csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='12' cy='12' r='8' fill='rgba(99, 102, 241, 0.7)' stroke='%23ffffff' stroke-width='2'/%3e%3c/svg%3e") 12 12, auto;
@@ -18,6 +16,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background-image: linear-gradient(to top right, #f5f3ff, #eef2ff);
+            scroll-behavior: smooth;
         }
         .font-cursive {
             font-family: 'Dancing Script', cursive;
@@ -69,20 +68,37 @@
         .role-radio:checked + .role-label {
             font-weight: bold;
             border-width: 2px;
+            transform: scale(1.05);
         }
+        .role-label { transition: all 0.2s ease-in-out; }
         .role-label[for="role-admin"]:hover { background-color: #e0e7ff; }
         .role-radio:checked + .role-label[for="role-admin"] { border-color: #6366f1; background-color: #c7d2fe;}
         .role-label[for="role-guru"]:hover { background-color: #d1fae5; }
         .role-radio:checked + .role-label[for="role-guru"] { border-color: #10b981; background-color: #a7f3d0;}
         .role-label[for="role-siswa"]:hover { background-color: #fce7f3; }
         .role-radio:checked + .role-label[for="role-siswa"] { border-color: #ec4899; background-color: #fbcfe8;}
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-recap, #printable-recap * {
+                visibility: visible;
+            }
+            #printable-recap {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
 
     <!-- Laman Login -->
-    <div id="login-screen" class="min-h-screen flex items-center justify-center">
-        <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg animate-fade-in">
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold mb-2" style="font-family: 'Times New Roman', Times, serif; color: #8B0000;">EduAttend</h1>
                 <p class="text-gray-500">Sistem Absensi Online Sekolah</p>
@@ -102,18 +118,30 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Login sebagai</label>
                     <div class="grid grid-cols-3 gap-2">
                         <input type="radio" id="role-admin" name="role" value="admin" class="hidden role-radio" checked>
-                        <label for="role-admin" class="role-label cursor-pointer text-center p-3 rounded-lg w-full font-semibold bg-indigo-100 text-indigo-800 border-2 border-transparent transition-all">Admin</label>
+                        <label for="role-admin" class="role-label cursor-pointer text-center p-3 rounded-lg w-full font-semibold bg-indigo-100 text-indigo-800 border-2 border-transparent">Admin</label>
 
                         <input type="radio" id="role-guru" name="role" value="guru" class="hidden role-radio">
-                        <label for="role-guru" class="role-label cursor-pointer text-center p-3 rounded-lg w-full font-semibold bg-green-100 text-green-800 border-2 border-transparent transition-all">Guru</label>
+                        <label for="role-guru" class="role-label cursor-pointer text-center p-3 rounded-lg w-full font-semibold bg-green-100 text-green-800 border-2 border-transparent">Guru</label>
 
                         <input type="radio" id="role-siswa" name="role" value="siswa" class="hidden role-radio">
-                        <label for="role-siswa" class="role-label cursor-pointer text-center p-3 rounded-lg w-full font-semibold bg-pink-100 text-pink-800 border-2 border-transparent transition-all">Siswa</label>
+                        <label for="role-siswa" class="role-label cursor-pointer text-center p-3 rounded-lg w-full font-semibold bg-pink-100 text-pink-800 border-2 border-transparent">Siswa</label>
                     </div>
                 </div>
-                <div id="login-error" class="text-red-500 text-sm mb-4 text-center hidden">Username atau password salah.</div>
+                <div id="login-error" class="text-red-500 text-sm mb-4 text-center hidden">Username, password, atau peran salah.</div>
                 <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition duration-300 font-semibold">Login</button>
             </form>
+            <div class="mt-6 text-center text-sm">
+                <button type="button" id="toggle-hint-btn" class="text-indigo-600 hover:underline">Butuh bantuan login?</button>
+                <div id="login-hint" class="hidden mt-4 p-4 bg-gray-50 rounded-lg text-left">
+                    <p class="font-semibold mb-2">Coba login dengan akun ini:</p>
+                    <ul class="list-disc list-inside space-y-1 text-xs">
+                        <li><strong>Admin:</strong><br>Username: <code>admin123</code><br>Password: <code>admin123</code></li>
+                        <li><strong>Guru:</strong><br>Username: <code>rosalia.spd</code><br>Password: <code>123</code></li>
+                        <li><strong>Siswa:</strong><br>Username: <code>adifa.melani</code><br>Password: <code>123</code></li>
+                    </ul>
+                    <p class="mt-3 text-xs text-gray-500">Pastikan Anda memilih peran (Admin, Guru, Siswa) yang sesuai.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -126,7 +154,7 @@
                         <span class="font-bold text-xl text-gray-800">EduAttend - Dasbor Admin</span>
                     </div>
                     <div class="flex items-center">
-                         <span id="admin-welcome" class="mr-4 text-gray-600"></span>
+                         <span id="admin-welcome" class="mr-4 text-gray-600 hidden sm:block"></span>
                         <button id="admin-logout" class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button>
                     </div>
                 </div>
@@ -141,50 +169,51 @@
                     <a href="#" class="sidebar-link" data-target="admin-page-notifikasi"><i class="fas fa-paper-plane text-indigo-500"></i><span>Kirim Notifikasi</span></a>
                 </nav>
             </aside>
-            <main class="flex-1 p-4 sm:p-8">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Selamat Datang Admin</h2>
+            <main class="flex-1 p-4 sm:p-8 bg-gray-50">
                 <!-- KONTEN ADMIN -->
                 <div id="admin-page-dashboard" class="admin-page">
-                    <!-- Dasbor Harian -->
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">Selamat Datang, Admin!</h2>
                     <div class="mb-8">
-                        <h2 class="text-2xl font-bold text-gray-700 mb-4">Ringkasan Hari Ini (<span id="admin-current-date"></span>)</h2>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4">Ringkasan Hari Ini (<span id="admin-current-date"></span>)</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                             <div class="bg-white p-6 rounded-lg shadow-lg flex items-center"><div class="bg-green-100 p-4 rounded-full mr-4"><i class="fas fa-check-circle text-3xl text-green-500"></i></div><div><p class="text-gray-500 text-sm">Hadir</p><p id="hadir-count" class="text-2xl font-bold">0</p></div></div>
                             <div class="bg-white p-6 rounded-lg shadow-lg flex items-center"><div class="bg-yellow-100 p-4 rounded-full mr-4"><i class="fas fa-notes-medical text-3xl text-yellow-500"></i></div><div><p class="text-gray-500 text-sm">Sakit</p><p id="sakit-count" class="text-2xl font-bold">0</p></div></div>
                             <div class="bg-white p-6 rounded-lg shadow-lg flex items-center"><div class="bg-indigo-100 p-4 rounded-full mr-4"><i class="fas fa-envelope-open-text text-3xl text-indigo-500"></i></div><div><p class="text-gray-500 text-sm">Izin</p><p id="izin-count" class="text-2xl font-bold">0</p></div></div>
+                            <div class="bg-white p-6 rounded-lg shadow-lg flex items-center"><div class="bg-purple-100 p-4 rounded-full mr-4"><i class="fas fa-file-alt text-3xl text-purple-500"></i></div><div><p class="text-gray-500 text-sm">Dispen</p><p id="dispen-count" class="text-2xl font-bold">0</p></div></div>
                             <div class="bg-white p-6 rounded-lg shadow-lg flex items-center"><div class="bg-red-100 p-4 rounded-full mr-4"><i class="fas fa-times-circle text-3xl text-red-500"></i></div><div><p class="text-gray-500 text-sm">Alfa</p><p id="alfa-count" class="text-2xl font-bold">0</p></div></div>
                         </div>
                     </div>
-                    <!-- Grafik Absensi -->
-                    <div class="bg-white p-6 rounded-lg shadow-lg mb-8"><h2 class="text-2xl font-bold text-gray-700 mb-4">Grafik Absensi Bulan Ini</h2><div class="max-w-md mx-auto"><canvas id="attendanceChart"></canvas></div></div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg mb-8"><h3 class="text-2xl font-bold text-gray-700 mb-4">Grafik Absensi Bulan Ini</h3><div class="max-w-md mx-auto"><canvas id="attendanceChart"></canvas></div></div>
                 </div>
 
                 <div id="admin-page-rekap" class="admin-page hidden">
-                    <!-- Rekapan Absensi -->
-                    <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-                        <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-gray-700">Rekapan Absensi</h2><button id="print-rekap-btn" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm font-semibold flex items-center"><i class="fas fa-print mr-2"></i> Cetak Rekap</button></div>
-                        <div class="border-b border-gray-200"><nav class="-mb-px flex space-x-6" id="recap-tabs"><button data-target="harian" class="tab-button active py-2 px-1 border-b-2 font-medium text-sm">Harian</button><button data-target="mingguan" class="tab-button text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 border-transparent font-medium text-sm">Mingguan</button><button data-target="bulanan" class="tab-button text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 border-transparent font-medium text-sm">Bulanan</button></nav></div>
-                        <div class="mt-4">
-                            <div id="recap-harian"><div class="flex items-center mb-4"><label for="recap-date" class="mr-2">Pilih Tanggal:</label><input type="date" id="recap-date" class="border border-gray-300 rounded-md p-1"></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b">Nama Siswa</th><th class="py-2 px-4 border-b">Status</th></tr></thead><tbody id="recap-harian-body"></tbody></table></div></div>
-                            <div id="recap-mingguan" class="hidden"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b">Nama Siswa</th><th class="py-2 px-4 border-b">Hadir</th><th class="py-2 px-4 border-b">Sakit</th><th class="py-2 px-4 border-b">Izin</th><th class="py-2 px-4 border-b">Alfa</th></tr></thead><tbody id="recap-mingguan-body"></tbody></table></div></div>
-                            <div id="recap-bulanan" class="hidden"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b">Nama Siswa</th><th class="py-2 px-4 border-b">Hadir</th><th class="py-2 px-4 border-b">Sakit</th><th class="py-2 px-4 border-b">Izin</th><th class="py-2 px-4 border-b">Alfa</th></tr></thead><tbody id="recap-bulanan-body"></tbody></table></div></div>
+                    <div id="printable-recap">
+                        <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 id="rekap-title" class="text-2xl font-bold text-gray-700">Rekapan Absensi</h2>
+                                <button id="print-rekap-btn" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm font-semibold flex items-center"><i class="fas fa-print mr-2"></i> Cetak Rekap</button>
+                            </div>
+                            <div class="border-b border-gray-200"><nav class="-mb-px flex space-x-6" id="recap-tabs"><button data-target="harian" class="tab-button active py-2 px-1 border-b-2 font-medium text-sm">Harian</button><button data-target="mingguan" class="tab-button text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 border-transparent font-medium text-sm">Mingguan</button><button data-target="bulanan" class="tab-button text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 border-transparent font-medium text-sm">Bulanan</button></nav></div>
+                            <div class="mt-4">
+                                <div id="recap-harian"><div class="flex items-center mb-4"><label for="recap-date" class="mr-2">Pilih Tanggal:</label><input type="date" id="recap-date" class="border border-gray-300 rounded-md p-1"></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Nama Siswa</th><th class="py-2 px-4 border-b text-left">Kelas</th><th class="py-2 px-4 border-b text-left">Status</th></tr></thead><tbody id="recap-harian-body"><tr><td colspan="3" class="text-center p-4 text-gray-500">Pilih tanggal untuk melihat data.</td></tr></tbody></table></div></div>
+                                <div id="recap-mingguan" class="hidden"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Nama Siswa</th><th class="py-2 px-4 border-b text-left">Kelas</th><th class="py-2 px-4 border-b">Hadir</th><th class="py-2 px-4 border-b">Sakit</th><th class="py-2 px-4 border-b">Izin</th><th class="py-2 px-4 border-b">Dispen</th><th class="py-2 px-4 border-b">Alfa</th></tr></thead><tbody id="recap-mingguan-body"></tbody></table></div></div>
+                                <div id="recap-bulanan" class="hidden"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Nama Siswa</th><th class="py-2 px-4 border-b text-left">Kelas</th><th class="py-2 px-4 border-b">Hadir</th><th class="py-2 px-4 border-b">Sakit</th><th class="py-2 px-4 border-b">Izin</th><th class="py-2 px-4 border-b">Dispen</th><th class="py-2 px-4 border-b">Alfa</th></tr></thead><tbody id="recap-bulanan-body"></tbody></table></div></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div id="admin-page-manajemen" class="admin-page hidden">
-                    <!-- Manajemen Pengguna -->
-                    <div id="manajemen-pengguna">
-                        <div class="bg-white p-6 rounded-lg shadow-lg mb-8"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4"><h2 class="text-2xl font-bold text-gray-700 mb-2 sm:mb-0">Manajemen Akun Guru</h2><button id="add-guru-btn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"><i class="fas fa-plus mr-2"></i>Tambah Guru</button></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b">ID</th><th class="py-2 px-4 border-b">Username</th><th class="py-2 px-4 border-b">Password</th><th class="py-2 px-4 border-b">Aksi</th></tr></thead><tbody id="guru-table-body"></tbody></table></div></div>
-                        <div class="bg-white p-6 rounded-lg shadow-lg"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4"><h2 class="text-2xl font-bold text-gray-700 mb-2 sm:mb-0">Manajemen Akun Siswa</h2><button id="add-siswa-btn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"><i class="fas fa-plus mr-2"></i>Tambah Siswa</button></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b">ID</th><th class="py-2 px-4 border-b">Username</th><th class="py-2 px-4 border-b">Password</th><th class="py-2 px-4 border-b">Aksi</th></tr></thead><tbody id="siswa-table-body"></tbody></table></div></div>
+                     <div id="manajemen-pengguna">
+                        <div class="bg-white p-6 rounded-lg shadow-lg mb-8"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4"><h2 class="text-2xl font-bold text-gray-700 mb-2 sm:mb-0">Manajemen Akun Guru</h2><button id="add-guru-btn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"><i class="fas fa-plus mr-2"></i>Tambah Guru</button></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Username</th><th class="py-2 px-4 border-b text-left">Password</th><th class="py-2 px-4 border-b text-left">Wali Kelas</th><th class="py-2 px-4 border-b text-center">Aksi</th></tr></thead><tbody id="guru-table-body"></tbody></table></div></div>
+                        <div class="bg-white p-6 rounded-lg shadow-lg"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4"><h2 class="text-2xl font-bold text-gray-700 mb-2 sm:mb-0">Manajemen Akun Siswa</h2><button id="add-siswa-btn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"><i class="fas fa-plus mr-2"></i>Tambah Siswa</button></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Username</th><th class="py-2 px-4 border-b text-left">Password</th><th class="py-2 px-4 border-b text-left">Kelas</th><th class="py-2 px-4 border-b text-center">Aksi</th></tr></thead><tbody id="siswa-table-body"></tbody></table></div></div>
                     </div>
                 </div>
                 
                 <div id="admin-page-notifikasi" class="admin-page hidden">
-                    <!-- Kirim Notifikasi -->
                     <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
                         <h2 class="text-2xl font-bold text-gray-700 mb-4">Kirim Notifikasi</h2>
-                        <div id="notification-feedback" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert"><strong class="font-bold">Sukses!</strong><span class="block sm:inline" id="notification-feedback-text"></span></div>
+                        <div id="notification-feedback" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert"><strong class="font-bold">Sukses! </strong><span class="block sm:inline" id="notification-feedback-text"></span></div>
                         <div><label for="notification-message" class="block text-sm font-medium text-gray-700 mb-2">Isi Pesan:</label><textarea id="notification-message" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ketik pesan notifikasi di sini..."></textarea></div>
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="select-wali-kelas" class="block text-sm font-medium text-gray-700 mb-2">Pilih Wali Kelas:</label><select id="select-wali-kelas" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm mb-3"></select><button id="send-to-teacher-btn" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-300 font-semibold flex items-center justify-center"><i class="fas fa-chalkboard-teacher mr-2"></i> Kirim ke Wali Kelas</button></div><div><label for="select-orang-tua" class="block text-sm font-medium text-gray-700 mb-2">Pilih Orang Tua Siswa:</label><select id="select-orang-tua" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm mb-3"></select><button id="send-to-parent-btn" class="w-full bg-teal-500 text-white py-2 px-4 rounded-md hover:bg-teal-600 transition duration-300 font-semibold flex items-center justify-center"><i class="fas fa-user-friends mr-2"></i> Kirim ke Orang Tua</button></div></div>
                     </div>
@@ -200,19 +229,30 @@
             <form id="user-form">
                 <input type="hidden" id="edit-user-id"><input type="hidden" id="edit-user-role">
                 <div class="mb-4"><label for="modal-username" class="block text-sm font-medium text-gray-700">Username</label><input type="text" id="modal-username" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" required></div>
-                <div class="mb-4"><label for="modal-name" class="block text-sm font-medium text-gray-700">Nama Lengkap (Sertakan gelar untuk guru)</label><input type="text" id="modal-name" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" required></div>
-                <div id="modal-parent-name-container" class="mb-4 hidden"><label for="modal-parent-name" class="block text-sm font-medium text-gray-700">Nama Orang Tua</label><input type="text" id="modal-parent-name" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                <div id="modal-kelas-container" class="mb-4 hidden"><label id="modal-kelas-label" for="modal-kelas" class="block text-sm font-medium text-gray-700">Kelas</label><input type="text" id="modal-kelas" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contoh: X-A"></div>
                 <div class="mb-4"><label for="modal-password" class="block text-sm font-medium text-gray-700">Password</label><input type="text" id="modal-password" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" required></div>
                 <div class="flex justify-end gap-4 mt-6"><button type="button" id="cancel-modal" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400">Batal</button><button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Simpan</button></div>
             </form>
         </div>
     </div>
     
+    <!-- Modal Konfirmasi Hapus -->
+    <div id="delete-confirm-modal" class="modal-backdrop hidden">
+        <div class="bg-white w-full max-w-sm p-6 rounded-lg shadow-xl">
+            <h3 class="text-xl font-bold mb-4 text-red-600">Konfirmasi Hapus</h3>
+            <p id="delete-confirm-text" class="mb-6">Apakah Anda yakin ingin menghapus akun ini? Tindakan ini tidak dapat dibatalkan.</p>
+            <div class="flex justify-end gap-4 mt-6">
+                <button type="button" id="cancel-delete-btn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400">Batal</button>
+                <button type="button" id="confirm-delete-btn" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Dasbor Guru -->
     <div id="guru-dashboard" class="hidden">
         <nav class="bg-white shadow-md fixed top-0 left-0 right-0 z-10">
             <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16"><div class="flex items-center"><span class="font-bold text-xl text-gray-800">EduAttend - Dasbor Guru</span></div><div class="flex items-center"><span id="guru-welcome" class="mr-4 text-gray-600"></span><button id="guru-logout" class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button></div></div>
+                <div class="flex justify-between h-16"><div class="flex items-center"><span class="font-bold text-xl text-gray-800">EduAttend - Dasbor Guru</span></div><div class="flex items-center"><span id="guru-welcome" class="mr-4 text-gray-600 hidden sm:block"></span><button id="guru-logout" class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button></div></div>
             </div>
         </nav>
         <div class="flex pt-16">
@@ -223,21 +263,21 @@
                     <a href="#" class="sidebar-link" data-target="guru-page-riwayat"><i class="fas fa-history text-purple-500"></i><span>Riwayat Hari Ini</span></a>
                 </nav>
             </aside>
-            <main class="flex-1 p-4 sm:p-8">
+            <main class="flex-1 p-4 sm:p-8 bg-gray-50">
                 <div id="guru-page-absensi" class="guru-page">
                     <div class="bg-white p-6 rounded-lg shadow-lg">
                         <h2 class="text-2xl font-bold text-gray-700 mb-1">Absensi Kelas</h2><p class="text-gray-600 mb-4">Tanggal: <span id="guru-current-date"></span></p>
                         <div id="guru-attendance-feedback" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"></div>
-                        <form id="attendance-form"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Nama Siswa</th><th class="py-2 px-4 border-b text-center" colspan="4">Status Kehadiran</th></tr></thead><tbody id="attendance-table-body"></tbody></table></div><div class="mt-6 flex justify-end"><button type="submit" class="bg-indigo-600 text-white py-2 px-6 rounded-md hover:bg-indigo-700 font-semibold">Simpan Absensi</button></div></form>
+                        <form id="attendance-form"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Nama Siswa</th><th class="py-2 px-4 border-b text-center" colspan="5">Status Kehadiran</th></tr></thead><tbody id="attendance-table-body"></tbody></table></div><div class="mt-6 flex justify-end"><button type="submit" class="bg-indigo-600 text-white py-2 px-6 rounded-md hover:bg-indigo-700 font-semibold">Simpan Absensi</button></div></form>
                     </div>
                 </div>
 
                 <div id="guru-page-notifikasi" class="guru-page hidden">
-                     <div class="bg-white p-6 rounded-lg shadow-lg mb-8"><h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-bell mr-3 text-yellow-500"></i> Kotak Masuk Notifikasi</h3><div id="guru-notifications-list" class="space-y-3 max-h-60 overflow-y-auto"></div></div>
+                     <div class="bg-white p-6 rounded-lg shadow-lg mb-8"><h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-bell mr-3 text-yellow-500"></i> Kotak Masuk Notifikasi</h3><div id="guru-notifications-list" class="space-y-3 max-h-96 overflow-y-auto"></div></div>
                 </div>
 
                 <div id="guru-page-riwayat" class="guru-page hidden">
-                     <div class="bg-white p-6 rounded-lg shadow-lg"><h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-history mr-3 text-indigo-500"></i> Absensi Terkirim Hari Ini</h3><div id="guru-todays-history-list" class="space-y-2 max-h-60 overflow-y-auto"></div></div>
+                     <div class="bg-white p-6 rounded-lg shadow-lg"><h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-history mr-3 text-indigo-500"></i> Absensi Terkirim Hari Ini</h3><div id="guru-todays-history-list" class="space-y-2 max-h-96 overflow-y-auto"></div></div>
                 </div>
             </main>
         </div>
@@ -247,7 +287,7 @@
     <div id="siswa-dashboard" class="hidden">
         <nav class="bg-white shadow-md fixed top-0 left-0 right-0 z-10">
             <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16"><div class="flex items-center"><span class="font-bold text-xl text-gray-800">EduAttend - Dasbor Siswa</span></div><div class="flex items-center"><span id="siswa-welcome" class="mr-4 text-gray-600"></span><button id="siswa-logout" class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button></div></div>
+                <div class="flex justify-between h-16"><div class="flex items-center"><span class="font-bold text-xl text-gray-800">EduAttend - Dasbor Siswa</span></div><div class="flex items-center"><span id="siswa-welcome" class="mr-4 text-gray-600 hidden sm:block"></span><button id="siswa-logout" class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button></div></div>
             </div>
         </nav>
         <div class="flex pt-16">
@@ -258,10 +298,12 @@
                     <a href="#" class="sidebar-link" data-target="siswa-page-peringkat"><i class="fas fa-trophy text-yellow-500"></i><span>Peringkat Siswa</span></a>
                 </nav>
             </aside>
-            <main class="flex-1 p-4 sm:p-8">
+            <main class="flex-1 p-4 sm:p-8 bg-gray-50">
                  <div id="siswa-page-ajukan" class="siswa-page">
                     <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-                        <div id="student-submission-feedback" class="hidden"></div>
+                        <div id="student-submission-feedback" class="hidden mb-4 p-4 rounded-md"></div>
+                        <h2 class="text-2xl font-bold text-gray-700 mb-1">Ajukan Absensi Hari Ini</h2>
+                        <p class="text-gray-600 mb-4">Tanggal: <span class="font-semibold" id="siswa-current-date"></span></p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <button id="submit-hadir" class="bg-green-50 hover:bg-green-100 text-green-700 p-8 rounded-lg flex flex-col items-center justify-center transition duration-300"><i class="fas fa-hand-paper text-5xl mb-3"></i><span class="font-semibold text-xl">Hadir</span></button>
                             <div class="bg-indigo-50 p-6 rounded-lg flex flex-col"><h3 class="font-semibold text-xl text-center mb-4 flex items-center justify-center text-indigo-700"><i class="fas fa-envelope-open-text mr-3"></i> Izin</h3><textarea id="izin-message" class="w-full border border-indigo-200 rounded p-2 text-sm mb-3" rows="3" placeholder="Ketik pesan izin..."></textarea><label class="text-sm font-medium text-gray-700 mb-2 block">Kirim Dokumentasi:</label><input type="file" id="izin-file" class="w-full text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200"><button id="submit-izin" class="mt-4 w-full bg-indigo-500 text-white py-2.5 rounded-md hover:bg-indigo-600 font-semibold">Kirim Izin</button></div>
@@ -285,7 +327,7 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-8">
                              <div class="bg-white p-6 rounded-lg shadow-lg">
-                                <h2 class="text-2xl font-bold text-gray-700 mb-4">Peringkat Siswa</h2>
+                                <h2 id="ranking-title" class="text-2xl font-bold text-gray-700 mb-4">Peringkat Siswa (Bulan Ini)</h2>
                                 <h3 class="text-lg font-semibold text-gray-800 mb-2 flex items-center"><i class="fas fa-star mr-2 text-yellow-500"></i> Paling Rajin</h3>
                                 <div id="student-ranking-diligent" class="space-y-2"></div>
                                 <h3 class="text-lg font-semibold text-gray-800 mt-6 mb-2 flex items-center"><i class="fas fa-exclamation-triangle mr-2 text-red-500"></i> Perlu Diperhatikan</h3>
@@ -306,548 +348,838 @@
     </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
 
-    // ===== KONFIGURASI SUPABASE =====
-    // GANTI DENGAN URL DAN ANON KEY DARI PROYEK SUPABASE ANDA
-    const SUPABASE_URL = 'https://dzgmbviqfpoynnbwhwqy.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR6Z21idmlxZnBveW5uYndod3F5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3Njk3MTksImV4cCI6MjA3NjM0NTcxOX0.1zhtW0GRz0XiSJDLwBzvdFsVKiCeASeCiSN_u4ixwkg';
+    // ===== KUNCI PENYIMPANAN =====
+    const usersStorageKey = 'eduAttendUsers_v2';
+    const attendanceStorageKey = 'eduAttendAttendance_v2';
+    const notificationsStorageKey = 'eduAttendNotifications_v2';
 
-    // Cek jika konfigurasi belum diisi
-    if (SUPABASE_URL === 'https://URL_PROYEK_ANDA.supabase.co' || SUPABASE_ANON_KEY === 'KUNCI_ANON_ANDA') {
-        alert('PENTING: Konfigurasi Supabase belum diisi. Silakan edit file HTML ini dan masukkan URL serta Anon Key dari proyek Supabase Anda. Ikuti file PANDUAN_SUPABASE.md untuk petunjuk.');
-        return; // Menghentikan eksekusi script jika belum dikonfigurasi
-    }
+    // ===== DATA DEFAULT (HANYA DIGUNAKAN JIKA LOCALSTORAGE KOSONG) =====
+    const defaultUsers = [
+        { id: 1, name: 'Admin Sekolah', username: 'admin123', password: 'admin123', role: 'admin' },
+        // Daftar Guru (A-L)
+        { id: 101, name: 'Rosalia, S.Pd', username: 'rosalia.spd', password: '123', role: 'guru', waliKelas: 'XII-A' },
+        { id: 102, name: 'Rena Agustina, S.Pd', username: 'rena.agustina', password: '123', role: 'guru', waliKelas: 'XII-B' },
+        { id: 103, name: 'Nurmalia Susanti, S.Pd', username: 'nurmalia.susanti', password: '123', role: 'guru', waliKelas: 'XII-C' },
+        { id: 104, name: 'Hana Sorta Pitauli, S.Pd', username: 'hana.sorta', password: '123', role: 'guru', waliKelas: 'XII-D' },
+        { id: 105, name: 'Riza Hartati, S.Pt, M. Pd', username: 'riza.hartati', password: '123', role: 'guru', waliKelas: 'XII-E' },
+        { id: 106, name: 'Nova Virdamahaputra R, S. Pd', username: 'nova.virdamahaputra', password: '123', role: 'guru', waliKelas: 'XII-F' },
+        { id: 107, name: 'Iwan Suharda, S.Kom', username: 'iwan.suharda', password: '123', role: 'guru', waliKelas: 'XII-G' },
+        { id: 108, name: 'R. Chandra Gurnida, S.Pd', username: 'chandra.gurnida', password: '123', role: 'guru', waliKelas: 'XII-H' },
+        { id: 109, name: 'Lilis Rossuswati, S.Pd', username: 'lilis.rossuswati', password: '123', role: 'guru', waliKelas: 'XII-I' },
+        { id: 110, name: 'Fitri Sabrina, S.Pd', username: 'fitri.sabrina', password: '123', role: 'guru', waliKelas: 'XII-J' },
+        { id: 111, name: 'Iyus Mohammad Yusup, S.Pd.I', username: 'iyus.yusup', password: '123', role: 'guru', waliKelas: 'XII-K' },
+        { id: 112, name: 'Gusfar Fajar Muchlis S, S.Pd', username: 'gusfar.fajar', password: '123', role: 'guru', waliKelas: 'XII-L' },
+        
+        // Siswa Kelas XII-K (Siswa 1-36)
+        { id: 1005, name: 'Adifa Melani Putri', username: 'adifa.melani', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Adifa' },
+        { id: 1006, name: 'Anastasya Jazuli', username: 'anastasya.jazuli', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Anastasya' },
+        { id: 1007, name: 'Andini Putri Prasetyo', username: 'andini.putri', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Andini' },
+        { id: 1008, name: 'Annisa Setiawan', username: 'annisa.setiawan', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Annisa' },
+        { id: 1009, name: 'Aura Zahrani', username: 'aura.zahrani', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Aura' },
+        { id: 1010, name: 'Aurellia Rahman', username: 'aurellia.rahman', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Aurellia' },
+        { id: 1011, name: 'Cantika Pujiarti', username: 'cantika.pujiarti', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Cantika' },
+        { id: 1012, name: 'Darriell Riyadi', username: 'darriell.riyadi', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Darriell' },
+        { id: 1013, name: 'Fazle Mawla Akhtar Sopian', username: 'fazle.mawla', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Fazle' },
+        { id: 1014, name: 'FitriYani Sari', username: 'fitriyani.sari', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu FitriYani' },
+        { id: 1015, name: 'Galang Rizky Sadaya', username: 'galang.rizky', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Galang' },
+        { id: 1016, name: 'Indira Arpiana', username: 'indira.arpiana', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Indira' },
+        { id: 1017, name: 'Irfan Hafizh Rizqullah', username: 'irfan.hafizh', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Irfan' },
+        { id: 1018, name: 'Kallia Zahara', username: 'kallia.zahara', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Kallia' },
+        { id: 1019, name: 'Kantiya Julia Utami', username: 'kantiya.julia', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Kantiya' },
+        { id: 1020, name: 'KautsAr Hidayatullah', username: 'kautsar.hidayatullah', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu KautsAr' },
+        { id: 1021, name: 'Mika Al Ghani Yasin', username: 'mika.alghani', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Mika' },
+        { id: 1022, name: 'Muhamad Farid Ramadhan', username: 'muhamad.farid', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Muhamad Farid' },
+        { id: 1023, name: 'Muhamad Langgi Yuri Pradipta', username: 'muhamad.langgi', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Muhamad Langgi' },
+        { id: 1024, name: 'Muhammad Addar Quthni', username: 'muhammad.addar', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Muhammad Addar' },
+        { id: 1025, name: 'Muhammad Awa Abdurrohman', username: 'muhammad.awa', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Muhammad Awa' },
+        { id: 1026, name: 'Nadria Indriani', username: 'nadria.indriani', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Nadria' },
+        { id: 1027, name: 'Nia Putri Ramadhani', username: 'nia.putri', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Nia' },
+        { id: 1028, name: 'Putri Alysa Keyla', username: 'putri.alysa', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Putri' },
+        { id: 1029, name: 'Raditya Gunawan', username: 'raditya.gunawan', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Raditya' },
+        { id: 1030, name: 'Rafi Ahmad Algibran', username: 'rafi.ahmad', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Rafi' },
+        { id: 1031, name: 'Raid Dhayla Jabar', username: 'raid.dhayla', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Raid' },
+        { id: 1032, name: 'Raina Maira Hermawan', username: 'raina.maira', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Raina' },
+        { id: 1033, name: 'Raisya Ariyanti', username: 'raisya.ariyanti', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Raisya' },
+        { id: 1034, name: 'Razip Adi Pratama', username: 'razip.adi', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Razip' },
+        { id: 1035, name: 'Rindu Salsabila', username: 'rindu.salsabila', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Rindu' },
+        { id: 1036, name: 'Rubiana Azzahra', username: 'rubiana.azzahra', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Rubiana' },
+        { id: 1037, name: 'Shinta Rahayu Pertiwi Sujai', username: 'shinta.rahayu', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Shinta' },
+        { id: 1038, name: 'Sitti Alifta Azzahra Khumairoh', username: 'sitti.alifta', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Sitti' },
+        { id: 1039, name: 'Sulthan Rifqi Ghibransyah', username: 'sulthan.rifqi', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Sulthan' },
+        { id: 1040, name: 'Tiara Dwi Ramadhani', username: 'tiara.dwi', password: '123', role: 'siswa', kelas: 'XII-K', parentName: 'Ortu Tiara' }
+    ];
+    const defaultAttendance = [];
+    const defaultNotifications = [];
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    // Variabel global untuk menyimpan data dari database
-    let allUsers = [];
-    let allAttendanceRecords = [];
-    let allNotifications = [];
-
-    let loggedInUser = null;
-    let attendanceChartInstance = null;
-    
-    // ===== DATA LOKAL (Hanya untuk Kata Motivasi) =====
     const motivationalQuotes = [
         { quote: "Pendidikan adalah senjata paling ampuh yang bisa kamu gunakan untuk mengubah dunia.", author: "Nelson Mandela" },
         { quote: "Hiduplah seolah-olah kamu akan mati besok. Belajarlah seolah-olah kamu akan hidup selamanya.", author: "Mahatma Gandhi" },
         { quote: "Satu-satunya sumber pengetahuan adalah pengalaman.", author: "Albert Einstein" },
-        { quote: "Pendidikan bukanlah persiapan untuk hidup; pendidikan adalah hidup itu sendiri.", author: "John Dewey" },
-        { quote: "Jangan pernah berhenti belajar karena hidup tidak pernah berhenti mengajar.", author: "Anonim" }
+        { quote: "Jangan pernah berhenti belajar, karena hidup tak pernah berhenti mengajarkan.", author: "Anonim" }
     ];
-
-    // ===== FUNGSI DATABASE (SUPABASE) =====
-    async function fetchData() {
-        console.log("Fetching all data from Supabase...");
-        const { data: usersData, error: usersError } = await supabaseClient.from('users').select('*');
-        if (usersError) { console.error('Error fetching users:', usersError.message); return false; }
-        allUsers = usersData;
-
-        const { data: attendanceData, error: attendanceError } = await supabaseClient.from('attendance_records').select('*');
-        if (attendanceError) { console.error('Error fetching attendance:', attendanceError.message); return false; }
-        allAttendanceRecords = attendanceData;
-        
-        const { data: notificationsData, error: notificationsError } = await supabaseClient.from('notifications').select('*');
-        if (notificationsError) { console.error('Error fetching notifications:', notificationsError.message); return false; }
-        allNotifications = notificationsData;
-
-        console.log("Data fetched successfully:", { allUsers, allAttendanceRecords, allNotifications });
-        return true;
-    }
     
-    // ===== UTILITY & RENDER FUNCTIONS (Sudah disesuaikan) =====
-    
-    const getTodayDateString = () => new Date().toISOString().split('T')[0]; // Gunakan tanggal hari ini
-    const formatIndonesianDate = (d) => new Date(d).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-    const getUserById = (id) => allUsers.find(u => u.id === id);
-
-    // ===== RENDER FUNCTIONS (Menggunakan data dari variabel global) =====
-    
-    const populateNotificationDropdowns = () => {
-        const selectWaliKelas = document.getElementById('select-wali-kelas');
-        const selectOrangTua = document.getElementById('select-orang-tua');
-        selectWaliKelas.innerHTML = '';
-        selectOrangTua.innerHTML = '';
-        allUsers.filter(u => u.role === 'guru').forEach(g => selectWaliKelas.innerHTML += `<option value="${g.id}">${g.name}</option>`);
-        allUsers.filter(u => u.role === 'siswa').forEach(s => selectOrangTua.innerHTML += `<option value="${s.id}">${s.name} (Ortu: ${s.parent_name})</option>`);
+    // ===== FUNGSI LOAD/SAVE DATA =====
+    const loadData = (key, defaultValue) => {
+        const dataFromStorage = localStorage.getItem(key);
+        try {
+            return dataFromStorage ? JSON.parse(dataFromStorage) : defaultValue;
+        } catch (e) {
+            console.error("Gagal memuat data dari localStorage", e);
+            return defaultValue;
+        }
     };
+    
+    let users = loadData(usersStorageKey, defaultUsers);
+    let attendanceRecords = loadData(attendanceStorageKey, defaultAttendance);
+    let notifications = loadData(notificationsStorageKey, defaultNotifications);
 
-    const renderAdminDailyStats = () => {
-        const todayString = getTodayDateString();
-        document.getElementById('admin-current-date').textContent = formatIndonesianDate(todayString);
-        const todaysRecords = allAttendanceRecords.filter(r => r.date === todayString);
-        const counts = { Hadir: 0, Sakit: 0, Izin: 0, Alfa: 0, Dispen: 0 };
-        todaysRecords.forEach(record => { if(counts[record.status] !== undefined) counts[record.status]++; });
-        Object.keys(counts).forEach(key => {
-            const el = document.getElementById(`${key.toLowerCase()}-count`);
-            if (el) el.textContent = counts[key];
+    const saveUsers = () => localStorage.setItem(usersStorageKey, JSON.stringify(users));
+    const saveAttendance = () => localStorage.setItem(attendanceStorageKey, JSON.stringify(attendanceRecords));
+    const saveNotifications = () => localStorage.setItem(notificationsStorageKey, JSON.stringify(notifications));
+
+    // ===== VARIABEL GLOBAL & STATE =====
+    let state = {
+        currentUser: null,
+        // Simulasi tanggal hari ini agar konsisten untuk demo
+        currentDate: new Date('2025-10-14T08:00:00') 
+    };
+    let userIdToDelete = null;
+    let attendanceChartInstance = null;
+
+    // ===== FUNGSI HELPER =====
+    const formatDateISO = (date) => date.toISOString().split('T')[0];
+    const todayISO = formatDateISO(state.currentDate);
+
+    const formatDate = (date) => {
+        return date.toLocaleDateString('id-ID', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
         });
     };
-    
+
+    const getStatusClass = (status) => {
+        switch (status) {
+            case 'Hadir': return 'bg-green-100 text-green-800';
+            case 'Sakit': return 'bg-yellow-100 text-yellow-800';
+            case 'Izin': return 'bg-indigo-100 text-indigo-800';
+            case 'Dispen': return 'bg-purple-100 text-purple-800';
+            case 'Alfa': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    // Fungsi Logout
+    const handleLogout = () => {
+        state.currentUser = null;
+        document.querySelectorAll('#admin-dashboard, #guru-dashboard, #siswa-dashboard').forEach(el => el.classList.add('hidden'));
+        document.getElementById('login-screen').classList.remove('hidden');
+        document.getElementById('login-form').reset();
+    };
+
+    // Fungsi Navigasi Sidebar
+    const setupNavigation = (navId, pageClass) => {
+        const nav = document.getElementById(navId);
+        if (!nav) return;
+        nav.addEventListener('click', (e) => {
+            const link = e.target.closest('.sidebar-link');
+            if (!link || !link.dataset.target) return;
+            
+            e.preventDefault();
+            const targetId = link.dataset.target;
+
+            // Sembunyikan semua halaman
+            document.querySelectorAll(`.${pageClass}`).forEach(page => page.classList.add('hidden'));
+            // Tampilkan target
+            document.getElementById(targetId).classList.remove('hidden');
+            
+            // Atur status active
+            nav.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+        });
+    };
+
+    // Fungsi Navigasi Tab
+    const setupTabs = (tabsContainerId, contentSelector) => {
+        const tabsContainer = document.getElementById(tabsContainerId);
+        if (!tabsContainer) return;
+        tabsContainer.addEventListener('click', e => {
+            const tab = e.target.closest('.tab-button');
+            if (!tab) return;
+            
+            const targetId = tab.dataset.target;
+            
+            // Sembunyikan semua konten
+            document.querySelectorAll(contentSelector).forEach(content => content.classList.add('hidden'));
+            // Tampilkan target
+            document.getElementById(`${tabsContainerId === 'recap-tabs' ? 'recap' : 'siswa-recap'}-${targetId}`).classList.remove('hidden');
+
+            // Atur status active
+            tabsContainer.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
+    };
+
+    // ===== LOGIKA LOGIN =====
+    document.getElementById('login-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const username = e.target.username.value;
+        const password = e.target.password.value;
+        const role = e.target.role.value;
+        const loginError = document.getElementById('login-error');
+
+        const userByCredentials = users.find(u => u.username === username && u.password === password);
+
+        if (userByCredentials) {
+            if (userByCredentials.role === role) {
+                // Sukses
+                state.currentUser = userByCredentials;
+                loginError.classList.add('hidden');
+                document.getElementById('login-screen').classList.add('hidden');
+
+                switch (userByCredentials.role) {
+                    case 'admin':
+                        initAdminDashboard();
+                        break;
+                    case 'guru':
+                        initGuruDashboard();
+                        break;
+                    case 'siswa':
+                        initSiswaDashboard();
+                        break;
+                }
+            } else {
+                // Login benar, tapi peran salah
+                let peranYangBenar = '';
+                if (userByCredentials.role === 'admin') peranYangBenar = 'Admin';
+                else if (userByCredentials.role === 'guru') peranYangBenar = 'Guru';
+                else if (userByCredentials.role === 'siswa') peranYangBenar = 'Siswa';
+                
+                loginError.textContent = `Login hampir berhasil! Pastikan Anda memilih peran sebagai "${peranYangBenar}".`;
+                loginError.classList.remove('hidden');
+            }
+        } else {
+            // User tidak ditemukan
+            loginError.textContent = 'Username, password, atau peran salah.';
+            loginError.classList.remove('hidden');
+        }
+    });
+
+    // ===== DASBOR ADMIN =====
+    const initAdminDashboard = () => {
+        document.getElementById('admin-dashboard').classList.remove('hidden');
+        document.getElementById('admin-welcome').textContent = `Halo, ${state.currentUser.name}!`;
+        document.getElementById('admin-current-date').textContent = formatDate(state.currentDate);
+        document.getElementById('recap-date').value = todayISO;
+        
+        renderAdminDashboardStats();
+        renderAttendanceChart();
+        renderDailyRecap(todayISO);
+        renderWeeklyRecap();
+        renderMonthlyRecap();
+        renderUserManagementTables();
+        renderNotificationDropdowns();
+    };
+
+    const renderAdminDashboardStats = () => {
+        const todaysRecords = attendanceRecords.filter(r => r.date === todayISO);
+        const counts = { Hadir: 0, Sakit: 0, Izin: 0, Dispen: 0, Alfa: 0 };
+        todaysRecords.forEach(r => counts[r.status]++);
+        
+        const allStudents = users.filter(u => u.role === 'siswa').length;
+        counts.Alfa = allStudents - todaysRecords.length; // Alfa adalah siswa yg tidak punya record
+
+        document.getElementById('hadir-count').textContent = counts.Hadir;
+        document.getElementById('sakit-count').textContent = counts.Sakit;
+        document.getElementById('izin-count').textContent = counts.Izin;
+        document.getElementById('dispen-count').textContent = counts.Dispen;
+        document.getElementById('alfa-count').textContent = counts.Alfa;
+    };
+
     const renderAttendanceChart = () => {
         const ctx = document.getElementById('attendanceChart').getContext('2d');
-        if (attendanceChartInstance) { attendanceChartInstance.destroy(); }
-        const today = new Date(getTodayDateString());
-        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-        const monthlyRecords = allAttendanceRecords.filter(r => r.date >= firstDayOfMonth && r.date <= getTodayDateString());
-        const stats = { Hadir: 0, Sakit: 0, Izin: 0, Alfa: 0, Dispen: 0 };
-        monthlyRecords.forEach(record => { if (stats[record.status] !== undefined) stats[record.status]++; });
+        const startDate = todayISO.substring(0, 8) + '01';
+        const endDate = todayISO;
+        const stats = calculateRecapStats(startDate, endDate);
+        
+        const totalCounts = { Hadir: 0, Sakit: 0, Izin: 0, Dispen: 0, Alfa: 0 };
+        stats.forEach(s => {
+            totalCounts.Hadir += s.Hadir;
+            totalCounts.Sakit += s.Sakit;
+            totalCounts.Izin += s.Izin;
+            totalCounts.Dispen += s.Dispen;
+            totalCounts.Alfa += s.Alfa;
+        });
+
+        if (attendanceChartInstance) attendanceChartInstance.destroy();
         attendanceChartInstance = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Hadir', 'Sakit', 'Izin', 'Alfa', 'Dispen'],
+                labels: ['Hadir', 'Sakit', 'Izin', 'Dispen', 'Alfa'],
                 datasets: [{
-                    label: 'Jumlah Siswa',
-                    data: [stats.Hadir, stats.Sakit, stats.Izin, stats.Alfa, stats.Dispen],
-                    backgroundColor: ['#22c55e', '#facc15', '#6366f1', '#ef4444', '#a855f7'],
-                    borderColor: '#ffffff',
-                    borderWidth: 2
+                    data: [totalCounts.Hadir, totalCounts.Sakit, totalCounts.Izin, totalCounts.Dispen, totalCounts.Alfa],
+                    backgroundColor: ['#10B981', '#F59E0B', '#6366F1', '#8B5CF6', '#EF4444'],
                 }]
             },
-            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
         });
     };
 
-    const renderRecapHarian = (date) => {
+    document.getElementById('recap-date').addEventListener('change', e => {
+        renderDailyRecap(e.target.value);
+    });
+    
+    document.getElementById('recap-tabs').addEventListener('click', e => {
+        if (!e.target.matches('.tab-button')) return;
+        const period = e.target.dataset.target;
+        const titleEl = document.getElementById('rekap-title');
+        if (period === 'harian') {
+            const date = document.getElementById('recap-date').value || todayISO;
+            titleEl.textContent = `Rekap Harian - ${formatDate(new Date(date + 'T00:00:00'))}`;
+        } else if (period === 'mingguan') {
+            titleEl.textContent = 'Rekap Mingguan';
+        } else {
+            titleEl.textContent = 'Rekap Bulanan';
+        }
+    });
+
+    const renderDailyRecap = (dateISO) => {
         const body = document.getElementById('recap-harian-body');
         body.innerHTML = '';
-        const records = allAttendanceRecords.filter(r => r.date === date);
-        if (records.length === 0) {
-            body.innerHTML = '<tr><td colspan="2" class="text-center py-4">Tidak ada data.</td></tr>';
+        const records = attendanceRecords.filter(r => r.date === dateISO);
+        const allStudents = users.filter(u => u.role === 'siswa');
+        
+        if (allStudents.length === 0) {
+            body.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-gray-500">Belum ada data siswa.</td></tr>`;
             return;
         }
-        records.forEach(r => {
-            const student = getUserById(r.student_id);
-            if(student) body.innerHTML += `<tr><td class="py-2 px-4 border-b">${student.name}</td><td class="py-2 px-4 border-b">${r.status}</td></tr>`;
+
+        allStudents.forEach(student => {
+            const record = records.find(r => r.studentId === student.id);
+            const status = record ? record.status : 'Alfa';
+            body.innerHTML += `
+                <tr class="border-b">
+                    <td class="py-2 px-4 text-left">${student.name}</td>
+                    <td class="py-2 px-4 text-left">${student.kelas}</td>
+                    <td class="py-2 px-4 text-left"><span class="px-2 py-1 rounded-full text-xs font-semibold ${getStatusClass(status)}">${status}</span></td>
+                </tr>
+            `;
         });
     };
     
-    const renderRecapPeriod = (period) => {
-        const today = new Date(getTodayDateString());
-        let startDate;
-        if (period === 'mingguan') {
-            const dayOfWeek = today.getDay();
-            const firstDayOfWeek = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-            startDate = new Date(new Date().setDate(firstDayOfWeek));
-        } else {
-            startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        }
-        const records = allAttendanceRecords.filter(r => new Date(r.date) >= startDate && new Date(r.date) <= today);
+    const calculateRecapStats = (startDate, endDate, studentList = null) => {
+        const students = studentList || users.filter(u => u.role === 'siswa');
         const stats = {};
-        allUsers.filter(u => u.role === 'siswa').forEach(s => stats[s.id] = { name: s.name, Hadir: 0, Sakit: 0, Izin: 0, Alfa: 0 });
-        records.forEach(r => { if(stats[r.student_id] && stats[r.student_id][r.status] !== undefined) stats[r.student_id][r.status]++; });
-        const body = document.getElementById(`recap-${period}-body`);
-        body.innerHTML = '';
-        Object.values(stats).forEach(s => body.innerHTML += `<tr><td class="py-2 px-4 border-b">${s.name}</td><td class="py-2 px-4 border-b text-center">${s.Hadir}</td><td class="py-2 px-4 border-b text-center">${s.Sakit}</td><td class="py-2 px-4 border-b text-center">${s.Izin}</td><td class="py-2 px-4 border-b text-center">${s.Alfa}</td></tr>`);
+        
+        students.forEach(s => {
+            stats[s.id] = { name: s.name, kelas: s.kelas, Hadir: 0, Sakit: 0, Izin: 0, Dispen: 0, Alfa: 0 };
+        });
+
+        const recordsInRange = attendanceRecords.filter(r => r.date >= startDate && r.date <= endDate);
+        
+        recordsInRange.forEach(record => {
+            if (stats[record.studentId] && stats[record.studentId].hasOwnProperty(record.status)) {
+                stats[record.studentId][record.status]++;
+            }
+        });
+        
+        return Object.values(stats);
     };
 
-    const renderAdminUserManagement = () => {
+    const renderWeeklyRecap = () => {
+        const body = document.getElementById('recap-mingguan-body');
+        body.innerHTML = '';
+        const endDate = todayISO;
+        const startDate = formatDateISO(new Date(state.currentDate.getTime() - 6 * 24 * 60 * 60 * 1000));
+        
+        const stats = calculateRecapStats(startDate, endDate);
+        stats.forEach(s => {
+             body.innerHTML += `
+                <tr class="border-b text-center">
+                    <td class="py-2 px-4 text-left">${s.name}</td>
+                    <td class="py-2 px-4 text-left">${s.kelas}</td>
+                    <td class="py-2 px-4">${s.Hadir}</td>
+                    <td class="py-2 px-4">${s.Sakit}</td>
+                    <td class="py-2 px-4">${s.Izin}</td>
+                    <td class="py-2 px-4">${s.Dispen}</td>
+                    <td class="py-2 px-4">${s.Alfa}</td>
+                </tr>
+            `;
+        });
+    };
+
+    const renderMonthlyRecap = () => {
+        const body = document.getElementById('recap-bulanan-body');
+        body.innerHTML = '';
+        const startDate = todayISO.substring(0, 8) + '01';
+        const endDate = todayISO;
+
+        const stats = calculateRecapStats(startDate, endDate);
+        stats.forEach(s => {
+             body.innerHTML += `
+                <tr class="border-b text-center">
+                    <td class="py-2 px-4 text-left">${s.name}</td>
+                    <td class="py-2 px-4 text-left">${s.kelas}</td>
+                    <td class="py-2 px-4">${s.Hadir}</td>
+                    <td class="py-2 px-4">${s.Sakit}</td>
+                    <td class="py-2 px-4">${s.Izin}</td>
+                    <td class="py-2 px-4">${s.Dispen}</td>
+                    <td class="py-2 px-4">${s.Alfa}</td>
+                </tr>
+            `;
+        });
+    };
+    
+    // Manajemen Pengguna
+    const renderUserManagementTables = () => {
         const guruBody = document.getElementById('guru-table-body');
         const siswaBody = document.getElementById('siswa-table-body');
         guruBody.innerHTML = '';
         siswaBody.innerHTML = '';
-        allUsers.forEach(user => {
-            const row = `<tr><td class="py-2 px-4 border-b">${user.id}</td><td class="py-2 px-4 border-b">${user.username}</td><td class="py-2 px-4 border-b">${user.password}</td><td class="py-2 px-4 border-b"><button class="edit-btn bg-yellow-500 text-white px-3 py-1 rounded text-sm" data-id="${user.id}">Edit</button> <button class="delete-btn bg-red-500 text-white px-3 py-1 rounded text-sm" data-id="${user.id}">Hapus</button></td></tr>`;
-            if (user.role === 'guru') guruBody.innerHTML += row;
-            else if (user.role === 'siswa') siswaBody.innerHTML += row;
-        });
-    };
-    
-    async function renderAdminDashboard() {
-        const success = await fetchData();
-        if(!success) { alert("Gagal memuat data dari database. Cek koneksi dan konfigurasi Supabase Anda."); return; }
-        renderAdminDailyStats();
-        renderAttendanceChart();
-        renderAdminUserManagement();
-        populateNotificationDropdowns();
-        document.getElementById('recap-date').value = getTodayDateString();
-        renderRecapHarian(getTodayDateString());
-        renderRecapPeriod('mingguan');
-        renderRecapPeriod('bulanan');
-    };
-    
-    const renderGuruNotifications = () => {
-        const list = document.getElementById('guru-notifications-list');
-        list.innerHTML = '';
-        const myNotifications = allNotifications.filter(n => n.recipient_id === loggedInUser.id).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-        if (myNotifications.length === 0) { list.innerHTML = '<p class="text-gray-500 text-sm">Tidak ada notifikasi baru.</p>'; return; }
-        myNotifications.forEach(n => { list.innerHTML += `<div class="border-l-4 border-yellow-400 bg-yellow-50 p-3 rounded-r-lg"><p class="text-sm text-gray-800">${n.message}</p><p class="text-xs text-gray-500 mt-1">${formatIndonesianDate(n.created_at)}</p></div>`; });
-    };
-
-    const renderGuruTodaysAttendanceHistory = () => {
-        const list = document.getElementById('guru-todays-history-list');
-        list.innerHTML = '';
-        const todaysRecords = allAttendanceRecords.filter(r => r.date === getTodayDateString());
-        if (todaysRecords.length === 0) { list.innerHTML = '<p class="text-gray-500 text-sm">Belum ada absensi yang disimpan hari ini.</p>'; return; }
-        todaysRecords.forEach(r => {
-            const student = getUserById(r.student_id);
-            if (student) { list.innerHTML += `<div class="flex justify-between items-center text-sm border-b pb-1"><span class="text-gray-700">${student.name}</span><span class="font-semibold text-gray-800">${r.status}</span></div>`; }
-        });
-    };
-
-    async function renderGuruDashboard() {
-        const success = await fetchData();
-        if(!success) return;
-        document.getElementById('guru-welcome').textContent = `Selamat datang, ${loggedInUser.name}!`;
-        document.getElementById('guru-current-date').textContent = formatIndonesianDate(getTodayDateString());
-        const attendanceBody = document.getElementById('attendance-table-body');
-        attendanceBody.innerHTML = '';
-        allUsers.filter(u => u.role === 'siswa').forEach(siswa => {
-            const todaysRecord = allAttendanceRecords.find(r => r.student_id === siswa.id && r.date === getTodayDateString());
-            attendanceBody.innerHTML += `<tr class="border-b"><td class="py-3 px-4 font-medium">${siswa.name}</td>${['Hadir', 'Sakit', 'Izin', 'Alfa'].map(status => `<td class="py-3 px-4 text-center"><input type="radio" name="status-${siswa.id}" value="${status}" class="form-radio h-5 w-5 text-indigo-600" required ${todaysRecord && todaysRecord.status === status ? 'checked' : ''}><label class="ml-2">${status}</label></td>`).join('')}</tr>`;
-        });
-        renderGuruNotifications();
-        renderGuruTodaysAttendanceHistory();
-    };
-
-    const renderMotivationalQuote = () => {
-        const quoteElement = document.getElementById('motivational-quote');
-        const authorElement = document.getElementById('quote-author');
-        const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
-        quoteElement.textContent = `"${randomQuote.quote}"`;
-        authorElement.textContent = `- ${randomQuote.author}`;
-    };
-
-    const calculateAndRenderStudentRanking = () => {
-        const diligentList = document.getElementById('student-ranking-diligent');
-        const warningList = document.getElementById('student-ranking-warning');
-        diligentList.innerHTML = '';
-        warningList.innerHTML = '';
-        const studentStats = allUsers.filter(u => u.role === 'siswa').map(student => {
-            const records = allAttendanceRecords.filter(r => r.student_id === student.id);
-            const hadirCount = records.filter(r => r.status === 'Hadir').length;
-            const alfaCount = records.filter(r => r.status === 'Alfa').length;
-            return { ...student, hadirCount, alfaCount };
-        });
-        const diligentStudents = [...studentStats].sort((a, b) => b.hadirCount - a.hadirCount || a.alfaCount - b.alfaCount);
-        diligentStudents.slice(0, 3).forEach((student, index) => {
-            let medalIcon = '';
-            if (index === 0) medalIcon = '<i class="fas fa-medal text-yellow-400"></i>';
-            else if (index === 1) medalIcon = '<i class="fas fa-medal text-gray-400"></i>';
-            else if (index === 2) medalIcon = '<i class="fas fa-medal text-orange-400"></i>';
-            diligentList.innerHTML += `<div class="flex items-center justify-between p-3 rounded-lg bg-gray-50"><div class="flex items-center"><span class="font-bold text-lg w-8">${index + 1}. ${medalIcon}</span><span class="font-semibold text-gray-800">${student.name}</span></div><div class="text-sm"><span class="text-green-600 font-medium">Hadir: ${student.hadirCount} kali</span></div></div>`;
-        });
-        const warningStudents = studentStats.filter(s => s.alfaCount > 0).sort((a,b) => b.alfaCount - a.alfaCount);
-        if(warningStudents.length > 0) {
-            warningStudents.forEach(student => { warningList.innerHTML += `<div class="flex items-center justify-between p-3 rounded-lg bg-red-50 border-l-4 border-red-400"><span class="font-semibold text-gray-800">${student.name}</span><span class="text-red-600 font-medium">Alfa: ${student.alfaCount} kali</span></div>`; });
-        } else {
-            warningList.innerHTML = `<div class="p-3 rounded-lg bg-green-50 text-green-700 text-sm"><p>Kerja bagus! Tidak ada siswa dengan catatan alfa. Pertahankan!</p></div>`;
-        }
-    };
-    
-    const renderSiswaRecapHarian = () => {
-        const body = document.getElementById('siswa-recap-harian-body');
-        body.innerHTML = '';
-        const myRecords = allAttendanceRecords.filter(r => r.student_id === loggedInUser.id).sort((a, b) => new Date(b.date) - new Date(a.date));
-        if (myRecords.length === 0) { body.innerHTML = '<tr><td colspan="2" class="text-center py-4">Tidak ada data.</td></tr>'; return; }
-        myRecords.forEach(r => { body.innerHTML += `<tr><td class="py-2 px-4 border-b">${formatIndonesianDate(r.date)}</td><td class="py-2 px-4 border-b">${r.status}</td></tr>`; });
-    };
-
-    const renderSiswaRecapPeriod = (period) => {
-        const today = new Date(getTodayDateString());
-        let startDate;
-        if (period === 'mingguan') {
-            const dayOfWeek = today.getDay();
-            const firstDayOfWeek = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-            startDate = new Date(new Date().setDate(firstDayOfWeek));
-        } else { startDate = new Date(today.getFullYear(), today.getMonth(), 1); }
-        const myRecordsInPeriod = allAttendanceRecords.filter(r => r.student_id === loggedInUser.id && new Date(r.date) >= startDate && new Date(r.date) <= today);
-        const stats = { Hadir: 0, Sakit: 0, Izin: 0, Dispen: 0, Alfa: 0 };
-        myRecordsInPeriod.forEach(r => { if (stats[r.status] !== undefined) { stats[r.status]++; } });
-        const body = document.getElementById(`siswa-recap-${period}-body`);
-        body.innerHTML = '';
-        Object.entries(stats).forEach(([status, count]) => { body.innerHTML += `<tr><td class="py-2 px-4 border-b font-medium">${status}</td><td class="py-2 px-4 border-b text-center">${count}</td></tr>`; });
-    };
-
-    async function renderSiswaDashboard() {
-        const success = await fetchData();
-        if(!success) return;
-        document.getElementById('siswa-welcome').textContent = `Selamat datang, ${loggedInUser.name}!`;
-        renderSiswaRecapHarian();
-        renderSiswaRecapPeriod('mingguan');
-        renderSiswaRecapPeriod('bulanan');
-        calculateAndRenderStudentRanking();
-        renderMotivationalQuote();
-    };
-
-    // ===== EVENT LISTENERS & NAVIGATION =====
-
-    const setupSidebarNav = (navId, pageClass) => {
-        document.getElementById(navId).addEventListener('click', (e) => {
-            e.preventDefault();
-            const link = e.target.closest('a');
-            if (!link) return;
-
-            document.querySelectorAll(`#${navId} .sidebar-link`).forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            document.querySelectorAll(`.${pageClass}`).forEach(p => p.classList.add('hidden'));
-            document.getElementById(link.dataset.target).classList.remove('hidden');
-        });
-    };
-
-    setupSidebarNav('admin-sidebar-nav', 'admin-page');
-    setupSidebarNav('guru-sidebar-nav', 'guru-page');
-    setupSidebarNav('siswa-sidebar-nav', 'siswa-page');
-
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const { username, password, role } = Object.fromEntries(new FormData(e.target));
         
-        const { data, error } = await supabaseClient
-            .from('users')
-            .select('*')
-            .eq('username', username)
-            .eq('password', password)
-            .eq('role', role)
-            .single(); // Ambil satu data
-
-        if (data) {
-            loggedInUser = data;
-            document.getElementById('login-screen').classList.add('hidden');
-            if (role === 'admin') {
-                document.getElementById('admin-welcome').textContent = `Selamat datang, ${loggedInUser.username}!`;
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                await renderAdminDashboard();
-            } else if (role === 'guru') {
-                document.getElementById('guru-dashboard').classList.remove('hidden');
-                await renderGuruDashboard();
-            } else if (role === 'siswa') {
-                document.getElementById('siswa-dashboard').classList.remove('hidden');
-                await renderSiswaDashboard();
+        users.forEach(user => {
+            if (user.role === 'guru') {
+                const row = `
+                    <tr class="border-b">
+                        <td class="py-2 px-4">${user.username}</td>
+                        <td class="py-2 px-4">${user.password}</td>
+                        <td class="py-2 px-4">${user.waliKelas || '-'}</td>
+                        <td class="py-2 px-4 text-center">
+                            <button class="edit-user-btn text-blue-500 hover:text-blue-700 mr-2" data-id="${user.id}"><i class="fas fa-edit"></i></button>
+                            <button class="delete-user-btn text-red-500 hover:text-red-700" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                guruBody.innerHTML += row;
             }
-        } else {
-            document.getElementById('login-error').classList.remove('hidden');
+            
+            if (user.role === 'siswa') {
+                const row = `
+                    <tr class="border-b">
+                        <td class="py-2 px-4">${user.username}</td>
+                        <td class="py-2 px-4">${user.password}</td>
+                        <td class="py-2 px-4">${user.kelas || '-'}</td>
+                        <td class="py-2 px-4 text-center">
+                            <button class="edit-user-btn text-blue-500 hover:text-blue-700 mr-2" data-id="${user.id}"><i class="fas fa-edit"></i></button>
+                            <button class="delete-user-btn text-red-500 hover:text-red-700" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                siswaBody.innerHTML += row;
+            }
+        });
+    };
+    
+    // Event delegation for user management buttons
+    document.getElementById('manajemen-pengguna').addEventListener('click', e => {
+        const editBtn = e.target.closest('.edit-user-btn');
+        const deleteBtn = e.target.closest('.delete-user-btn');
+        
+        if (editBtn) {
+            const userId = parseInt(editBtn.dataset.id);
+            const user = users.find(u => u.id === userId);
+            openUserModal('edit', user);
+        }
+        if (deleteBtn) {
+            userIdToDelete = parseInt(deleteBtn.dataset.id);
+            const user = users.find(u => u.id === userIdToDelete);
+            document.getElementById('delete-confirm-text').textContent = `Apakah Anda yakin ingin menghapus akun ${user ? user.username : 'ini'}? Tindakan ini tidak dapat dibatalkan.`;
+            document.getElementById('delete-confirm-modal').classList.remove('hidden');
         }
     });
 
-    const logout = () => {
-        loggedInUser = null;
-        document.querySelectorAll('#admin-dashboard, #guru-dashboard, #siswa-dashboard').forEach(d => d.classList.add('hidden'));
-        document.getElementById('login-screen').classList.remove('hidden');
-        document.getElementById('login-form').reset();
-        document.getElementById('login-error').classList.add('hidden');
+    // Tombol untuk modal konfirmasi hapus
+    document.getElementById('cancel-delete-btn').addEventListener('click', () => {
+        document.getElementById('delete-confirm-modal').classList.add('hidden');
+        userIdToDelete = null;
+    });
+
+    document.getElementById('confirm-delete-btn').addEventListener('click', () => {
+        if (userIdToDelete) {
+            users = users.filter(u => u.id !== userIdToDelete);
+            saveUsers();
+            renderUserManagementTables();
+        }
+        document.getElementById('delete-confirm-modal').classList.add('hidden');
+        userIdToDelete = null;
+    });
+
+    document.getElementById('add-guru-btn').addEventListener('click', () => openUserModal('add', { role: 'guru' }));
+    document.getElementById('add-siswa-btn').addEventListener('click', () => openUserModal('add', { role: 'siswa' }));
+    
+    const openUserModal = (mode, user) => {
+        const modal = document.getElementById('user-modal');
+        const form = document.getElementById('user-form');
+        form.reset();
+        
+        document.getElementById('modal-title').textContent = `${mode === 'edit' ? 'Edit' : 'Tambah'} Akun ${user.role === 'guru' ? 'Guru' : 'Siswa'}`;
+        document.getElementById('edit-user-id').value = user.id || '';
+        document.getElementById('edit-user-role').value = user.role;
+        document.getElementById('modal-username').value = user.username || '';
+        document.getElementById('modal-password').value = user.password || '';
+        
+        const kelasContainer = document.getElementById('modal-kelas-container');
+        const kelasLabel = document.getElementById('modal-kelas-label');
+        const kelasInput = document.getElementById('modal-kelas');
+        
+        if (user.role === 'guru') {
+            kelasLabel.textContent = 'Wali Kelas';
+            kelasInput.value = user.waliKelas || '';
+            kelasContainer.classList.remove('hidden');
+        } else if (user.role === 'siswa') {
+            kelasLabel.textContent = 'Kelas';
+            kelasInput.value = user.kelas || '';
+            kelasContainer.classList.remove('hidden');
+        } else {
+            kelasContainer.classList.add('hidden');
+        }
+        
+        modal.classList.remove('hidden');
+    };
+    
+    document.getElementById('cancel-modal').addEventListener('click', () => document.getElementById('user-modal').classList.add('hidden'));
+
+    document.getElementById('user-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const id = document.getElementById('edit-user-id').value;
+        const role = document.getElementById('edit-user-role').value;
+        const username = document.getElementById('modal-username').value;
+        const password = document.getElementById('modal-password').value;
+        const kelas = document.getElementById('modal-kelas').value;
+        
+        const userData = { role, username, name: username, password }; // Name disamakan dengan username
+        
+        if (role === 'siswa') userData.kelas = kelas;
+        if (role === 'guru') userData.waliKelas = kelas;
+
+        if (id) { // Edit mode
+            const userIndex = users.findIndex(u => u.id === parseInt(id));
+            if(userIndex > -1) users[userIndex] = { ...users[userIndex], ...userData };
+        } else { // Add mode
+            userData.id = (users.length > 0 ? Math.max(...users.map(u => u.id)) : 0) + 1;
+            users.push(userData);
+        }
+        
+        saveUsers();
+        renderUserManagementTables();
+        document.getElementById('user-modal').classList.add('hidden');
+    });
+
+    // Notifikasi
+    const renderNotificationDropdowns = () => {
+        const teacherSelect = document.getElementById('select-wali-kelas');
+        const parentSelect = document.getElementById('select-orang-tua');
+        teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
+        parentSelect.innerHTML = '<option value="">Pilih Orang Tua Siswa</option>';
+        
+        users.filter(u => u.role === 'guru').forEach(g => {
+            teacherSelect.innerHTML += `<option value="${g.id}">${g.name} (${g.waliKelas || 'N/A'})</option>`;
+        });
+        users.filter(u => u.role === 'siswa').forEach(s => {
+            // Gunakan 'parentName' jika ada, jika tidak, buat placeholder
+            const parentDisplayName = s.parentName || `Ortu dari ${s.name}`;
+            parentSelect.innerHTML += `<option value="${s.id}">${parentDisplayName} (${s.kelas || 'N/A'})</option>`;
+        });
     };
 
-    document.getElementById('admin-logout').addEventListener('click', logout);
-    document.getElementById('guru-logout').addEventListener('click', logout);
-    document.getElementById('siswa-logout').addEventListener('click', logout);
-
-    document.getElementById('recap-tabs').addEventListener('click', (e) => {
-        if(e.target.tagName === 'BUTTON') {
-            document.querySelectorAll('#recap-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            document.querySelectorAll('#recap-harian, #recap-mingguan, #recap-bulanan').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`recap-${e.target.dataset.target}`).classList.remove('hidden');
-        }
-    });
-
-    document.getElementById('recap-date').addEventListener('change', (e) => renderRecapHarian(e.target.value));
-
-    document.getElementById('print-rekap-btn').addEventListener('click', () => {
-        const activeTabButton = document.querySelector('#recap-tabs .tab-button.active');
-        const period = activeTabButton.dataset.target;
-        const tableContainer = document.getElementById(`recap-${period}`);
-        const tableContent = tableContainer.querySelector('table').outerHTML;
-        const title = `Rekap Absensi ${period.charAt(0).toUpperCase() + period.slice(1)} - ${formatIndonesianDate(getTodayDateString())}`;
-        const printWindow = window.open('', '', 'height=600,width=800');
-        printWindow.document.write(`<html><head><title>${title}</title><style>body{font-family: Arial, sans-serif;} table{width:100%; border-collapse:collapse;} th,td{border:1px solid #ddd; padding:8px; text-align:left;} th{background-color:#f2f2f2;} h1{text-align:center;}</style></head><body><h1>${title}</h1>${tableContent}</body></html>`);
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-    });
-    
     const showNotificationFeedback = (message) => {
         const feedback = document.getElementById('notification-feedback');
         document.getElementById('notification-feedback-text').textContent = message;
         feedback.classList.remove('hidden');
-        document.getElementById('notification-message').value = '';
         setTimeout(() => feedback.classList.add('hidden'), 3000);
     };
-
-    document.getElementById('send-to-teacher-btn').addEventListener('click', async () => {
-        const message = document.getElementById('notification-message').value.trim();
-        if (!message) return;
-        const teacherId = parseInt(document.getElementById('select-wali-kelas').value);
-        const teacher = getUserById(teacherId);
-        if (teacher) {
-            const { error } = await supabaseClient.from('notifications').insert([{ recipient_id: teacherId, message: message }]);
-            if (error) {
-                alert('Gagal mengirim notifikasi: ' + error.message);
-            } else {
-                showNotificationFeedback(`Notifikasi berhasil dikirim ke ${teacher.name}.`);
-                await fetchData(); // Refresh data
-            }
-        }
+    
+    document.getElementById('send-to-teacher-btn').addEventListener('click', () => {
+        const recipientId = document.getElementById('select-wali-kelas').value;
+        const message = document.getElementById('notification-message').value;
+        if (!recipientId || !message) { alert('Pilih guru dan isi pesan.'); return; }
+        
+        notifications.push({ id: notifications.length + 1, recipientId: parseInt(recipientId), recipientType: 'guru', message, read: false, date: todayISO });
+        saveNotifications();
+        showNotificationFeedback('Notifikasi berhasil dikirim ke guru.');
+        document.getElementById('notification-message').value = '';
     });
-
+    
     document.getElementById('send-to-parent-btn').addEventListener('click', () => {
-        if (!document.getElementById('notification-message').value.trim()) return;
-        const siswa = getUserById(parseInt(document.getElementById('select-orang-tua').value));
-        if (siswa) showNotificationFeedback(`Notifikasi berhasil dikirim ke Orang Tua dari ${siswa.name}. (Fitur simulasi)`);
+        const recipientId = document.getElementById('select-orang-tua').value; // studentId is used
+        const message = document.getElementById('notification-message').value;
+        if (!recipientId || !message) { alert('Pilih orang tua dan isi pesan.'); return; }
+        
+        notifications.push({ id: notifications.length + 1, recipientId: parseInt(recipientId), recipientType: 'parent', message, read: false, date: todayISO });
+        saveNotifications();
+        showNotificationFeedback('Notifikasi berhasil dikirim ke orang tua.');
+        document.getElementById('notification-message').value = '';
+    });
+    
+    document.getElementById('print-rekap-btn').addEventListener('click', () => {
+        window.print();
     });
 
-    const openUserModal = (mode, user = null) => {
-        const modal = document.getElementById('user-modal');
-        document.getElementById('user-form').reset();
-        const parentNameContainer = document.getElementById('modal-parent-name-container');
-        parentNameContainer.classList.toggle('hidden', mode === 'addGuru' || (user && user.role === 'guru'));
+    // ===== DASBOR GURU =====
+    const initGuruDashboard = () => {
+        document.getElementById('guru-dashboard').classList.remove('hidden');
+        document.getElementById('guru-welcome').textContent = `Halo, ${state.currentUser.name}!`;
+        document.getElementById('guru-current-date').textContent = formatDate(state.currentDate);
 
-        if (mode.startsWith('add')) {
-            const role = mode === 'addGuru' ? 'guru' : 'siswa';
-            document.getElementById('modal-title').textContent = `Tambah Akun ${role.charAt(0).toUpperCase() + role.slice(1)}`;
-            document.getElementById('edit-user-id').value = '';
-            document.getElementById('edit-user-role').value = role;
-        } else if (user) {
-            document.getElementById('modal-title').textContent = `Edit Akun ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}`;
-            document.getElementById('edit-user-id').value = user.id;
-            document.getElementById('edit-user-role').value = user.role;
-            document.getElementById('modal-username').value = user.username;
-            document.getElementById('modal-password').value = user.password;
-            document.getElementById('modal-name').value = user.name;
-            if (user.role === 'siswa') { document.getElementById('modal-parent-name').value = user.parent_name || ''; }
-        }
-        modal.classList.remove('hidden');
+        renderGuruAttendanceForm();
+        renderGuruNotifications();
+        renderGuruHistory();
     };
 
-    document.getElementById('add-guru-btn').addEventListener('click', () => openUserModal('addGuru'));
-    document.getElementById('add-siswa-btn').addEventListener('click', () => openUserModal('addSiswa'));
-    document.getElementById('cancel-modal').addEventListener('click', () => document.getElementById('user-modal').classList.add('hidden'));
-
-    document.getElementById('manajemen-pengguna').addEventListener('click', async (e) => {
-        const target = e.target;
-        const id = parseInt(target.dataset.id);
-        if (target.classList.contains('edit-btn')) { 
-            const user = getUserById(id);
-            if(user) openUserModal('edit', user);
-        } 
-        else if (target.classList.contains('delete-btn')) {
-            if (confirm('Apakah Anda yakin ingin menghapus akun ini? Ini akan menghapus data terkait.')) {
-                const { error } = await supabaseClient.from('users').delete().eq('id', id);
-                if (error) {
-                    alert('Gagal menghapus pengguna: ' + error.message);
-                } else {
-                    alert('Pengguna berhasil dihapus.');
-                    await renderAdminDashboard();
-                }
-            }
-        }
-    });
-
-    document.getElementById('user-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('edit-user-id').value ? parseInt(document.getElementById('edit-user-id').value) : null;
-        const role = document.getElementById('edit-user-role').value;
-        const username = document.getElementById('modal-username').value;
-        const password = document.getElementById('modal-password').value;
-        const name = document.getElementById('modal-name').value;
-        const parent_name = document.getElementById('modal-parent-name').value;
-
-        let userData = { username, password, role, name };
-        if (role === 'siswa') {
-            userData.parent_name = parent_name;
-        }
+    const renderGuruAttendanceForm = () => {
+        const body = document.getElementById('attendance-table-body');
+        body.innerHTML = '';
         
-        let error;
-        if (id) {
-            const { error: updateError } = await supabaseClient.from('users').update(userData).eq('id', id);
-            error = updateError;
-        } else {
-            const { error: insertError } = await supabaseClient.from('users').insert([userData]);
-            error = insertError;
-        }
+        const guruWaliKelas = state.currentUser.waliKelas;
+        const students = users.filter(u => u.role === 'siswa' && u.kelas === guruWaliKelas);
+        const todaysRecords = attendanceRecords.filter(r => r.date === todayISO);
 
-        if (error) {
-            alert('Gagal menyimpan data: ' + error.message);
-        } else {
-            alert('Data pengguna berhasil disimpan.');
-            document.getElementById('user-modal').classList.add('hidden');
-            await renderAdminDashboard();
-        }
-    });
-
-    document.getElementById('attendance-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const today = getTodayDateString();
-        const formData = new FormData(e.target);
-        const recordsToUpsert = [];
-
-        for(let [key, status] of formData.entries()){
-            const studentId = parseInt(key.replace('status-', ''));
-            recordsToUpsert.push({ student_id: studentId, date: today, status: status });
-        }
-
-        if (recordsToUpsert.length > 0) {
-            const { error } = await supabaseClient.from('attendance_records').upsert(recordsToUpsert, { onConflict: 'student_id, date' });
-
-            if (error) {
-                 alert('Gagal menyimpan absensi: ' + error.message);
-            } else {
-                await fetchData();
-                renderGuruTodaysAttendanceHistory();
-                const feedback = document.getElementById('guru-attendance-feedback');
-                feedback.textContent = 'Absensi berhasil disimpan!';
-                feedback.classList.remove('hidden');
-                setTimeout(() => feedback.classList.add('hidden'), 3000);
-            }
-        }
-    });
-
-    const handleStudentSubmission = async (status) => {
-        const feedbackEl = document.getElementById('student-submission-feedback');
-        const today = getTodayDateString();
-
-        const { data: existingRecord, error: checkError } = await supabaseClient
-            .from('attendance_records')
-            .select('status')
-            .eq('student_id', loggedInUser.id)
-            .eq('date', today)
-            .single();
-
-        if (existingRecord) {
-            feedbackEl.className = 'bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4';
-            feedbackEl.textContent = `Anda sudah melakukan absensi hari ini dengan status: ${existingRecord.status}.`;
-            feedbackEl.classList.remove('hidden');
+        if (students.length === 0) {
+            body.innerHTML = `<tr><td colspan="2" class="py-4 px-4 text-center text-gray-500">Tidak ada siswa yang terdaftar di kelas Anda (${guruWaliKelas || 'N/A'}).</td></tr>`;
             return;
         }
-        
-        // Untuk Izin, Sakit, Dispen, kita asumsikan file di-handle terpisah (tidak diunggah ke storage Supabase di contoh ini)
-        if (status === 'Izin' && !document.getElementById('izin-message').value.trim()) { alert('Mohon isi pesan untuk mengajukan izin.'); return; }
-        if (status === 'Sakit' && document.getElementById('sakit-file').files.length === 0) { alert('Mohon unggah surat dokter.'); return; }
-        if (status === 'Dispen' && document.getElementById('dispen-file').files.length === 0) { alert('Mohon unggah surat dispen.'); return; }
 
-        const { error } = await supabaseClient.from('attendance_records').insert([{ student_id: loggedInUser.id, date: today, status: status }]);
+        students.forEach(student => {
+            const record = todaysRecords.find(r => r.studentId === student.id);
+            const statuses = ['Hadir', 'Sakit', 'Izin', 'Dispen', 'Alfa'];
+            const radioButtons = statuses.map(status => `
+                <label class="mr-4">
+                    <input type="radio" name="status-${student.id}" value="${status}" 
+                    ${record && record.status === status ? 'checked' : ''}
+                    ${!record && status === 'Alfa' ? 'checked' : ''}
+                    required>
+                    ${status}
+                </label>
+            `).join('');
 
-        if (error) {
-            alert("Gagal mengajukan absensi: " + error.message);
-        } else {
-            feedbackEl.className = 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4';
-            feedbackEl.textContent = `Pengajuan ${status} berhasil dikirim untuk hari ini.`;
-            feedbackEl.classList.remove('hidden');
-            document.getElementById('izin-message').value = '';
-            ['izin-file', 'sakit-file', 'dispen-file'].forEach(id => document.getElementById(id).value = '');
-            await renderSiswaDashboard();
-            setTimeout(() => feedbackEl.classList.add('hidden'), 4000);
+            body.innerHTML += `
+                <tr class="border-b">
+                    <td class="py-3 px-4 font-medium">${student.name}</td>
+                    <td class="py-3 px-4 text-center">${radioButtons}</td>
+                </tr>`;
+        });
+    };
+    
+    document.getElementById('attendance-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const guruWaliKelas = state.currentUser.waliKelas;
+        const studentsInClass = users.filter(u => u.role === 'siswa' && u.kelas === guruWaliKelas);
+
+        studentsInClass.forEach(student => {
+            const statusInput = e.target[`status-${student.id}`];
+            if (statusInput) {
+                const status = statusInput.value;
+                const recordIndex = attendanceRecords.findIndex(r => r.studentId === student.id && r.date === todayISO);
+                
+                if (recordIndex > -1) {
+                    attendanceRecords[recordIndex].status = status;
+                } else {
+                    attendanceRecords.push({ studentId: student.id, date: todayISO, status });
+                }
+            }
+        });
+
+        saveAttendance();
+
+        const feedback = document.getElementById('guru-attendance-feedback');
+        feedback.textContent = 'Absensi berhasil disimpan!';
+        feedback.classList.remove('hidden');
+        setTimeout(() => feedback.classList.add('hidden'), 3000);
+        renderGuruHistory();
+    });
+
+    const renderGuruNotifications = () => {
+        const list = document.getElementById('guru-notifications-list');
+        list.innerHTML = '';
+        const guruNotifications = notifications.filter(n => n.recipientType === 'guru' && n.recipientId === state.currentUser.id);
+
+        if (guruNotifications.length === 0) {
+            list.innerHTML = '<p class="text-gray-500">Tidak ada notifikasi baru.</p>';
+            return;
         }
+
+        guruNotifications.reverse().forEach(n => {
+            list.innerHTML += `
+                <div class="p-3 rounded-md ${n.read ? 'bg-gray-100' : 'bg-yellow-100'}">
+                    <p class="text-sm text-gray-800">${n.message}</p>
+                    <p class="text-xs text-gray-500 text-right mt-1">${formatDate(new Date(n.date + 'T00:00:00'))}</p>
+                </div>
+            `;
+        });
+    };
+
+    const renderGuruHistory = () => {
+        const list = document.getElementById('guru-todays-history-list');
+        list.innerHTML = '';
+        
+        const guruWaliKelas = state.currentUser.waliKelas;
+        const studentsInClassIds = users.filter(u => u.role === 'siswa' && u.kelas === guruWaliKelas).map(s => s.id);
+        
+        const submittedRecords = attendanceRecords.filter(r => r.date === todayISO && studentsInClassIds.includes(r.studentId));
+
+        if (submittedRecords.length === 0) {
+            list.innerHTML = '<p class="text-gray-500">Belum ada absensi yang disimpan hari ini.</p>';
+            return;
+        }
+
+        submittedRecords.forEach(record => {
+            const student = users.find(u => u.id === record.studentId);
+            list.innerHTML += `<p class="p-2 bg-gray-50 rounded text-sm">${student.name}: <span class="font-semibold">${record.status}</span></p>`;
+        });
+    };
+    
+    // ===== DASBOR SISWA =====
+    const initSiswaDashboard = () => {
+        document.getElementById('siswa-dashboard').classList.remove('hidden');
+        document.getElementById('siswa-welcome').textContent = `Halo, ${state.currentUser.name}!`;
+        document.getElementById('siswa-current-date').textContent = formatDate(state.currentDate);
+
+        checkStudentSubmissionStatus();
+        renderSiswaRecaps();
+        renderStudentRankings();
+        updateMotivationalQuote();
+    };
+
+    const checkStudentSubmissionStatus = () => {
+        const todaysRecord = attendanceRecords.find(r => r.studentId === state.currentUser.id && r.date === todayISO);
+        const feedback = document.getElementById('student-submission-feedback');
+        const buttons = document.querySelectorAll('#siswa-page-ajukan button, #siswa-page-ajukan input, #siswa-page-ajukan textarea');
+        
+        if (todaysRecord) {
+            feedback.innerHTML = `<strong class="font-bold">Terima kasih!</strong> Anda sudah melakukan absensi hari ini dengan status: <strong>${todaysRecord.status}</strong>.`;
+            feedback.className = 'mb-4 p-4 rounded-md bg-green-100 text-green-800';
+            feedback.classList.remove('hidden');
+            buttons.forEach(btn => btn.disabled = true);
+        } else {
+            feedback.classList.add('hidden');
+            buttons.forEach(btn => btn.disabled = false);
+        }
+    };
+    
+    const handleStudentSubmission = (status, details = {}) => {
+        attendanceRecords.push({ studentId: state.currentUser.id, date: todayISO, status, ...details });
+        saveAttendance();
+        checkStudentSubmissionStatus();
     };
 
     document.getElementById('submit-hadir').addEventListener('click', () => handleStudentSubmission('Hadir'));
-    document.getElementById('submit-izin').addEventListener('click', () => handleStudentSubmission('Izin'));
-    document.getElementById('submit-sakit').addEventListener('click', () => handleStudentSubmission('Sakit'));
-    document.getElementById('submit-dispen').addEventListener('click', () => handleStudentSubmission('Dispen'));
-    
-    document.getElementById('siswa-recap-tabs').addEventListener('click', (e) => {
-        if(e.target.tagName === 'BUTTON') {
-            document.querySelectorAll('#siswa-recap-tabs .tab-button').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            document.querySelectorAll('#siswa-recap-harian, #siswa-recap-mingguan, #siswa-recap-bulanan').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`siswa-recap-${e.target.dataset.target}`).classList.remove('hidden');
-        }
+    document.getElementById('submit-sakit').addEventListener('click', () => {
+        const file = document.getElementById('sakit-file').files[0];
+        if (!file) { alert('Mohon unggah surat dokter.'); return; }
+        handleStudentSubmission('Sakit', { file: file.name });
     });
+    document.getElementById('submit-izin').addEventListener('click', () => {
+        const message = document.getElementById('izin-message').value;
+        if (!message) { alert('Mohon isi pesan izin.'); return; }
+        handleStudentSubmission('Izin', { message });
+    });
+    document.getElementById('submit-dispen').addEventListener('click', () => {
+        const file = document.getElementById('dispen-file').files[0];
+        if (!file) { alert('Mohon unggah surat dispen.'); return; }
+        handleStudentSubmission('Dispen', { file: file.name });
+    });
+
+    const renderSiswaRecaps = () => {
+        // Daily
+        const harianBody = document.getElementById('siswa-recap-harian-body');
+        harianBody.innerHTML = '';
+        attendanceRecords.filter(r => r.studentId === state.currentUser.id)
+            .sort((a,b) => new Date(b.date) - new Date(a.date))
+            .forEach(r => {
+                harianBody.innerHTML += `
+                    <tr class="border-b">
+                        <td class="py-2 px-4">${formatDate(new Date(r.date+'T00:00:00'))}</td>
+                        <td class="py-2 px-4"><span class="px-2 py-1 rounded-full text-xs font-semibold ${getStatusClass(r.status)}">${r.status}</span></td>
+                    </tr>`;
+            });
+
+        // Weekly
+        const mingguanBody = document.getElementById('siswa-recap-mingguan-body');
+        mingguanBody.innerHTML = '';
+        const endDate = todayISO;
+        const startDate = formatDateISO(new Date(state.currentDate.getTime() - 6 * 24 * 60 * 60 * 1000));
+        let weeklyCounts = { Hadir: 0, Sakit: 0, Izin: 0, Dispen: 0, Alfa: 0 };
+        attendanceRecords.filter(r => r.studentId === state.currentUser.id && r.date >= startDate && r.date <= endDate)
+            .forEach(r => weeklyCounts[r.status]++);
+        Object.keys(weeklyCounts).forEach(status => {
+            mingguanBody.innerHTML += `<tr class="border-b"><td class="py-2 px-4">${status}</td><td class="py-2 px-4 text-center">${weeklyCounts[status]}</td></tr>`;
+        });
+        
+        // Monthly
+        const bulananBody = document.getElementById('siswa-recap-bulanan-body');
+        bulananBody.innerHTML = '';
+        const monthStartDate = todayISO.substring(0, 8) + '01';
+        let monthlyCounts = { Hadir: 0, Sakit: 0, Izin: 0, Dispen: 0, Alfa: 0 };
+        attendanceRecords.filter(r => r.studentId === state.currentUser.id && r.date >= monthStartDate && r.date <= endDate)
+            .forEach(r => monthlyCounts[r.status]++);
+        Object.keys(monthlyCounts).forEach(status => {
+            bulananBody.innerHTML += `<tr class="border-b"><td class="py-2 px-4">${status}</td><td class="py-2 px-4 text-center">${monthlyCounts[status]}</td></tr>`;
+        });
+    };
+
+    const renderStudentRankings = () => {
+        const diligentContainer = document.getElementById('student-ranking-diligent');
+        const warningContainer = document.getElementById('student-ranking-warning');
+        diligentContainer.innerHTML = '';
+        warningContainer.innerHTML = '';
+        
+        const siswaKelas = state.currentUser.kelas;
+        document.getElementById('ranking-title').textContent = `Peringkat Siswa ${siswaKelas || ''} (Bulan Ini)`;
+        
+        const classmates = users.filter(u => u.role === 'siswa' && u.kelas === siswaKelas);
+        const monthlyStats = calculateRecapStats(todayISO.substring(0, 8) + '01', todayISO, classmates);
+
+        const sortedDiligent = [...monthlyStats].sort((a, b) => b.Hadir - a.Hadir).slice(0, 3);
+        sortedDiligent.forEach((s, index) => {
+            const medal = ['🥇', '🥈', '🥉'][index];
+            diligentContainer.innerHTML += `
+                <div class="flex items-center p-2 bg-gray-50 rounded-md">
+                    <span class="text-xl mr-3">${medal}</span>
+                    <span class="font-medium">${s.name}</span>
+                    <span class="ml-auto text-sm font-bold text-green-600">${s.Hadir}x Hadir</span>
+                </div>`;
+        });
+        
+        const sortedWarning = [...monthlyStats].sort((a, b) => b.Alfa - a.Alfa).filter(s => s.Alfa > 0).slice(0, 3);
+         sortedWarning.forEach(s => {
+            warningContainer.innerHTML += `
+                 <div class="flex items-center p-2 bg-red-50 rounded-md">
+                    <span class="font-medium">${s.name}</span>
+                    <span class="ml-auto text-sm font-bold text-red-600">${s.Alfa}x Alfa</span>
+                </div>`;
+        });
+        if(sortedWarning.length === 0) warningContainer.innerHTML = '<p class="text-gray-500 text-sm">Tidak ada siswa dengan catatan Alfa bulan ini.</p>';
+    };
+    
+    const updateMotivationalQuote = () => {
+        const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+        document.getElementById('motivational-quote').textContent = `“${randomQuote.quote}”`;
+        document.getElementById('quote-author').textContent = `— ${randomQuote.author}`;
+    };
+
+    // ===== INISIALISASI EVENT LISTENERS UMUM =====
+    document.querySelectorAll('#admin-logout, #guru-logout, #siswa-logout').forEach(btn => btn.addEventListener('click', handleLogout));
+    setupNavigation('admin-sidebar-nav', 'admin-page');
+    setupNavigation('guru-sidebar-nav', 'guru-page');
+    setupNavigation('siswa-sidebar-nav', 'siswa-page');
+    setupTabs('recap-tabs', '#admin-page-rekap > div > div > div[id^="recap-"]');
+    setupTabs('siswa-recap-tabs', '#siswa-page-dashboard > div > div > div[id^="siswa-recap-"]');
+    
+    // Bantuan Login
+    const toggleHintBtn = document.getElementById('toggle-hint-btn');
+    const loginHint = document.getElementById('login-hint');
+    if (toggleHintBtn) {
+        toggleHintBtn.addEventListener('click', () => {
+            loginHint.classList.toggle('hidden');
+        });
+    }
 });
 </script>
+
 </body>
 </html>
-
