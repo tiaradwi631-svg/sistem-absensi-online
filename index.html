@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <!-- ... (head tidak berubah) ... -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduAttend - Sistem Absensi Online</title>
@@ -35,6 +36,7 @@
             justify-content: center;
             align-items: center;
             z-index: 50;
+            backdrop-filter: blur(4px);
         }
         .tab-button.active {
             border-color: #6366f1;
@@ -78,6 +80,15 @@
         .role-label[for="role-siswa"]:hover { background-color: #fce7f3; }
         .role-radio:checked + .role-label[for="role-siswa"] { border-color: #ec4899; background-color: #fbcfe8;}
 
+        /* CSS untuk Kamera */
+        #camera-preview {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 0.5rem;
+            transform: scaleX(-1); /* Cermin untuk selfie */
+        }
+
         @media print {
             body * {
                 visibility: hidden;
@@ -98,6 +109,7 @@
 
     <!-- Laman Login -->
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <!-- ... (Kode Login tidak berubah) ... -->
         <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-lg animate-fade-in">
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold mb-2" style="font-family: 'Times New Roman', Times, serif; color: #8B0000;">EduAttend</h1>
@@ -147,6 +159,7 @@
 
     <!-- Dasbor Admin -->
     <div id="admin-dashboard" class="hidden">
+        <!-- ... (Nav & Sidebar Admin tidak berubah) ... -->
         <nav class="bg-white shadow-md fixed top-0 left-0 right-0 z-10">
             <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
@@ -172,6 +185,7 @@
             <main class="flex-1 p-4 sm:p-8 bg-gray-50">
                 <!-- KONTEN ADMIN -->
                 <div id="admin-page-dashboard" class="admin-page">
+                    <!-- ... (Kode Dasbor Admin tidak berubah) ... -->
                     <h2 class="text-3xl font-bold text-gray-800 mb-6">Selamat Datang, Admin!</h2>
                     <div class="mb-8">
                         <h3 class="text-2xl font-bold text-gray-700 mb-4">Ringkasan Hari Ini (<span id="admin-current-date"></span>)</h3>
@@ -184,6 +198,14 @@
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-lg mb-8"><h3 class="text-2xl font-bold text-gray-700 mb-4">Grafik Absensi Bulan Ini</h3><div class="max-w-md mx-auto"><canvas id="attendanceChart"></canvas></div></div>
+                    
+                    <!-- KONTEN BARU: PANEL PENGAJUAN IZIN TERTUNDA UNTUK ADMIN -->
+                    <div id="admin-pending-permissions" class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-bold text-gray-700 mb-4">Pengajuan Izin Tertunda Hari Ini</h3>
+                        <div id="admin-pending-permissions-list" class="space-y-3 max-h-72 overflow-y-auto">
+                            <!-- Daftar akan di-render oleh JavaScript -->
+                        </div>
+                    </div>
                 </div>
 
                 <div id="admin-page-rekap" class="admin-page hidden">
@@ -195,7 +217,7 @@
                             </div>
                             <div class="border-b border-gray-200"><nav class="-mb-px flex space-x-6" id="recap-tabs"><button data-target="harian" class="tab-button active py-2 px-1 border-b-2 font-medium text-sm">Harian</button><button data-target="mingguan" class="tab-button text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 border-transparent font-medium text-sm">Mingguan</button><button data-target="bulanan" class="tab-button text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 border-transparent font-medium text-sm">Bulanan</button></nav></div>
                             <div class="mt-4">
-                                <div id="recap-harian"><div class="flex items-center mb-4"><label for="recap-date" class="mr-2">Pilih Tanggal:</label><input type="date" id="recap-date" class="border border-gray-300 rounded-md p-1"></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Nama Siswa</th><th class="py-2 px-4 border-b text-left">Kelas</th><th class="py-2 px-4 border-b text-left">Status</th></tr></thead><tbody id="recap-harian-body"><tr><td colspan="3" class="text-center p-4 text-gray-500">Pilih tanggal untuk melihat data.</td></tr></tbody></table></div></div>
+                                <div id="recap-harian"><div class="flex items-center mb-4"><label for="recap-date" class="mr-2">Pilih Tanggal:</label><input type="date" id="recap-date" class="border border-gray-300 rounded-md p-1"></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Nama Siswa</th><th class="py-2 px-4 border-b text-left">Kelas</th><th class="py-2 px-4 border-b text-left">Status</th><th class="py-2 px-4 border-b text-center">Bukti Foto</th></tr></thead><tbody id="recap-harian-body"><tr><td colspan="4" class="text-center p-4 text-gray-500">Pilih tanggal untuk melihat data.</td></tr></tbody></table></div></div>
                                 <div id="recap-mingguan" class="hidden"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Nama Siswa</th><th class="py-2 px-4 border-b text-left">Kelas</th><th class="py-2 px-4 border-b">Hadir</th><th class="py-2 px-4 border-b">Sakit</th><th class="py-2 px-4 border-b">Izin</th><th class="py-2 px-4 border-b">Dispen</th><th class="py-2 px-4 border-b">Alfa</th></tr></thead><tbody id="recap-mingguan-body"></tbody></table></div></div>
                                 <div id="recap-bulanan" class="hidden"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Nama Siswa</th><th class="py-2 px-4 border-b text-left">Kelas</th><th class="py-2 px-4 border-b">Hadir</th><th class="py-2 px-4 border-b">Sakit</th><th class="py-2 px-4 border-b">Izin</th><th class="py-2 px-4 border-b">Dispen</th><th class="py-2 px-4 border-b">Alfa</th></tr></thead><tbody id="recap-bulanan-body"></tbody></table></div></div>
                             </div>
@@ -204,6 +226,7 @@
                 </div>
 
                 <div id="admin-page-manajemen" class="admin-page hidden">
+                     <!-- ... (Kode Manajemen Akun tidak berubah) ... -->
                      <div id="manajemen-pengguna">
                         <div class="bg-white p-6 rounded-lg shadow-lg mb-8"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4"><h2 class="text-2xl font-bold text-gray-700 mb-2 sm:mb-0">Manajemen Akun Guru</h2><button id="add-guru-btn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"><i class="fas fa-plus mr-2"></i>Tambah Guru</button></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Username</th><th class="py-2 px-4 border-b text-left">Password</th><th class="py-2 px-4 border-b text-left">Wali Kelas</th><th class="py-2 px-4 border-b text-center">Aksi</th></tr></thead><tbody id="guru-table-body"></tbody></table></div></div>
                         <div class="bg-white p-6 rounded-lg shadow-lg"><div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4"><h2 class="text-2xl font-bold text-gray-700 mb-2 sm:mb-0">Manajemen Akun Siswa</h2><button id="add-siswa-btn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"><i class="fas fa-plus mr-2"></i>Tambah Siswa</button></div><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Username</th><th class="py-2 px-4 border-b text-left">Password</th><th class="py-2 px-4 border-b text-left">Kelas</th><th class="py-2 px-4 border-b text-center">Aksi</th></tr></thead><tbody id="siswa-table-body"></tbody></table></div></div>
@@ -211,6 +234,7 @@
                 </div>
                 
                 <div id="admin-page-notifikasi" class="admin-page hidden">
+                    <!-- ... (Kode Notifikasi tidak berubah) ... -->
                     <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
                         <h2 class="text-2xl font-bold text-gray-700 mb-4">Kirim Notifikasi</h2>
                         <div id="notification-feedback" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert"><strong class="font-bold">Sukses! </strong><span class="block sm:inline" id="notification-feedback-text"></span></div>
@@ -224,6 +248,7 @@
 
     <!-- Modal Tambah/Edit Pengguna -->
     <div id="user-modal" class="modal-backdrop hidden">
+        <!-- ... (Kode Modal User tidak berubah) ... -->
         <div class="bg-white w-full max-w-lg p-6 rounded-lg shadow-xl">
             <h3 id="modal-title" class="text-xl font-bold mb-4"></h3>
             <form id="user-form">
@@ -238,6 +263,7 @@
     
     <!-- Modal Konfirmasi Hapus -->
     <div id="delete-confirm-modal" class="modal-backdrop hidden">
+        <!-- ... (Kode Modal Hapus tidak berubah) ... -->
         <div class="bg-white w-full max-w-sm p-6 rounded-lg shadow-xl">
             <h3 class="text-xl font-bold mb-4 text-red-600">Konfirmasi Hapus</h3>
             <p id="delete-confirm-text" class="mb-6">Apakah Anda yakin ingin menghapus akun ini? Tindakan ini tidak dapat dibatalkan.</p>
@@ -247,6 +273,37 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal Kamera -->
+    <div id="camera-modal" class="modal-backdrop hidden">
+        <!-- ... (Kode Modal Kamera tidak berubah) ... -->
+        <div class="bg-white w-full max-w-lg p-6 rounded-lg shadow-xl">
+            <h3 id="camera-modal-title" class="text-xl font-bold mb-4">Ambil Foto Absensi</h3>
+            <div id="camera-loading" class="text-center p-4">
+                <i class="fas fa-spinner fa-spin text-3xl text-indigo-500"></i>
+                <p class="mt-2 text-gray-600">Membuka kamera...</p>
+            </div>
+            <video id="camera-preview" autoplay playsinline class="hidden"></video>
+            <canvas id="camera-canvas" class="hidden"></canvas>
+            <div id="camera-error" class="text-red-500 text-sm my-2 text-center hidden"></div>
+            <div class="flex justify-center gap-4 mt-6">
+                <button type="button" id="capture-photo-btn" class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 font-semibold"><i class="fas fa-camera mr-2"></i> Ambil Foto</button>
+                <button type="button" id="submit-attendance-photo-btn" class="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600 font-semibold hidden"><i class="fas fa-paper-plane mr-2"></i> Kirim Absensi</button>
+            </div>
+            <button type="button" id="cancel-camera-btn" class="w-full mt-4 text-sm text-gray-600 hover:text-gray-800">Batal</button>
+        </div>
+    </div>
+
+    <!-- Modal Lihat Foto -->
+    <div id="view-photo-modal" class="modal-backdrop hidden">
+        <!-- ... (Kode Modal Lihat Foto tidak berubah) ... -->
+        <div class="bg-white w-full max-w-lg p-6 rounded-lg shadow-xl">
+            <h3 id="view-photo-title" class="text-xl font-bold mb-4">Bukti Foto Absensi</h3>
+            <img id="view-photo-img" src="" alt="Bukti Foto" class="w-full h-auto rounded-md">
+            <button type="button" id="close-photo-modal-btn" class="w-full mt-6 bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400">Tutup</button>
+        </div>
+    </div>
+
 
     <!-- Dasbor Guru -->
     <div id="guru-dashboard" class="hidden">
@@ -259,12 +316,17 @@
             <aside class="w-64 bg-white shadow-md h-screen p-4 sticky top-16">
                  <nav id="guru-sidebar-nav" class="space-y-2">
                     <a href="#" class="sidebar-link active" data-target="guru-page-absensi"><i class="fas fa-clipboard-list text-teal-500"></i><span>Absensi Kelas</span></a>
+                    
+                    <!-- PERUBAHAN NAMA SIDEBAR -->
+                    <a href="#" class="sidebar-link" data-target="guru-page-perizinan"><i class="fas fa-check-square text-orange-500"></i><span>Persetujuan Pengajuan</span></a>
+                    
                     <a href="#" class="sidebar-link" data-target="guru-page-notifikasi"><i class="fas fa-bell text-amber-500"></i><span>Notifikasi</span></a>
                     <a href="#" class="sidebar-link" data-target="guru-page-riwayat"><i class="fas fa-history text-purple-500"></i><span>Riwayat Hari Ini</span></a>
                 </nav>
             </aside>
             <main class="flex-1 p-4 sm:p-8 bg-gray-50">
                 <div id="guru-page-absensi" class="guru-page">
+                    <!-- ... (Kode Absensi Kelas Guru tidak berubah) ... -->
                     <div class="bg-white p-6 rounded-lg shadow-lg">
                         <h2 class="text-2xl font-bold text-gray-700 mb-1">Absensi Kelas</h2><p class="text-gray-600 mb-4">Tanggal: <span id="guru-current-date"></span></p>
                         <div id="guru-attendance-feedback" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"></div>
@@ -272,12 +334,49 @@
                     </div>
                 </div>
 
+                <!-- HALAMAN GURU UNTUK PERSETUJUAN (STRUKTUR BARU) -->
+                <div id="guru-page-perizinan" class="guru-page hidden">
+                     <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+                        <h3 class="text-xl font-bold text-gray-700 mb-6 flex items-center"><i class="fas fa-check-square mr-3 text-orange-500"></i> Persetujuan Pengajuan</h3>
+                        
+                        <div id="guru-permission-feedback" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"></div>
+
+                        <!-- Pengajuan Sakit -->
+                        <h4 class="text-lg font-semibold text-gray-700 mb-3 mt-4 flex items-center"><i class="fas fa-notes-medical mr-2 text-yellow-500"></i> Pengajuan Sakit</h4>
+                        <div id="guru-sakit-list" class="space-y-4">
+                            <!-- Daftar sakit akan di-render di sini -->
+                            <p class="text-gray-500 text-sm">Tidak ada pengajuan sakit.</p>
+                        </div>
+                        
+                        <!-- Pengajuan Izin -->
+                        <h4 class="text-lg font-semibold text-gray-700 mb-3 mt-6 flex items-center"><i class="fas fa-envelope-open-text mr-2 text-indigo-500"></i> Pengajuan Izin</h4>
+                        <div id="guru-izin-list" class="space-y-4">
+                            <!-- Daftar izin akan di-render di sini -->
+                            <p class="text-gray-500 text-sm">Tidak ada pengajuan izin.</p>
+                        </div>
+                        
+                        <!-- Pengajuan Dispen -->
+                        <h4 class="text-lg font-semibold text-gray-700 mb-3 mt-6 flex items-center"><i class="fas fa-file-alt mr-2 text-purple-500"></i> Pengajuan Dispen</h4>
+                        <div id="guru-dispen-list" class="space-y-4">
+                            <!-- Daftar dispen akan di-render di sini -->
+                            <p class="text-gray-500 text-sm">Tidak ada pengajuan dispen.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="guru-page-notifikasi" class="guru-page hidden">
+                     <!-- ... (Kode Notifikasi Guru tidak berubah) ... -->
                      <div class="bg-white p-6 rounded-lg shadow-lg mb-8"><h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-bell mr-3 text-yellow-500"></i> Kotak Masuk Notifikasi</h3><div id="guru-notifications-list" class="space-y-3 max-h-96 overflow-y-auto"></div></div>
                 </div>
 
                 <div id="guru-page-riwayat" class="guru-page hidden">
-                     <div class="bg-white p-6 rounded-lg shadow-lg"><h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-history mr-3 text-indigo-500"></i> Absensi Terkirim Hari Ini</h3><div id="guru-todays-history-list" class="space-y-2 max-h-96 overflow-y-auto"></div></div>
+                     <!-- ... (Kode Riwayat Guru tidak berubah) ... -->
+                     <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center"><i class="fas fa-history mr-3 text-indigo-500"></i> Absensi Terkirim Hari Ini</h3>
+                        <div id="guru-todays-history-list" class="space-y-2 max-h-96 overflow-y-auto">
+                            <!-- Riwayat akan di-render di sini -->
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
@@ -285,6 +384,7 @@
 
     <!-- Dasbor Siswa -->
     <div id="siswa-dashboard" class="hidden">
+        <!-- ... (Kode Dasbor Siswa tidak berubah) ... -->
         <nav class="bg-white shadow-md fixed top-0 left-0 right-0 z-10">
             <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16"><div class="flex items-center"><span class="font-bold text-xl text-gray-800">EduAttend - Dasbor Siswa</span></div><div class="flex items-center"><span id="siswa-welcome" class="mr-4 text-gray-600 hidden sm:block"></span><button id="siswa-logout" class="bg-red-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-600">Logout</button></div></div>
@@ -299,31 +399,61 @@
                 </nav>
             </aside>
             <main class="flex-1 p-4 sm:p-8 bg-gray-50">
+                 <!-- HALAMAN ABSENSI SISWA YANG BARU -->
                  <div id="siswa-page-ajukan" class="siswa-page">
+                    <div id="student-submission-feedback" class="hidden mb-4 p-4 rounded-md"></div>
+                    
+                    <!-- Absensi Harian (Masuk/Pulang) -->
                     <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-                        <div id="student-submission-feedback" class="hidden mb-4 p-4 rounded-md"></div>
-                        <h2 class="text-2xl font-bold text-gray-700 mb-1">Ajukan Absensi Hari Ini</h2>
+                        <h2 class="text-2xl font-bold text-gray-700 mb-1">Absensi Harian</h2>
                         <p class="text-gray-600 mb-4">Tanggal: <span class="font-semibold" id="siswa-current-date"></span></p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <button id="submit-hadir" class="bg-green-50 hover:bg-green-100 text-green-700 p-8 rounded-lg flex flex-col items-center justify-center transition duration-300"><i class="fas fa-hand-paper text-5xl mb-3"></i><span class="font-semibold text-xl">Hadir</span></button>
-                            <div class="bg-indigo-50 p-6 rounded-lg flex flex-col"><h3 class="font-semibold text-xl text-center mb-4 flex items-center justify-center text-indigo-700"><i class="fas fa-envelope-open-text mr-3"></i> Izin</h3><textarea id="izin-message" class="w-full border border-indigo-200 rounded p-2 text-sm mb-3" rows="3" placeholder="Ketik pesan izin..."></textarea><label class="text-sm font-medium text-gray-700 mb-2 block">Kirim Dokumentasi:</label><input type="file" id="izin-file" class="w-full text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200"><button id="submit-izin" class="mt-4 w-full bg-indigo-500 text-white py-2.5 rounded-md hover:bg-indigo-600 font-semibold">Kirim Izin</button></div>
-                            <div class="bg-yellow-50 p-6 rounded-lg flex flex-col"><h3 class="font-semibold text-xl text-center mb-4 flex items-center justify-center text-yellow-700"><i class="fas fa-notes-medical mr-3"></i> Sakit</h3><label class="text-sm font-medium text-gray-700 mb-2 block">Kirim Surat Dokter:</label><input type="file" id="sakit-file" class="w-full text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200"><button id="submit-sakit" class="mt-auto w-full bg-yellow-500 text-white py-2.5 rounded-md hover:bg-yellow-600 font-semibold">Kirim</button></div>
-                            <div class="bg-purple-50 p-6 rounded-lg flex flex-col"><h3 class="font-semibold text-xl text-center mb-4 flex items-center justify-center text-purple-700"><i class="fas fa-file-alt mr-3"></i> Dispen</h3><label class="text-sm font-medium text-gray-700 mb-2 block">Kirim Surat Dispen:</label><input type="file" id="dispen-file" class="w-full text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200"><button id="submit-dispen" class="mt-auto w-full bg-purple-500 text-white py-2.5 rounded-md hover:bg-purple-600 font-semibold">Kirim</button></div>
+                        <div id="attendance-time-feedback" class="mb-4 p-3 rounded-md text-sm font-medium text-center"></div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <button id="submit-absen-masuk" class="bg-green-500 text-white p-8 rounded-lg flex flex-col items-center justify-center transition duration-300 shadow-lg hover:shadow-xl disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                <i class="fas fa-sign-in-alt text-5xl mb-3"></i>
+                                <span class="font-semibold text-xl">Absen Masuk</span>
+                                <span class="text-xs font-light">(06:00 - 15:00)</span>
+                            </button>
+                            <button id="submit-absen-pulang" class="bg-blue-500 text-white p-8 rounded-lg flex flex-col items-center justify-center transition duration-300 shadow-lg hover:shadow-xl disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                <i class="fas fa-sign-out-alt text-5xl mb-3"></i>
+                                <span class="font-semibold text-xl">Absen Pulang</span>
+                                <span class="text-xs font-light">(14:00 - 15:30)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Pengajuan Izin -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+                        <h2 class="text-2xl font-bold text-gray-700 mb-4">Ajukan Perizinan (Sakit/Izin/Dispen)</h2>
+                        <p class="text-gray-600 mb-4">Jika Anda tidak dapat hadir, silakan ajukan izin di bawah ini untuk disetujui oleh Wali Kelas.</p>
+                        <div id="permission-submission-feedback" class="hidden mb-4 p-4 rounded-md"></div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Form Sakit -->
+                            <div class="bg-yellow-50 p-6 rounded-lg flex flex-col border border-yellow-200"><h3 class="font-semibold text-xl text-center mb-4 flex items-center justify-center text-yellow-700"><i class="fas fa-notes-medical mr-3"></i> Sakit</h3><label class="text-sm font-medium text-gray-700 mb-2 block">Kirim Surat Dokter:</label><input type="file" id="sakit-file" accept="image/*" class="w-full text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-yellow-100 file:text-yellow-700 hover:file:bg-yellow-200"><button id="submit-sakit" class="mt-auto pt-2 w-full bg-yellow-500 text-white py-2.5 rounded-md hover:bg-yellow-600 font-semibold">Kirim</button></div>
+                            <!-- Form Izin -->
+                            <div class="bg-indigo-50 p-6 rounded-lg flex flex-col border border-indigo-200"><h3 class="font-semibold text-xl text-center mb-4 flex items-center justify-center text-indigo-700"><i class="fas fa-envelope-open-text mr-3"></i> Izin</h3><textarea id="izin-message" class="w-full border border-indigo-200 rounded p-2 text-sm mb-3" rows="3" placeholder="Ketik alasan izin..."></textarea><label class="text-sm font-medium text-gray-700 mb-2 block">Dokumentasi (Opsional):</label><input type="file" id="izin-file" accept="image/*" class="w-full text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200"><button id="submit-izin" class="mt-4 w-full bg-indigo-500 text-white py-2.5 rounded-md hover:bg-indigo-600 font-semibold">Kirim Izin</button></div>
+                            <!-- Form Dispen -->
+                            <div class="bg-purple-50 p-6 rounded-lg flex flex-col border border-purple-200"><h3 class="font-semibold text-xl text-center mb-4 flex items-center justify-center text-purple-700"><i class="fas fa-file-alt mr-3"></i> Dispen</h3><label class="text-sm font-medium text-gray-700 mb-2 block">Kirim Surat Dispen:</label><input type="file" id="dispen-file" accept="image/*" class="w-full text-sm text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200"><button id="submit-dispen" class="mt-auto pt-2 w-full bg-purple-500 text-white py-2.5 rounded-md hover:bg-purple-600 font-semibold">Kirim</button></div>
                         </div>
                     </div>
                  </div>
+
                  <div id="siswa-page-dashboard" class="siswa-page hidden">
+                    <!-- ... (Kode Dasbor Siswa tidak berubah) ... -->
                     <div class="bg-white p-6 rounded-lg shadow-lg">
                         <h2 class="text-2xl font-bold text-gray-700 mb-4">Rekapan Kehadiran Saya</h2>
                         <div class="border-b border-gray-200"><nav class="-mb-px flex space-x-6" id="siswa-recap-tabs"><button data-target="harian" class="tab-button active py-2 px-1 border-b-2 font-medium text-sm">Harian</button><button data-target="mingguan" class="tab-button text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 border-transparent font-medium text-sm">Mingguan</button><button data-target="bulanan" class="tab-button text-gray-500 hover:text-gray-700 py-2 px-1 border-b-2 border-transparent font-medium text-sm">Bulanan</button></nav></div>
                         <div class="mt-4">
-                            <div id="siswa-recap-harian"><div class="overflow-x-auto max-h-60"><table class="min-w-full bg-white"><thead class="bg-gray-200 sticky top-0"><tr><th class="py-2 px-4 border-b text-left">Tanggal</th><th class="py-2 px-4 border-b text-left">Status</th></tr></thead><tbody id="siswa-recap-harian-body"></tbody></table></div></div>
+                            <div id="siswa-recap-harian"><div class="overflow-x-auto max-h-60"><table class="min-w-full bg-white"><thead class="bg-gray-200 sticky top-0"><tr><th class="py-2 px-4 border-b text-left">Tanggal</th><th class="py-2 px-4 border-b text-left">Status</th><th class="py-2 px-4 border-b text-left">Keterangan</th></tr></thead><tbody id="siswa-recap-harian-body"></tbody></table></div></div>
                             <div id="siswa-recap-mingguan" class="hidden"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Status</th><th class="py-2 px-4 border-b text-center">Jumlah</th></tr></thead><tbody id="siswa-recap-mingguan-body"></tbody></table></div></div>
                             <div id="siswa-recap-bulanan" class="hidden"><div class="overflow-x-auto"><table class="min-w-full bg-white"><thead class="bg-gray-200"><tr><th class="py-2 px-4 border-b text-left">Status</th><th class="py-2 px-4 border-b text-center">Jumlah</th></tr></thead><tbody id="siswa-recap-bulanan-body"></tbody></table></div></div>
                         </div>
                     </div>
                  </div>
                  <div id="siswa-page-peringkat" class="siswa-page hidden">
+                    <!-- ... (Kode Peringkat Siswa tidak berubah) ... -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-8">
                              <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -354,11 +484,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const usersStorageKey = 'eduAttendUsers_v2';
     const attendanceStorageKey = 'eduAttendAttendance_v2';
     const notificationsStorageKey = 'eduAttendNotifications_v2';
+    // Kunci baru untuk pengajuan izin
+    const permissionsStorageKey = 'eduAttendPermissions_v2';
 
     // ===== DATA DEFAULT (HANYA DIGUNAKAN JIKA LOCALSTORAGE KOSONG) =====
     const defaultUsers = [
         { id: 1, name: 'Admin Sekolah', username: 'admin123', password: 'admin123', role: 'admin' },
-        // Daftar Guru (A-L)
         { id: 101, name: 'Rosalia, S.Pd', username: 'rosalia.spd', password: '123', role: 'guru', waliKelas: 'XII-A' },
         { id: 102, name: 'Rena Agustina, S.Pd', username: 'rena.agustina', password: '123', role: 'guru', waliKelas: 'XII-B' },
         { id: 103, name: 'Nurmalia Susanti, S.Pd', username: 'nurmalia.susanti', password: '123', role: 'guru', waliKelas: 'XII-C' },
@@ -412,6 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     const defaultAttendance = [];
     const defaultNotifications = [];
+    const defaultPermissions = []; // Data default untuk izin
 
     const motivationalQuotes = [
         { quote: "Pendidikan adalah senjata paling ampuh yang bisa kamu gunakan untuk mengubah dunia.", author: "Nelson Mandela" },
@@ -434,19 +566,24 @@ document.addEventListener('DOMContentLoaded', () => {
     let users = loadData(usersStorageKey, defaultUsers);
     let attendanceRecords = loadData(attendanceStorageKey, defaultAttendance);
     let notifications = loadData(notificationsStorageKey, defaultNotifications);
+    let permissionRequests = loadData(permissionsStorageKey, defaultPermissions); // Load data izin
 
     const saveUsers = () => localStorage.setItem(usersStorageKey, JSON.stringify(users));
     const saveAttendance = () => localStorage.setItem(attendanceStorageKey, JSON.stringify(attendanceRecords));
     const saveNotifications = () => localStorage.setItem(notificationsStorageKey, JSON.stringify(notifications));
+    const savePermissions = () => localStorage.setItem(permissionsStorageKey, JSON.stringify(permissionRequests)); // Simpan data izin
 
     // ===== VARIABEL GLOBAL & STATE =====
     let state = {
         currentUser: null,
         // Simulasi tanggal hari ini agar konsisten untuk demo
-        currentDate: new Date('2025-10-14T08:00:00') 
+        currentDate: new Date('2025-10-14T14:30:00') // Jam 2:30 Siang (DIUBAH DARI JAM 8 PAGI)
     };
     let userIdToDelete = null;
     let attendanceChartInstance = null;
+    let currentStream = null; // Untuk stream kamera
+    let currentCaptureType = null; // 'masuk' atau 'pulang'
+    let currentPhotoData = null; // Untuk menyimpan data foto (base64)
 
     // ===== FUNGSI HELPER =====
     const formatDateISO = (date) => date.toISOString().split('T')[0];
@@ -455,6 +592,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const formatDate = (date) => {
         return date.toLocaleDateString('id-ID', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+    };
+    
+    const formatTime = (date) => {
+        return date.toTimeString().split(' ')[0].substring(0, 5); // HH:MM
+    };
+    
+    // FUNGSI HELPER BARU: Membaca file sebagai Base64
+    const readFileAsBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
         });
     };
 
@@ -488,12 +639,9 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const targetId = link.dataset.target;
 
-            // Sembunyikan semua halaman
             document.querySelectorAll(`.${pageClass}`).forEach(page => page.classList.add('hidden'));
-            // Tampilkan target
             document.getElementById(targetId).classList.remove('hidden');
             
-            // Atur status active
             nav.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
             link.classList.add('active');
         });
@@ -509,12 +657,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const targetId = tab.dataset.target;
             
-            // Sembunyikan semua konten
             document.querySelectorAll(contentSelector).forEach(content => content.classList.add('hidden'));
-            // Tampilkan target
             document.getElementById(`${tabsContainerId === 'recap-tabs' ? 'recap' : 'siswa-recap'}-${targetId}`).classList.remove('hidden');
 
-            // Atur status active
             tabsContainer.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
         });
@@ -549,7 +694,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                 }
             } else {
-                // Login benar, tapi peran salah
                 let peranYangBenar = '';
                 if (userByCredentials.role === 'admin') peranYangBenar = 'Admin';
                 else if (userByCredentials.role === 'guru') peranYangBenar = 'Guru';
@@ -559,11 +703,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 loginError.classList.remove('hidden');
             }
         } else {
-            // User tidak ditemukan
             loginError.textContent = 'Username, password, atau peran salah.';
             loginError.classList.remove('hidden');
         }
     });
+    
+    // Bantuan Login
+    document.getElementById('toggle-hint-btn').addEventListener('click', () => {
+        document.getElementById('login-hint').classList.toggle('hidden');
+    });
+
 
     // ===== DASBOR ADMIN =====
     const initAdminDashboard = () => {
@@ -579,24 +728,82 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMonthlyRecap();
         renderUserManagementTables();
         renderNotificationDropdowns();
+        renderAdminPendingPermissions(); // Panggil fungsi baru
     };
 
     const renderAdminDashboardStats = () => {
         const todaysRecords = attendanceRecords.filter(r => r.date === todayISO);
         const counts = { Hadir: 0, Sakit: 0, Izin: 0, Dispen: 0, Alfa: 0 };
-        todaysRecords.forEach(r => counts[r.status]++);
+        
+        todaysRecords.forEach(r => {
+            if (counts.hasOwnProperty(r.status)) {
+                counts[r.status]++;
+            }
+        });
         
         const allStudents = users.filter(u => u.role === 'siswa').length;
-        counts.Alfa = allStudents - todaysRecords.length; // Alfa adalah siswa yg tidak punya record
+        const attendedStudents = todaysRecords.map(r => r.studentId);
+        // Hitung siswa yang mengajukan izin dan disetujui
+        const pendingPermissions = permissionRequests.filter(p => p.date === todayISO && p.state === 'pending').map(p => p.studentId);
+
+        counts.Alfa = allStudents - [...new Set(attendedStudents.concat(pendingPermissions))].length;
 
         document.getElementById('hadir-count').textContent = counts.Hadir;
         document.getElementById('sakit-count').textContent = counts.Sakit;
         document.getElementById('izin-count').textContent = counts.Izin;
         document.getElementById('dispen-count').textContent = counts.Dispen;
-        document.getElementById('alfa-count').textContent = counts.Alfa;
+        document.getElementById('alfa-count').textContent = counts.Alfa < 0 ? 0 : counts.Alfa;
+    };
+
+    // FUNGSI BARU: Render daftar izin tertunda untuk Admin (DENGAN FOTO)
+    const renderAdminPendingPermissions = () => {
+        const container = document.getElementById('admin-pending-permissions-list');
+        container.innerHTML = ''; // Kosongkan dulu
+        
+        const pendingRequests = permissionRequests.filter(p => p.state === 'pending' && p.date === todayISO);
+        
+        if (pendingRequests.length === 0) {
+            container.innerHTML = '<p class="text-gray-500">Tidak ada pengajuan izin yang tertunda.</p>';
+            return;
+        }
+
+        pendingRequests.forEach(req => {
+            const student = users.find(u => u.id === req.studentId);
+            if (!student) return; // Lewati jika siswa tidak ditemukan
+            
+            const guru = users.find(u => u.role === 'guru' && u.waliKelas === student.kelas);
+            
+            let proofHTML = '';
+            // Logic to render proof (Text, Image, or Image + Text)
+            if (req.proof.type === 'message') {
+                proofHTML = `<p class="text-sm text-gray-500 mt-1">Pesan: <span class="italic">"${req.proof.value}"</span></p>`;
+            } else if (req.proof.type === 'file') {
+                // It's a file (base64 image)
+                proofHTML = `
+                    <div class="mt-1">
+                        <p class="text-sm text-gray-500">Bukti Foto:</p>
+                        <!-- PERUBAHAN: Menampilkan foto (dibuat kecil) -->
+                        <img src="${req.proof.value}" alt="Bukti ${req.status}" class="w-full max-w-[100px] rounded-md mt-1 border">
+                    </div>
+                `;
+                // Check if there's also a message (for Izin)
+                if (req.proof.message) {
+                    proofHTML += `<p class="text-sm text-gray-500 mt-1">Pesan Tambahan: <span class="italic">"${req.proof.message}"</span></p>`;
+                }
+            }
+
+            container.innerHTML += `
+                <div class="p-3 border rounded-md bg-gray-50">
+                    <p class="font-semibold">${student.name} (${student.kelas}) - <span class="font-normal ${getStatusClass(req.status)} px-2 py-0.5 rounded text-xs">${req.status}</span></p>
+                    <p class="text-sm text-gray-600 mt-1">Wali Kelas: ${guru ? guru.name : 'N/A'}</p>
+                    ${proofHTML}
+                </div>
+            `;
+        });
     };
 
     const renderAttendanceChart = () => {
+        // ... (Fungsi ini tidak berubah signifikan) ...
         const ctx = document.getElementById('attendanceChart').getContext('2d');
         const startDate = todayISO.substring(0, 8) + '01';
         const endDate = todayISO;
@@ -623,11 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             options: {
                 responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
+                plugins: { legend: { position: 'top' } }
             }
         });
     };
@@ -657,18 +860,52 @@ document.addEventListener('DOMContentLoaded', () => {
         const allStudents = users.filter(u => u.role === 'siswa');
         
         if (allStudents.length === 0) {
-            body.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-gray-500">Belum ada data siswa.</td></tr>`;
+            body.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-gray-500">Belum ada data siswa.</td></tr>`;
             return;
         }
 
         allStudents.forEach(student => {
             const record = records.find(r => r.studentId === student.id);
-            const status = record ? record.status : 'Alfa';
+            // PERBAIKAN: Cek juga izin yang sedang pending
+            const pendingPermission = permissionRequests.find(p => p.studentId === student.id && p.date === dateISO && p.state === 'pending');
+            
+            let status = 'Alfa';
+            let photoButton = '-';
+            let statusClass = getStatusClass('Alfa');
+            let statusText = 'Alfa';
+
+            if (record) {
+                status = record.status;
+                statusClass = getStatusClass(status);
+                statusText = status;
+                
+                if (record.status === 'Hadir') {
+                    let buttons = '';
+                    if(record.photoMasuk) buttons += `<button class="view-photo-btn text-xs bg-green-200 text-green-800 px-2 py-1 rounded" data-photo="${record.photoMasuk}">Masuk</button> `;
+                    if(record.photoPulang) buttons += `<button class="view-photo-btn text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded" data-photo="${record.photoPulang}">Pulang</button>`;
+                    if(buttons) photoButton = buttons;
+                } else {
+                    // Jika statusnya Sakit/Izin/Dispen, mungkin ada bukti foto
+                    const approvedPermission = permissionRequests.find(p => p.studentId === student.id && p.date === dateISO && p.state === 'approved' && p.proof.type === 'file');
+                    if(approvedPermission) {
+                        photoButton = `<button class="view-photo-btn text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded" data-photo="${approvedPermission.proof.value}">Lihat Bukti</button>`;
+                    }
+                }
+            } else if (pendingPermission) {
+                status = pendingPermission.status;
+                statusClass = getStatusClass(status);
+                statusText = `${status} (Pending)`;
+                if(pendingPermission.proof.type === 'file') {
+                    photoButton = `<button class="view-photo-btn text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded" data-photo="${pendingPermission.proof.value}">Lihat Bukti</button>`;
+                }
+            }
+
             body.innerHTML += `
                 <tr class="border-b">
                     <td class="py-2 px-4 text-left">${student.name}</td>
                     <td class="py-2 px-4 text-left">${student.kelas}</td>
-                    <td class="py-2 px-4 text-left"><span class="px-2 py-1 rounded-full text-xs font-semibold ${getStatusClass(status)}">${status}</span></td>
+                    <td class="py-2 px-4 text-left"><span class="px-2 py-1 rounded-full text-xs font-semibold ${statusClass}">${statusText}</span></td>
+                    <td class="py-2 px-4 text-center">${photoButton}</td>
                 </tr>
             `;
         });
@@ -737,7 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    // Manajemen Pengguna
+    // Manajemen Pengguna (Tidak berubah)
     const renderUserManagementTables = () => {
         const guruBody = document.getElementById('guru-table-body');
         const siswaBody = document.getElementById('siswa-table-body');
@@ -775,7 +1012,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    // Event delegation for user management buttons
     document.getElementById('manajemen-pengguna').addEventListener('click', e => {
         const editBtn = e.target.closest('.edit-user-btn');
         const deleteBtn = e.target.closest('.delete-user-btn');
@@ -793,7 +1029,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Tombol untuk modal konfirmasi hapus
     document.getElementById('cancel-delete-btn').addEventListener('click', () => {
         document.getElementById('delete-confirm-modal').classList.add('hidden');
         userIdToDelete = null;
@@ -852,15 +1087,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('modal-password').value;
         const kelas = document.getElementById('modal-kelas').value;
         
-        const userData = { role, username, name: username, password }; // Name disamakan dengan username
+        const userData = { role, username, name: username, password };
         
         if (role === 'siswa') userData.kelas = kelas;
         if (role === 'guru') userData.waliKelas = kelas;
 
-        if (id) { // Edit mode
+        if (id) {
             const userIndex = users.findIndex(u => u.id === parseInt(id));
             if(userIndex > -1) users[userIndex] = { ...users[userIndex], ...userData };
-        } else { // Add mode
+        } else {
             userData.id = (users.length > 0 ? Math.max(...users.map(u => u.id)) : 0) + 1;
             users.push(userData);
         }
@@ -870,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('user-modal').classList.add('hidden');
     });
 
-    // Notifikasi
+    // Notifikasi (Tidak berubah)
     const renderNotificationDropdowns = () => {
         const teacherSelect = document.getElementById('select-wali-kelas');
         const parentSelect = document.getElementById('select-orang-tua');
@@ -881,7 +1116,6 @@ document.addEventListener('DOMContentLoaded', () => {
             teacherSelect.innerHTML += `<option value="${g.id}">${g.name} (${g.waliKelas || 'N/A'})</option>`;
         });
         users.filter(u => u.role === 'siswa').forEach(s => {
-            // Gunakan 'parentName' jika ada, jika tidak, buat placeholder
             const parentDisplayName = s.parentName || `Ortu dari ${s.name}`;
             parentSelect.innerHTML += `<option value="${s.id}">${parentDisplayName} (${s.kelas || 'N/A'})</option>`;
         });
@@ -897,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('send-to-teacher-btn').addEventListener('click', () => {
         const recipientId = document.getElementById('select-wali-kelas').value;
         const message = document.getElementById('notification-message').value;
-        if (!recipientId || !message) { alert('Pilih guru dan isi pesan.'); return; }
+        if (!recipientId || !message) { return; }
         
         notifications.push({ id: notifications.length + 1, recipientId: parseInt(recipientId), recipientType: 'guru', message, read: false, date: todayISO });
         saveNotifications();
@@ -906,9 +1140,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     document.getElementById('send-to-parent-btn').addEventListener('click', () => {
-        const recipientId = document.getElementById('select-orang-tua').value; // studentId is used
+        const recipientId = document.getElementById('select-orang-tua').value;
         const message = document.getElementById('notification-message').value;
-        if (!recipientId || !message) { alert('Pilih orang tua dan isi pesan.'); return; }
+        if (!recipientId || !message) { return; }
         
         notifications.push({ id: notifications.length + 1, recipientId: parseInt(recipientId), recipientType: 'parent', message, read: false, date: todayISO });
         saveNotifications();
@@ -929,6 +1163,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderGuruAttendanceForm();
         renderGuruNotifications();
         renderGuruHistory();
+        renderPermissionRequests(); // Render daftar izin
+        
+        // KODE YANG MENYEBABKAN ERROR DIHAPUS DARI SINI
     };
 
     const renderGuruAttendanceForm = () => {
@@ -947,11 +1184,19 @@ document.addEventListener('DOMContentLoaded', () => {
         students.forEach(student => {
             const record = todaysRecords.find(r => r.studentId === student.id);
             const statuses = ['Hadir', 'Sakit', 'Izin', 'Dispen', 'Alfa'];
+            
+            let checkedStatus = 'Alfa'; // Default
+            if (record) {
+                checkedStatus = record.status;
+            } else {
+                const pendingPermission = permissionRequests.find(p => p.studentId === student.id && p.date === todayISO && p.state === 'pending');
+                if (pendingPermission) checkedStatus = pendingPermission.status; // Tampilkan status yg diajukan
+            }
+
             const radioButtons = statuses.map(status => `
                 <label class="mr-4">
                     <input type="radio" name="status-${student.id}" value="${status}" 
-                    ${record && record.status === status ? 'checked' : ''}
-                    ${!record && status === 'Alfa' ? 'checked' : ''}
+                    ${checkedStatus === status ? 'checked' : ''}
                     required>
                     ${status}
                 </label>
@@ -974,12 +1219,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusInput = e.target[`status-${student.id}`];
             if (statusInput) {
                 const status = statusInput.value;
+                if (status === 'Alfa') return; // Jangan simpan alfa, biarkan kosong
+
                 const recordIndex = attendanceRecords.findIndex(r => r.studentId === student.id && r.date === todayISO);
                 
                 if (recordIndex > -1) {
                     attendanceRecords[recordIndex].status = status;
                 } else {
-                    attendanceRecords.push({ studentId: student.id, date: todayISO, status });
+                    // Hanya tambahkan jika bukan 'Hadir' (karena hadir harus pakai foto)
+                    if(status !== 'Hadir') {
+                        attendanceRecords.push({ studentId: student.id, date: todayISO, status });
+                    }
                 }
             }
         });
@@ -994,6 +1244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const renderGuruNotifications = () => {
+        // ... (Fungsi tidak berubah) ...
         const list = document.getElementById('guru-notifications-list');
         list.innerHTML = '';
         const guruNotifications = notifications.filter(n => n.recipientType === 'guru' && n.recipientId === state.currentUser.id);
@@ -1004,9 +1255,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         guruNotifications.reverse().forEach(n => {
+            // PERBAIKAN: Tambahkan tombol lihat foto jika ada
+            let photoButton = '';
+            if (n.photo) {
+                photoButton = `<button class="view-photo-btn text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded mt-2" data-photo="${n.photo}">Lihat Foto</button>`;
+            }
+            
             list.innerHTML += `
                 <div class="p-3 rounded-md ${n.read ? 'bg-gray-100' : 'bg-yellow-100'}">
                     <p class="text-sm text-gray-800">${n.message}</p>
+                    ${photoButton}
                     <p class="text-xs text-gray-500 text-right mt-1">${formatDate(new Date(n.date + 'T00:00:00'))}</p>
                 </div>
             `;
@@ -1029,9 +1287,136 @@ document.addEventListener('DOMContentLoaded', () => {
 
         submittedRecords.forEach(record => {
             const student = users.find(u => u.id === record.studentId);
-            list.innerHTML += `<p class="p-2 bg-gray-50 rounded text-sm">${student.name}: <span class="font-semibold">${record.status}</span></p>`;
+            let photoInfo = '';
+            if (record.status === 'Hadir') {
+                if(record.photoMasuk) photoInfo += `<button class="view-photo-btn ml-4 text-xs bg-green-200 text-green-800 px-2 py-1 rounded" data-photo="${record.photoMasuk}">Lihat Foto Masuk</button>`;
+                if(record.photoPulang) photoInfo += `<button class="view-photo-btn ml-2 text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded" data-photo="${record.photoPulang}">Lihat Foto Pulang</button>`;
+            } else {
+                // Jika statusnya Sakit/Izin/Dispen, mungkin ada bukti foto
+                const approvedPermission = permissionRequests.find(p => p.studentId === student.id && p.date === todayISO && p.state === 'approved' && p.proof.type === 'file');
+                if(approvedPermission) {
+                    photoInfo = `<button class="view-photo-btn ml-4 text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded" data-photo="${approvedPermission.proof.value}">Lihat Bukti</button>`;
+                }
+            }
+            list.innerHTML += `<div class="p-2 bg-gray-50 rounded text-sm flex justify-between items-center">${student.name}: <span class="font-semibold">${record.status}</span> <span>${photoInfo}</span></div>`;
         });
     };
+
+    // FUNGSI GURU: Render daftar izin (DIPERBARUI)
+    const renderPermissionRequests = () => {
+        const sakitList = document.getElementById('guru-sakit-list');
+        const izinList = document.getElementById('guru-izin-list');
+        const dispenList = document.getElementById('guru-dispen-list');
+        
+        sakitList.innerHTML = '';
+        izinList.innerHTML = '';
+        dispenList.innerHTML = '';
+        
+        const guruWaliKelas = state.currentUser.waliKelas;
+        const studentsInClassIds = users.filter(u => u.role === 'siswa' && u.kelas === guruWaliKelas).map(s => s.id);
+        
+        const pendingRequests = permissionRequests.filter(p => 
+            studentsInClassIds.includes(p.studentId) && 
+            p.state === 'pending' && 
+            p.date === todayISO
+        );
+
+        let count = 0;
+
+        pendingRequests.forEach(req => {
+            const student = users.find(u => u.id === req.studentId);
+            let proofHTML = '';
+            
+            // Logic to render proof (Text, Image, or Image + Text)
+            if (req.proof.type === 'message') {
+                proofHTML = `<p class="text-sm text-gray-600 mt-2">Pesan: <span class="italic">"${req.proof.value}"</span></p>`;
+            } else if (req.proof.type === 'file') {
+                // It's a file (base64 image)
+                proofHTML = `
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-600">Bukti Foto:</p>
+                        <!-- PERUBAHAN: Menampilkan foto -->
+                        <img src="${req.proof.value}" alt="Bukti ${req.status}" class="w-full max-w-xs rounded-md mt-1 border">
+                    </div>
+                `;
+                // Check if there's also a message (for Izin)
+                if (req.proof.message) {
+                    proofHTML += `<p class="text-sm text-gray-600 mt-2">Pesan Tambahan: <span class="italic">"${req.proof.message}"</span></p>`;
+                }
+            }
+
+            const cardHTML = `
+                <div class="p-4 border rounded-md bg-white">
+                    <p class="font-semibold">${student.name}</p>
+                    ${proofHTML}
+                    <div class="flex gap-4 mt-4">
+                        <button class="approve-permission-btn w-full bg-green-500 text-white py-1 rounded-md hover:bg-green-600 text-sm" data-id="${req.id}">Setujui</button>
+                        <button class="reject-permission-btn w-full bg-red-500 text-white py-1 rounded-md hover:bg-red-600 text-sm" data-id="${req.id}">Tolak</button>
+                    </div>
+                </div>
+            `;
+            
+            // Sort into correct list
+            if (req.status === 'Sakit') {
+                sakitList.innerHTML += cardHTML;
+            } else if (req.status === 'Izin') {
+                izinList.innerHTML += cardHTML;
+            } else if (req.status === 'Dispen') {
+                dispenList.innerHTML += cardHTML;
+            }
+            count++;
+        });
+
+        if (sakitList.innerHTML === '') sakitList.innerHTML = '<p class="text-gray-500 text-sm">Tidak ada pengajuan sakit.</p>';
+        if (izinList.innerHTML === '') izinList.innerHTML = '<p class="text-gray-500 text-sm">Tidak ada pengajuan izin.</p>';
+        if (dispenList.innerHTML === '') dispenList.innerHTML = '<p class="text-gray-500 text-sm">Tidak ada pengajuan dispen.</p>';
+    };
+
+    // Event listener untuk tombol setuju/tolak izin (Event listener diubah ke #guru-page-perizinan)
+    document.getElementById('guru-page-perizinan').addEventListener('click', e => {
+        const approveBtn = e.target.closest('.approve-permission-btn');
+        const rejectBtn = e.target.closest('.reject-permission-btn');
+        const feedback = document.getElementById('guru-permission-feedback');
+
+        const permissionId = parseInt(approveBtn?.dataset.id || rejectBtn?.dataset.id);
+        if (!permissionId) return;
+
+        const requestIndex = permissionRequests.findIndex(p => p.id === permissionId);
+        if (requestIndex === -1) return;
+
+        const request = permissionRequests[requestIndex];
+        
+        if (approveBtn) {
+            // 1. Setujui: Ubah status, hapus dari 'pending'
+            request.state = 'approved';
+            
+            // 2. Tambahkan ke catatan absensi
+            const existingRecord = attendanceRecords.find(r => r.studentId === request.studentId && r.date === request.date);
+            if (existingRecord) {
+                existingRecord.status = request.status; // Timpa status (misal, dari Hadir jadi Sakit)
+            } else {
+                attendanceRecords.push({
+                    studentId: request.studentId,
+                    date: request.date,
+                    status: request.status
+                });
+            }
+            saveAttendance();
+            feedback.textContent = `Pengajuan ${request.status} for ${users.find(u=>u.id === request.studentId).name} disetujui.`;
+
+        } else if (rejectBtn) {
+            // 1. Tolak: Ubah status, hapus dari 'pending'
+            request.state = 'rejected';
+            feedback.textContent = `Pengajuan ${request.status} for ${users.find(u=>u.id === request.studentId).name} ditolak.`;
+        }
+        
+        savePermissions();
+        renderPermissionRequests(); // Render ulang daftar
+        renderGuruAttendanceForm(); // Render ulang form absensi
+        feedback.classList.remove('hidden');
+        setTimeout(() => feedback.classList.add('hidden'), 3000);
+    });
+
     
     // ===== DASBOR SISWA =====
     const initSiswaDashboard = () => {
@@ -1045,58 +1430,387 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMotivationalQuote();
     };
 
+    // FUNGSI BARU: Untuk menampilkan error di form izin
+    const showPermissionError = (message) => {
+        const feedback = document.getElementById('permission-submission-feedback');
+        feedback.innerHTML = `<strong class="font-bold">Gagal:</strong> ${message}`;
+        feedback.className = 'mb-4 p-4 rounded-md bg-red-100 text-red-800'; // Error styling
+        feedback.classList.remove('hidden');
+    };
+
     const checkStudentSubmissionStatus = () => {
-        const todaysRecord = attendanceRecords.find(r => r.studentId === state.currentUser.id && r.date === todayISO);
-        const feedback = document.getElementById('student-submission-feedback');
-        const buttons = document.querySelectorAll('#siswa-page-ajukan button, #siswa-page-ajukan input, #siswa-page-ajukan textarea');
+        const studentId = state.currentUser.id;
+        const todaysRecord = attendanceRecords.find(r => r.studentId === studentId && r.date === todayISO);
+        const pendingPermission = permissionRequests.find(p => p.studentId === studentId && p.date === todayISO && p.state === 'pending');
         
+        const feedback = document.getElementById('student-submission-feedback');
+        const timeFeedback = document.getElementById('attendance-time-feedback');
+        const btnMasuk = document.getElementById('submit-absen-masuk');
+        const btnPulang = document.getElementById('submit-absen-pulang');
+        const permissionButtons = document.querySelectorAll('#siswa-page-ajukan button[id^="submit-sakit"], #siswa-page-ajukan button[id^="submit-izin"], #siswa-page-ajukan button[id^="submit-dispen"]');
+
+        // Nonaktifkan semua form izin
+        const disablePermissionForms = (message) => {
+            permissionButtons.forEach(btn => btn.disabled = true);
+            document.getElementById('sakit-file').disabled = true;
+            document.getElementById('izin-message').disabled = true;
+            document.getElementById('izin-file').disabled = true;
+            document.getElementById('dispen-file').disabled = true;
+            
+            // PERBAIKAN: Variabel 'permissionFeedback' belum didefinisikan.
+            const permissionFeedback = document.getElementById('permission-submission-feedback');
+            permissionFeedback.innerHTML = `<strong class="font-bold">Info:</strong> ${message}`;
+            permissionFeedback.className = 'mb-4 p-4 rounded-md bg-blue-100 text-blue-800';
+            permissionFeedback.classList.remove('hidden');
+        };
+
+        // FUNGSI BARU UNTUK ME-RESET FORM IZIN
+        const enablePermissionForms = () => {
+            permissionButtons.forEach(btn => btn.disabled = false);
+            document.getElementById('sakit-file').disabled = false;
+            document.getElementById('izin-message').disabled = false;
+            document.getElementById('izin-message').value = ''; // Kosongkan pesan
+            document.getElementById('izin-file').disabled = false;
+            document.getElementById('dispen-file').disabled = false;
+            
+            // Bersihkan juga file input (cara standar)
+            document.getElementById('sakit-file').value = '';
+            document.getElementById('izin-file').value = '';
+            document.getElementById('dispen-file').value = '';
+            
+            const permissionFeedback = document.getElementById('permission-submission-feedback');
+            permissionFeedback.innerHTML = ''; // Hapus pesan
+            permissionFeedback.classList.add('hidden'); // Sembunyikan boks
+        };
+
+        // Cek jika sudah ada data absensi
         if (todaysRecord) {
-            feedback.innerHTML = `<strong class="font-bold">Terima kasih!</strong> Anda sudah melakukan absensi hari ini dengan status: <strong>${todaysRecord.status}</strong>.`;
-            feedback.className = 'mb-4 p-4 rounded-md bg-green-100 text-green-800';
+            if (todaysRecord.status === 'Hadir') {
+                feedback.innerHTML = `<strong class="font-bold">Terima kasih!</strong> Anda sudah melakukan absensi hari ini.`;
+                feedback.className = 'mb-4 p-4 rounded-md bg-green-100 text-green-800';
+                
+                // Cek status tombol masuk/pulang
+                btnMasuk.disabled = true; // Selalu disable jika sudah ada record 'Hadir'
+                if (todaysRecord.photoPulang) {
+                    btnPulang.disabled = true; // Disable jika sudah absen pulang
+                } else {
+                    // Boleh absen pulang?
+                    const currentHour = state.currentDate.getHours();
+                    if (currentHour >= 14 && currentHour < 16) { // 14:00 - 15:59 (15:30)
+                        btnPulang.disabled = false;
+                        timeFeedback.textContent = 'Waktu Absen Pulang dibuka.';
+                        timeFeedback.className = 'mb-4 p-3 rounded-md text-sm font-medium text-center bg-blue-100 text-blue-800';
+                    } else {
+                        btnPulang.disabled = true;
+                        timeFeedback.textContent = 'Waktu Absen Pulang belum dibuka (14:00 - 15:30).';
+                        timeFeedback.className = 'mb-4 p-3 rounded-md text-sm font-medium text-center bg-gray-100 text-gray-800';
+                    }
+                }
+                disablePermissionForms('Anda sudah tercatat Hadir, tidak bisa mengajukan izin.');
+
+            } else {
+                // Status Sakit, Izin, Dispen (sudah disetujui)
+                feedback.innerHTML = `<strong class="font-bold">Info:</strong> Status Anda hari ini adalah <strong>${todaysRecord.status}</strong> (Telah disetujui).`;
+                feedback.className = 'mb-4 p-4 rounded-md bg-blue-100 text-blue-800';
+                btnMasuk.disabled = true;
+                btnPulang.disabled = true;
+                disablePermissionForms('Status Anda hari ini sudah tercatat.');
+            }
             feedback.classList.remove('hidden');
-            buttons.forEach(btn => btn.disabled = true);
-        } else {
-            feedback.classList.add('hidden');
-            buttons.forEach(btn => btn.disabled = false);
+            timeFeedback.classList.remove('hidden');
+            return;
         }
+
+        // Cek jika sedang menunggu persetujuan
+        if (pendingPermission) {
+            feedback.innerHTML = `<strong class="font-bold">Menunggu Persetujuan:</strong> Pengajuan ${pendingPermission.status} Anda sedang ditinjau oleh Wali Kelas.`;
+            feedback.className = 'mb-4 p-4 rounded-md bg-yellow-100 text-yellow-800';
+            feedback.classList.remove('hidden');
+            btnMasuk.disabled = true;
+            btnPulang.disabled = true;
+            disablePermissionForms('Anda sudah mengajukan izin dan sedang menunggu persetujuan.');
+            return;
+        }
+
+        // --- Jika belum ada data sama sekali ---
+        
+        // PANGGIL FUNGSI RESET DI SINI
+        enablePermissionForms(); 
+
+        feedback.classList.add('hidden');
+        const currentHour = state.currentDate.getHours();
+
+        // Cek Waktu Absen Masuk (06:00 - 15:00)
+        if (currentHour >= 6 && currentHour < 15) {
+            btnMasuk.disabled = false;
+            timeFeedback.textContent = 'Waktu Absen Masuk dibuka.';
+            timeFeedback.className = 'mb-4 p-3 rounded-md text-sm font-medium text-center bg-green-100 text-green-800';
+        } else {
+            btnMasuk.disabled = true;
+            timeFeedback.textContent = 'Waktu Absen Masuk ditutup (06:00 - 15:00).';
+            timeFeedback.className = 'mb-4 p-3 rounded-md text-sm font-medium text-center bg-gray-100 text-gray-800';
+        }
+        
+        // Cek Waktu Absen Pulang (14:00 - 15:30)
+        if (currentHour >= 14 && currentHour < 16) { // 14:00 - 15:30 (15.99)
+             btnPulang.disabled = false;
+             // Jika jam masuk dan pulang beririsan, prioritaskan pesan masuk
+             if (!btnMasuk.disabled) {
+                 timeFeedback.textContent = 'Waktu Absen Masuk dan Pulang dibuka.';
+                 timeFeedback.className = 'mb-4 p-3 rounded-md text-sm font-medium text-center bg-blue-100 text-blue-800';
+             }
+        } else {
+            btnPulang.disabled = true;
+        }
+        timeFeedback.classList.remove('hidden');
     };
     
-    const handleStudentSubmission = (status, details = {}) => {
-        attendanceRecords.push({ studentId: state.currentUser.id, date: todayISO, status, ...details });
-        saveAttendance();
-        checkStudentSubmissionStatus();
+    // Fungsi untuk mengirim pengajuan Izin/Sakit/Dispen
+    const handlePermissionRequest = (status, proof) => {
+        const studentId = state.currentUser.id;
+        
+        // Cek dulu apakah sudah mengajukan
+        const existingRequest = permissionRequests.find(p => p.studentId === studentId && p.date === todayISO && p.state === 'pending');
+        if (existingRequest) {
+            // PERBAIKAN: Ganti alert()
+            showPermissionError('Anda sudah mengajukan izin hari ini.');
+            return;
+        }
+
+        // Cek apakah sudah terlanjur absen
+        const existingAttendance = attendanceRecords.find(r => r.studentId === studentId && r.date === todayISO);
+        if (existingAttendance) {
+            // PERBAIKAN: Ganti alert()
+            showPermissionError('Anda sudah tercatat diabsen hari ini, tidak bisa mengajukan izin.');
+            return;
+        }
+
+        permissionRequests.push({
+            id: (permissionRequests.length > 0 ? Math.max(...permissionRequests.map(p => p.id)) : 0) + 1,
+            studentId,
+            date: todayISO,
+            status,
+            proof,
+            state: 'pending' // Status awal
+        });
+        savePermissions();
+        checkStudentSubmissionStatus(); // Refresh halaman
     };
 
-    document.getElementById('submit-hadir').addEventListener('click', () => handleStudentSubmission('Hadir'));
-    document.getElementById('submit-sakit').addEventListener('click', () => {
+    // Event listener untuk tombol pengajuan izin (DIUBAH DENGAN ASYNC/AWAIT UNTUK FILE)
+    document.getElementById('submit-sakit').addEventListener('click', async () => {
+        document.getElementById('permission-submission-feedback').classList.add('hidden');
         const file = document.getElementById('sakit-file').files[0];
-        if (!file) { alert('Mohon unggah surat dokter.'); return; }
-        handleStudentSubmission('Sakit', { file: file.name });
+        if (!file) { 
+            showPermissionError('Mohon unggah surat dokter.'); 
+            return; 
+        }
+        try {
+            const fileData = await readFileAsBase64(file);
+            handlePermissionRequest('Sakit', { type: 'file', value: fileData });
+        } catch (error) {
+            showPermissionError('Gagal membaca file.');
+        }
     });
-    document.getElementById('submit-izin').addEventListener('click', () => {
+    
+    document.getElementById('submit-izin').addEventListener('click', async () => {
+        document.getElementById('permission-submission-feedback').classList.add('hidden');
         const message = document.getElementById('izin-message').value;
-        if (!message) { alert('Mohon isi pesan izin.'); return; }
-        handleStudentSubmission('Izin', { message });
-    });
-    document.getElementById('submit-dispen').addEventListener('click', () => {
-        const file = document.getElementById('dispen-file').files[0];
-        if (!file) { alert('Mohon unggah surat dispen.'); return; }
-        handleStudentSubmission('Dispen', { file: file.name });
+        const file = document.getElementById('izin-file').files[0];
+        if (!message && !file) { 
+            showPermissionError('Mohon isi pesan izin atau unggah file.'); 
+            return; 
+        }
+        
+        let proof;
+        if (file) {
+            try {
+                const fileData = await readFileAsBase64(file);
+                // Jika ada file, itu bukti utama. Pesan adalah tambahan.
+                proof = { type: 'file', value: fileData, message: message || null }; 
+            } catch (error) {
+                showPermissionError('Gagal membaca file.');
+                return;
+            }
+        } else {
+            proof = { type: 'message', value: message };
+        }
+        handlePermissionRequest('Izin', proof);
     });
 
+    document.getElementById('submit-dispen').addEventListener('click', async () => {
+        document.getElementById('permission-submission-feedback').classList.add('hidden');
+        const file = document.getElementById('dispen-file').files[0];
+        if (!file) { 
+            showPermissionError('Mohon unggah surat dispen.'); 
+            return; 
+        }
+        try {
+            const fileData = await readFileAsBase64(file);
+            handlePermissionRequest('Dispen', { type: 'file', value: fileData });
+        } catch (error) {
+            showPermissionError('Gagal membaca file.');
+        }
+    });
+
+
+    // --- Logika Kamera ---
+    const openCameraModal = (type) => {
+        currentCaptureType = type;
+        currentPhotoData = null;
+        
+        const modal = document.getElementById('camera-modal');
+        const preview = document.getElementById('camera-preview');
+        const loading = document.getElementById('camera-loading');
+        const error = document.getElementById('camera-error');
+        const captureBtn = document.getElementById('capture-photo-btn');
+        const submitBtn = document.getElementById('submit-attendance-photo-btn');
+        
+        modal.classList.remove('hidden');
+        preview.classList.add('hidden');
+        loading.classList.remove('hidden');
+        error.classList.add('hidden');
+        captureBtn.classList.remove('hidden');
+        submitBtn.classList.add('hidden');
+        document.getElementById('camera-modal-title').textContent = `Ambil Foto Absen ${type === 'masuk' ? 'Masuk' : 'Pulang'}`;
+
+        // Minta akses kamera
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(stream => {
+                currentStream = stream;
+                preview.srcObject = stream;
+                preview.classList.remove('hidden');
+                loading.classList.add('hidden');
+            })
+            .catch(err => {
+                console.error("Error accessing camera: ", err);
+                error.textContent = 'Gagal mengakses kamera. Pastikan Anda memberi izin.';
+                error.classList.remove('hidden');
+                loading.classList.add('hidden');
+            });
+    };
+
+    const stopCamera = () => {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+        currentStream = null;
+        document.getElementById('camera-modal').classList.add('hidden');
+    };
+
+    document.getElementById('cancel-camera-btn').addEventListener('click', stopCamera);
+
+    document.getElementById('capture-photo-btn').addEventListener('click', () => {
+        const preview = document.getElementById('camera-preview');
+        const canvas = document.getElementById('camera-canvas');
+        const context = canvas.getContext('2d');
+        
+        canvas.width = preview.videoWidth;
+        canvas.height = preview.videoHeight;
+        
+        // Gambar cermin (flipped) ke canvas
+        context.translate(canvas.width, 0);
+        context.scale(-1, 1);
+        context.drawImage(preview, 0, 0, canvas.width, canvas.height);
+        context.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+        
+        currentPhotoData = canvas.toDataURL('image/jpeg', 0.8); // Kompresi sedikit
+        
+        // Tampilkan tombol kirim
+        document.getElementById('capture-photo-btn').classList.add('hidden');
+        document.getElementById('submit-attendance-photo-btn').classList.remove('hidden');
+        
+        // Hentikan stream setelah foto diambil
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+        currentStream = null;
+    });
+
+    document.getElementById('submit-attendance-photo-btn').addEventListener('click', () => {
+        if (!currentPhotoData || !currentCaptureType) return;
+        
+        const studentId = state.currentUser.id;
+        const currentTime = formatTime(state.currentDate);
+        
+        // Cari rekaman hari ini
+        let record = attendanceRecords.find(r => r.studentId === studentId && r.date === todayISO);
+        
+        if (!record) {
+            // Jika belum ada record sama sekali (ini pasti Absen Masuk)
+            record = {
+                studentId: studentId,
+                date: todayISO,
+                status: 'Hadir',
+                photoMasuk: currentPhotoData,
+                timeMasuk: currentTime,
+                photoPulang: null,
+                timePulang: null
+            };
+            attendanceRecords.push(record);
+        } else {
+            // Jika sudah ada record (misal, sudah Absen Masuk, sekarang Pulang)
+            if (currentCaptureType === 'masuk') {
+                record.photoMasuk = currentPhotoData;
+                record.timeMasuk = currentTime;
+            } else if (currentCaptureType === 'pulang') {
+                record.photoPulang = currentPhotoData;
+                record.timePulang = currentTime;
+            }
+        }
+        
+        saveAttendance();
+        
+        // PERBAIKAN: Kirim notifikasi ke Wali Kelas
+        const student = state.currentUser;
+        const guru = users.find(u => u.role === 'guru' && u.waliKelas === student.kelas);
+        if (guru) {
+            notifications.push({
+                id: (notifications.length > 0 ? Math.max(...notifications.map(n => n.id)) : 0) + 1,
+                recipientId: guru.id,
+                recipientType: 'guru',
+                message: `Siswa ${student.name} (${student.kelas}) telah mengirim foto absen ${currentCaptureType}.`,
+                photo: currentPhotoData, // Lampirkan foto
+                read: false,
+                date: todayISO
+            });
+            saveNotifications();
+        }
+
+        stopCamera();
+        checkStudentSubmissionStatus(); // Refresh halaman absen
+    });
+
+    // Event listener untuk tombol Absen Masuk/Pulang
+    document.getElementById('submit-absen-masuk').addEventListener('click', () => openCameraModal('masuk'));
+    document.getElementById('submit-absen-pulang').addEventListener('click', () => openCameraModal('pulang'));
+
+
+    // --- Render Sisa Dasbor Siswa ---
     const renderSiswaRecaps = () => {
-        // Daily
         const harianBody = document.getElementById('siswa-recap-harian-body');
         harianBody.innerHTML = '';
-        attendanceRecords.filter(r => r.studentId === state.currentUser.id)
-            .sort((a,b) => new Date(b.date) - new Date(a.date))
-            .forEach(r => {
-                harianBody.innerHTML += `
-                    <tr class="border-b">
-                        <td class="py-2 px-4">${formatDate(new Date(r.date+'T00:00:00'))}</td>
-                        <td class="py-2 px-4"><span class="px-2 py-1 rounded-full text-xs font-semibold ${getStatusClass(r.status)}">${r.status}</span></td>
-                    </tr>`;
-            });
+        const myRecords = attendanceRecords.filter(r => r.studentId === state.currentUser.id)
+            .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+        if (myRecords.length === 0) {
+             harianBody.innerHTML = `<tr><td colspan="3" class="text-center p-4 text-gray-500">Belum ada data absensi.</td></tr>`;
+        }
+
+        myRecords.forEach(r => {
+            let details = '';
+            if (r.status === 'Hadir') {
+                if (r.timeMasuk) details += `Masuk: ${r.timeMasuk} `;
+                if (r.timePulang) details += `Pulang: ${r.timePulang}`;
+            }
+
+            harianBody.innerHTML += `
+                <tr class="border-b">
+                    <td class="py-2 px-4">${formatDate(new Date(r.date+'T00:00:00'))}</td>
+                    <td class="py-2 px-4"><span class="px-2 py-1 rounded-full text-xs font-semibold ${getStatusClass(r.status)}">${r.status}</span></td>
+                    <td class="py-2 px-4 text-xs">${details}</td>
+                </tr>`;
+        });
 
         // Weekly
         const mingguanBody = document.getElementById('siswa-recap-mingguan-body');
@@ -1123,6 +1837,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderStudentRankings = () => {
+        // ... (Fungsi tidak berubah) ...
         const diligentContainer = document.getElementById('student-ranking-diligent');
         const warningContainer = document.getElementById('student-ranking-warning');
         diligentContainer.innerHTML = '';
@@ -1157,6 +1872,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     const updateMotivationalQuote = () => {
+        // ... (Fungsi tidak berubah) ...
         const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
         document.getElementById('motivational-quote').textContent = `“${randomQuote.quote}”`;
         document.getElementById('quote-author').textContent = `— ${randomQuote.author}`;
@@ -1170,14 +1886,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTabs('recap-tabs', '#admin-page-rekap > div > div > div[id^="recap-"]');
     setupTabs('siswa-recap-tabs', '#siswa-page-dashboard > div > div > div[id^="siswa-recap-"]');
     
-    // Bantuan Login
-    const toggleHintBtn = document.getElementById('toggle-hint-btn');
-    const loginHint = document.getElementById('login-hint');
-    if (toggleHintBtn) {
-        toggleHintBtn.addEventListener('click', () => {
-            loginHint.classList.toggle('hidden');
-        });
-    }
+    // Event listener untuk modal lihat foto
+    document.body.addEventListener('click', e => {
+        const viewPhotoBtn = e.target.closest('.view-photo-btn');
+        if (viewPhotoBtn) {
+            const photoData = viewPhotoBtn.dataset.photo;
+            document.getElementById('view-photo-img').src = photoData;
+            document.getElementById('view-photo-title').textContent = `Bukti Foto Absensi (${viewPhotoBtn.textContent})`;
+            document.getElementById('view-photo-modal').classList.remove('hidden');
+        }
+    });
+    
+    document.getElementById('close-photo-modal-btn').addEventListener('click', () => {
+        document.getElementById('view-photo-modal').classList.add('hidden');
+        document.getElementById('view-photo-img').src = '';
+    });
 });
 </script>
 
