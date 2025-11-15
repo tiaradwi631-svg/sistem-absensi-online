@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- TAMBAHKAN SKRIP SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         html {
             cursor: url("data:image/svg+xml,%3csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='12' cy='12' r='8' fill='rgba(99, 102, 241, 0.7)' stroke='%23ffffff' stroke-width='2'/%3e%3c/svg%3e") 12 12, auto;
@@ -1903,6 +1905,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-</body>
-</html>
+    // --- KONFIGURASI SUPABASE ---
+    // GANTI DENGAN URL DAN KUNCI DARI PROYEK SUPABASE KAMU
+    const SUPABASE_URL = 'https://pxdijvmrhfjqvgnqeytw.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4ZGlqdm1yaGZqcXZnbnFleXR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxOTQwMDYsImV4cCI6MjA3ODc3MDAwNn0.OW7bWDr3UITEC-7676dULHKEs2YgVjDovlwTlO_-XrU';
+    
+    if (SUPABASE_URL === 'https://pxdijvmrhfjqvgnqeytw.supabase.co') {
+         // Tampilkan error jika kunci belum diisi
+         document.body.innerHTML = '<h1 style="font-family: sans-serif; padding: 2rem;">Error: Harap masukkan URL dan Kunci Supabase di kode <script> absensi.html (baris ~875)</h1>';
+         return; // Hentikan eksekusi
+    }
+
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    // --- AKHIR KONFIGURASI ---
+
+
+    // ===== VARIABEL DATA (KOSONG DULU, AKAN DIISI SAAT LOGIN) =====
+    let users = [];
+    let attendanceRecords = [];
+    let notifications = [];
+    let permissionRequests = [];
+
+    // ===== DATA DEFAULT (HANYA UNTUK KUTIPAN) =====
+    const motivationalQuotes = [
