@@ -15,8 +15,8 @@
     <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Supabase JS Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS Library (Versi UMD Stabil) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 
     <!-- Fonts & Styles -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
@@ -49,28 +49,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
 
-        // ==========================================
-        // KONFIGURASI DATABASE (MODE HYBRID)
-        // ==========================================
-        // Biarkan kosong untuk menggunakan LocalStorage (Offline Mode)
-        // Isi dengan URL & Key Supabase Anda untuk Online Mode
-        const SUPABASE_URL = ""; 
-        const SUPABASE_KEY = "";
-        
-        // Inisialisasi Client dengan Validasi
-        let supabase = null;
-        try {
-            if (SUPABASE_URL && SUPABASE_URL.startsWith("http")) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                console.log("✅ Mode Online: Menggunakan Supabase");
-            } else {
-                console.log("⚠️ Mode Offline: Menggunakan LocalStorage (Supabase URL tidak valid/kosong)");
-            }
-        } catch (e) {
-            console.error("Init Error:", e);
-        }
-
-        // --- DATA AWAL UNTUK LOCALSTORAGE ---
+        // --- 1. DEFINISI DATA AWAL (Diletakkan paling atas agar aman) ---
         const INITIAL_USERS = [
             { id: 1, username: 'admin', password: '123', role: 'admin', name: 'Admin Sekolah', class: null },
             { id: 2, username: 'guru1', password: '123', role: 'guru', name: 'Ibu Guru Cantik', class: 'XII RPL 1' },
@@ -80,11 +59,36 @@
             { id: 5, username: 'siswa3', password: '123', role: 'siswa', name: 'Doni Tata', class: 'XII RPL 2' },
         ];
 
-        // Variabel yang sebelumnya hilang dan menyebabkan error
         const INITIAL_ATTENDANCE = [];
         const INITIAL_MESSAGES = [];
 
-        // --- UTILS ---
+        const MOTIVATION_QUOTES = [
+            "Semangat! Masa depan cerah menantimu! 🌟", "Rajin pangkal pandai, hemat pangkal kaya! 📚",
+            "Hari ini harus lebih baik dari kemarin! 🔥", "Jangan menyerah, kesuksesan sudah dekat! 🚀",
+            "Disiplin adalah jembatan antara cita-cita dan pencapaian. 🌉"
+        ];
+
+        // --- 2. KONFIGURASI DATABASE (MODE HYBRID) ---
+        const SUPABASE_URL = "https://jbothplunfkfnwonhkuf.supabase.co"; 
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impib3RocGx1bmZrZm53b25oa3VmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM2NDUxNTIsImV4cCI6MjA3OTIyMTE1Mn0.C-U9fYRcrqyOPQ-R-JTUrlcyWtwE2_Fwptn_qQIcp_I";
+        
+        let supabase = null;
+        
+        // Inisialisasi dengan Error Handling yang Kuat
+        try {
+            // Cek apakah URL diisi, dimulai dengan http, dan window.supabase tersedia
+            if (SUPABASE_URL && SUPABASE_URL.startsWith("http") && window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                console.log("✅ Mode Online: Terhubung ke Supabase");
+            } else {
+                console.log("⚠️ Mode Offline: Menggunakan LocalStorage (Supabase URL kosong atau library gagal load)");
+            }
+        } catch (e) {
+            console.error("Gagal inisialisasi Supabase:", e);
+            supabase = null; // Fallback ke null agar aplikasi tetap jalan
+        }
+
+        // --- 3. UTILS ---
         const getTodayDate = () => new Date().toISOString().split('T')[0];
         const getCurrentTime = () => new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         
@@ -105,7 +109,7 @@
             document.body.removeChild(link);
         };
 
-        // --- ICONS ---
+        // --- 4. ICONS ---
         const Icon = ({ children, className, onClick }) => (<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} onClick={onClick}>{children}</svg>);
         const Icons = {
             Camera: (p) => <Icon {...p}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></Icon>,
@@ -128,13 +132,7 @@
             Database: (p) => <Icon {...p}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></Icon>
         };
 
-        const MOTIVATION_QUOTES = [
-            "Semangat! Masa depan cerah menantimu! 🌟", "Rajin pangkal pandai, hemat pangkal kaya! 📚",
-            "Hari ini harus lebih baik dari kemarin! 🔥", "Jangan menyerah, kesuksesan sudah dekat! 🚀",
-            "Disiplin adalah jembatan antara cita-cita dan pencapaian. 🌉"
-        ];
-
-        // --- COMPONENTS ---
+        // --- 5. COMPONENTS ---
 
         const CameraCapture = ({ onCapture, onClose, title }) => {
             const videoRef = useRef(null);
