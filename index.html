@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartAttend - Sistem Absensi & Pesan (Online)</title>
+    <title>SmartAttend - Sistem Absensi & Pesan</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Supabase JS Library -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -18,17 +15,17 @@
     <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Fonts -->
+    <!-- Fonts & Styles -->
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: 'Quicksand', sans-serif; background-color: #f0f4f8; }
         .font-aesthetic { font-family: 'Great Vibes', cursive; }
+        .font-classic { font-family: 'Times New Roman', Times, serif; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
-        .scale-in { animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
@@ -36,7 +33,6 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         video { transform: scaleX(-1); border-radius: 1rem; }
-        .photo-result { transform: scaleX(-1); }
     </style>
 </head>
 <body class="text-slate-800 antialiased selection:bg-indigo-200">
@@ -45,29 +41,6 @@
 
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
-
-        // --- KONFIGURASI SUPABASE (PERMANEN) ---
-        const supabaseUrl = 'https://jypcwcykbnibjvuqlzyk.supabase.co'; 
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cGN3Y3lrYm5pYmp2dXFsenlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MTgxMjUsImV4cCI6MjA3OTM5NDEyNX0.NTOfDuaj9bmCp4ReVwyn3mCazLcx7qbSOZW9LuvEuJg';
-        
-        // Inisialisasi Client
-        let supabase = null;
-        let isSupabaseActive = false;
-
-        try {
-            if (typeof window.supabase === 'undefined' || !window.supabase) {
-                console.warn("⚠️ Library Supabase gagal dimuat.");
-            } 
-            else if (supabaseUrl && supabaseUrl.startsWith('http')) {
-                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-                isSupabaseActive = true;
-                console.log("✅ Supabase Aktif (Config Permanen)");
-            } else {
-                console.log("⚠️ Konfigurasi Supabase tidak valid.");
-            }
-        } catch (err) {
-            console.error("Supabase Init Error:", err);
-        }
 
         // --- UTILS ---
         const getTodayDate = () => new Date().toISOString().split('T')[0];
@@ -102,10 +75,12 @@
             User: (p) => <Icon {...p}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Icon>,
             Lock: (p) => <Icon {...p}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></Icon>,
             LogOut: (p) => <Icon {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></Icon>,
+            Clock: (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></Icon>,
             Upload: (p) => <Icon {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></Icon>,
             Smile: (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></Icon>,
             X: (p) => <Icon {...p}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></Icon>,
             File: (p) => <Icon {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></Icon>,
+            Trophy: (p) => <Icon {...p}><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4H6a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1"/><path d="M17 4h1a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><path d="M6 4h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1-2-2z"/></Icon>,
             Check: (p) => <Icon {...p}><polyline points="20 6 9 17 4 12"/></Icon>,
             Edit: (p) => <Icon {...p}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></Icon>,
             Trash: (p) => <Icon {...p}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></Icon>,
@@ -113,9 +88,9 @@
             Message: (p) => <Icon {...p}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></Icon>,
             Send: (p) => <Icon {...p}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></Icon>,
             Eye: (p) => <Icon {...p}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></Icon>,
-            Alert: (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></Icon>,
-            Clock: (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></Icon>,
-            Trophy: (p) => <Icon {...p}><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4H6a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1"/><path d="M17 4h1a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"/><path d="M6 4h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1-2-2z"/></Icon>
+            BarChart: (p) => <Icon {...p}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></Icon>,
+            Bell: (p) => <Icon {...p}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></Icon>,
+            Calendar: (p) => <Icon {...p}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Icon>
         };
 
         const MOTIVATION_QUOTES = [
@@ -124,6 +99,14 @@
             "Hari ini harus lebih baik dari kemarin! 🔥",
             "Jangan menyerah, kesuksesan sudah dekat! 🚀",
             "Disiplin adalah jembatan antara cita-cita dan pencapaian. 🌉"
+        ];
+
+        // --- DATA AWAL PENGUMUMAN ---
+        const INITIAL_ANNOUNCEMENTS = [
+            { id: 1, title: "Ujian Tengah Semester", date: "2025-03-10", content: "Persiapkan diri kalian untuk UTS. Jadwal lengkap akan ditempel di mading." },
+            { id: 2, title: "Hari Batik Nasional", date: "2025-10-02", content: "Seluruh siswa diwajibkan memakai baju batik bebas sopan." },
+            { id: 3, title: "Class Meeting", date: "2025-12-15", content: "Lomba futsal dan e-sport antar kelas. Daftarkan tim kelasmu!" },
+            { id: 4, title: "Libur Awal Puasa", date: "2025-03-01", content: "Sekolah diliburkan selama 2 hari untuk menyambut bulan Ramadhan." }
         ];
 
         const INITIAL_USERS = [
@@ -135,37 +118,10 @@
             { id: 5, username: 'siswa3', password: '123', role: 'siswa', name: 'Doni Tata', class: 'XII RPL 2' },
         ];
 
-        // --- UI COMPONENTS ---
-        const Toast = ({ message, type, onClose }) => {
-            useEffect(() => {
-                const timer = setTimeout(onClose, 5000); 
-                return () => clearTimeout(timer);
-            }, [onClose]);
+        const INITIAL_ATTENDANCE = [];
+        const INITIAL_MESSAGES = [];
 
-            return (
-                <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 scale-in border-2 ${type === 'error' ? 'bg-red-50 border-red-100 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>
-                    <span className="text-xl">{type === 'error' ? '❌' : '✅'}</span>
-                    <p className="font-bold text-sm">{message}</p>
-                </div>
-            );
-        };
-
-        const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
-            if (!isOpen) return null;
-            return (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[90] p-4 fade-in">
-                    <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl scale-in relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-500 to-indigo-500"></div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
-                        <p className="text-gray-600 mb-8 text-sm leading-relaxed">{message}</p>
-                        <div className="flex gap-3 justify-end">
-                            <button onClick={onCancel} className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold text-sm transition">Batal</button>
-                            <button onClick={onConfirm} className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 hover:scale-105 transition">Ya, Lanjutkan</button>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
+        // --- COMPONENTS ---
 
         // 1. KAMERA MODAL
         const CameraCapture = ({ onCapture, onClose, title }) => {
@@ -180,7 +136,8 @@
                         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                         if (videoRef.current) videoRef.current.srcObject = stream;
                     } catch (err) {
-                        setError("Kamera tidak terdeteksi! Pastikan izin browser aktif.");
+                        console.error(err);
+                        setError("Kamera tidak terdeteksi! Pastikan izin browser aktif atau gunakan HTTPS.");
                     }
                 };
                 startCamera();
@@ -197,89 +154,74 @@
                 ctx.translate(width, 0);
                 ctx.scale(-1, 1);
                 ctx.drawImage(videoRef.current, 0, 0, width, height);
-                onCapture(canvasRef.current.toDataURL('image/jpeg', 0.7));
+                onCapture(canvasRef.current.toDataURL('image/jpeg', 0.6));
             };
 
             return (
-                <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 backdrop-blur-md fade-in">
+                <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm fade-in">
                     <div className="bg-white rounded-3xl p-4 w-full max-w-md shadow-2xl relative overflow-hidden">
                         <div className="flex justify-between items-center mb-4 px-2">
                             <h3 className="font-bold text-lg text-gray-700 flex items-center gap-2"><Icons.Camera className="w-5 h-5 text-pink-500"/> {title}</h3>
-                            <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-red-50 hover:text-red-500 transition"><Icons.X className="w-5 h-5"/></button>
+                            <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:text-red-500"><Icons.X className="w-5 h-5"/></button>
                         </div>
                         {error ? <div className="bg-red-50 text-red-500 p-6 rounded-xl text-center font-medium border border-red-200 mb-4">{error}</div> : 
-                        <div className="relative rounded-2xl overflow-hidden bg-black aspect-[4/3] shadow-inner mb-4 ring-4 ring-gray-100">
+                        <div className="relative rounded-2xl overflow-hidden bg-black aspect-[4/3] shadow-inner mb-4">
                             <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover"></video>
                             <canvas ref={canvasRef} className="hidden"></canvas>
                         </div>}
-                        {!error && <div className="flex justify-center"><button onClick={handleSnap} className="bg-gradient-to-r from-pink-500 to-indigo-500 text-white px-8 py-3 rounded-full font-bold shadow-xl hover:scale-105 transition flex items-center gap-2"><Icons.Camera className="w-5 h-5"/> CEKREK & ABSEN</button></div>}
+                        {!error && <div className="flex justify-center"><button onClick={handleSnap} className="bg-gradient-to-r from-pink-500 to-indigo-500 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:scale-105 transition flex items-center gap-2"><Icons.Camera className="w-5 h-5"/> CEKREK & ABSEN</button></div>}
                     </div>
                 </div>
             );
         };
 
         // 2. LOGIN
-        const Login = ({ onLogin, users, showToast }) => {
+        const Login = ({ onLogin, users }) => {
             const [username, setUsername] = useState('');
             const [password, setPassword] = useState('');
             const [role, setRole] = useState('siswa'); 
-            const [isLoading, setIsLoading] = useState(false);
-            
-            const handleSubmit = async (e) => {
+            const [error, setError] = useState('');
+
+            const handleSubmit = (e) => {
                 e.preventDefault();
-                setIsLoading(true);
                 const user = users.find(u => u.username === username && u.password === password && u.role === role);
-                
-                setIsLoading(false);
-                if(user) {
-                    onLogin(user);
-                    showToast(`Selamat datang, ${user.name}!`, 'success');
-                } else {
-                    showToast('Username, Password, atau Role salah ya 🙈', 'error');
-                }
+                user ? onLogin(user) : setError('Username, Password, atau Role salah ya 🙈');
             };
 
             return (
                 <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-6">
-                    <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_20px_50px_rgba(8,_112,_184,_0.1)] w-full max-w-sm scale-in border border-white/50">
-                        <div className="text-center mb-8">
-                            <div className="inline-flex p-4 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 text-white shadow-lg mb-4 transform hover:rotate-12 transition"><Icons.Smile className="w-10 h-10" /></div>
+                    <div className="bg-white/80 backdrop-blur-xl p-8 rounded-[2rem] shadow-2xl w-full max-w-sm pop-up">
+                        <div className="text-center mb-6">
+                            <div className="inline-flex p-4 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 text-white shadow-lg mb-4"><Icons.Smile className="w-10 h-10" /></div>
                             <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-pink-600 bg-clip-text text-transparent">SmartAttend</h1>
-                            <p className="text-gray-500 text-lg font-bold mb-2 font-aesthetic text-indigo-400 mt-1">Absensi Modern Terpadu ✨</p>
+                            <p className="text-gray-500 text-lg font-bold mb-2 font-classic">Absensi Modern Terpadu ✨</p>
                         </div>
 
-                        <div className="flex bg-gray-100 p-1.5 rounded-2xl mb-6 shadow-inner">
+                        <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
                             {['siswa', 'guru', 'admin'].map(r => (
-                                <button key={r} onClick={() => setRole(r)} className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase transition-all duration-300 ${role === r ? 'bg-white text-indigo-600 shadow-md scale-100' : 'text-gray-400 hover:text-gray-600 scale-95'}`}>{r}</button>
+                                <button key={r} onClick={() => setRole(r)} className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase transition-all ${role === r ? 'bg-white text-indigo-600 shadow-md' : 'text-gray-400 hover:text-gray-600'}`}>{r}</button>
                             ))}
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-5">
+                            {error && <div className="bg-red-100 text-red-500 p-3 rounded-xl text-sm text-center font-bold animate-pulse">{error}</div>}
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-gray-400 uppercase ml-1">Username</label>
-                                <div className="relative group">
-                                    <Icons.User className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition"/>
-                                    <input type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full pl-12 pr-4 py-3.5 bg-gray-50 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-100 focus:outline-none transition font-medium text-gray-700" placeholder="username" required/>
-                                </div>
+                                <div className="relative"><Icons.User className="absolute left-4 top-3 w-5 h-5 text-gray-400"/><input type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-indigo-300 transition font-medium" placeholder="username" required/></div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-gray-400 uppercase ml-1">Password</label>
-                                <div className="relative group">
-                                    <Icons.Lock className="absolute left-4 top-3.5 w-5 h-5 text-gray-400 group-focus-within:text-pink-500 transition"/>
-                                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-12 pr-4 py-3.5 bg-gray-50 rounded-2xl focus:bg-white focus:ring-4 focus:ring-pink-100 focus:outline-none transition font-medium text-gray-700" placeholder="password" required/>
-                                </div>
+                                <div className="relative"><Icons.Lock className="absolute left-4 top-3 w-5 h-5 text-gray-400"/><input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-12 pr-4 py-3 bg-gray-50 rounded-2xl focus:ring-2 focus:ring-pink-300 transition font-medium" placeholder="password" required/></div>
                             </div>
-                            <button type="submit" disabled={isLoading} className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-gray-200 hover:bg-indigo-600 hover:shadow-indigo-200 transition-all hover:-translate-y-1 active:translate-y-0 mt-4 disabled:bg-gray-400">
-                                {isLoading ? 'Memuat...' : 'Masuk Sekarang 🚀'}
-                            </button>
+                            <button type="submit" className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold text-lg shadow-xl hover:bg-indigo-600 transition-all hover:-translate-y-1">Masuk Sebagai {role.charAt(0).toUpperCase() + role.slice(1)} 🚀</button>
                         </form>
                     </div>
                 </div>
             );
         };
 
-        // 3. SISWA DASHBOARD
-        const SiswaDashboard = ({ user, users, attendance, setAttendance, showToast }) => {
+        // 3. SISWA DASHBOARD (UPDATED with Stats & Announcements)
+        const SiswaDashboard = ({ user, users, attendance, setAttendance, announcements }) => {
             const [activeTab, setActiveTab] = useState('absen'); 
             const [camMode, setCamMode] = useState(null);
             const [quote, setQuote] = useState('');
@@ -294,6 +236,30 @@
             const hasClockedIn = todayRecord && todayRecord.type === 'hadir';
             const hasClockedOut = todayRecord && todayRecord.timeOut !== '-';
 
+            // --- LOGIC GRAFIK ABSENSI ---
+            const myStats = useMemo(() => {
+                const initialStats = { hadir: 0, telat: 0, sakit: 0, izin: 0, dispen: 0 };
+                return attendance.reduce((acc, curr) => {
+                    if (curr.studentId !== user.id) return acc;
+                    
+                    // Logic Telat: Jika Hadir dan jam > 07:30
+                    if (curr.type === 'hadir') {
+                        if (curr.timeIn > '07:30') {
+                            acc.telat += 1;
+                        } else {
+                            acc.hadir += 1;
+                        }
+                    } else if (curr.approval === 'approved' || curr.approval === 'pending') {
+                         // Hitung Izin/Sakit/Dispen jika approved atau pending (agar terlihat di grafik)
+                        if (acc[curr.type] !== undefined) acc[curr.type] += 1;
+                    }
+                    return acc;
+                }, initialStats);
+            }, [attendance, user.id]);
+
+            // Helper untuk max value grafik agar dinamis
+            const maxStatValue = Math.max(...Object.values(myStats), 5); 
+
             const rankings = useMemo(() => {
                 const students = users.filter(u => u.role === 'siswa');
                 const stats = students.map(s => {
@@ -304,200 +270,164 @@
             }, [users, attendance]);
 
             const handleAbsenClick = (type) => {
-                if (type === 'masuk') { 
-                    if (todayRecord) return showToast("Sudah absen hari ini!", "error"); 
-                } 
-                else { 
-                    if (!hasClockedIn) return showToast("Belum absen masuk!", "error"); 
-                    if (hasClockedOut) return showToast("Sudah absen pulang!", "error"); 
-                }
+                if (type === 'masuk') { if (todayRecord) return alert("Sudah absen hari ini!"); } 
+                else { if (!hasClockedIn) return alert("Belum absen masuk!"); if (hasClockedOut) return alert("Sudah absen pulang!"); }
                 setCamMode(type);
             };
 
-            const handleCapture = async (photoData) => {
-                setCamMode(null);
+            const handleCapture = (photoData) => {
                 try {
-                    const newRecordBase = { id: Date.now(), studentId: user.id, date: today, approval: 'pending' };
-                    
-                    if (isSupabaseActive) {
-                        if (camMode === 'masuk') {
-                            const record = { ...newRecordBase, type: 'hadir', timeIn: getCurrentTime(), timeOut: '-', status: 'Hadir', proof: photoData };
-                            const { data, error } = await supabase.from('attendance').insert([record]).select();
-                            if (error) throw error;
-                            setAttendance([...attendance, data[0]]);
-                            showToast("Absen Masuk Berhasil! (Online) 📸", "success");
-                        } else {
-                            const updatedData = { timeOut: getCurrentTime(), proofOut: photoData };
-                            const { data, error } = await supabase.from('attendance').update(updatedData).eq('id', todayRecord.id).select();
-                            if (error) throw error;
-                            setAttendance(attendance.map(a => a.id === todayRecord.id ? data[0] : a));
-                            showToast("Absen Pulang Berhasil! (Online) 👋", "success");
-                        }
+                    if (camMode === 'masuk') {
+                        setAttendance([...attendance, { id: Date.now(), studentId: user.id, date: today, type: 'hadir', timeIn: getCurrentTime(), timeOut: '-', status: 'Hadir', proof: photoData, approval: 'pending' }]);
+                        alert("Absen Masuk Berhasil! Menunggu verifikasi guru. 📸");
                     } else {
-                        if (camMode === 'masuk') {
-                            const record = { ...newRecordBase, type: 'hadir', timeIn: getCurrentTime(), timeOut: '-', status: 'Hadir', proof: photoData };
-                            setAttendance([...attendance, record]);
-                            showToast("Absen Masuk Berhasil! (Demo Mode) 📸", "success");
-                        } else {
-                            const updated = attendance.map(a => a.id === todayRecord.id ? { ...a, timeOut: getCurrentTime(), proofOut: photoData } : a);
-                            setAttendance(updated);
-                            showToast("Absen Pulang Berhasil! (Demo Mode) 👋", "success");
-                        }
+                        const updated = attendance.map(a => a.id === todayRecord.id ? { ...a, timeOut: getCurrentTime(), proofOut: photoData } : a);
+                        setAttendance(updated);
+                        alert("Absen Pulang Berhasil! 👋");
                     }
+                    setCamMode(null);
                 } catch (err) {
-                    console.error(err);
-                    showToast("Gagal menyimpan absen!", "error");
+                    alert("Gagal menyimpan! Memori browser penuh. Silakan hubungi admin untuk reset data.");
                 }
             };
 
-            const handleSubmitLeave = async (e) => {
+            const handleSubmitLeave = (e) => {
                 e.preventDefault();
-                if (todayRecord) return showToast("Anda sudah ada data hari ini!", "error");
-                if (!file) return showToast("Wajib upload bukti surat ya!", "error");
+                if (todayRecord) return alert("Anda sudah ada data hari ini!");
+                if (!file) return alert("Wajib upload bukti surat ya!");
+                if (file.size > 500000) return alert("Ukuran file terlalu besar! Maks 500KB.");
 
                 const reader = new FileReader();
-                reader.onload = async (event) => {
-                    const fileData = event.target.result; 
-                    const newRecord = {
-                        id: Date.now(),
-                        studentId: user.id,
-                        date: today,
-                        type: leaveType,
-                        timeIn: '-',
-                        timeOut: '-',
-                        status: leaveType.charAt(0).toUpperCase() + leaveType.slice(1),
-                        proof: fileData, 
-                        note: note,
-                        approval: 'pending'
-                    };
-
-                    if (isSupabaseActive) {
-                        try {
-                            const { data, error } = await supabase.from('attendance').insert([newRecord]).select();
-                            if (error) throw error;
-                            setAttendance([...attendance, data[0]]);
-                            showToast("Izin Terkirim! (Online) 📨", "success");
-                        } catch(err) {
-                            showToast("Gagal kirim izin online!", "error");
-                        }
-                    } else {
+                reader.onload = (event) => {
+                    try {
+                        const fileData = event.target.result; 
+                        const newRecord = {
+                            id: Date.now(),
+                            studentId: user.id,
+                            date: today,
+                            type: leaveType,
+                            timeIn: '-',
+                            timeOut: '-',
+                            status: leaveType.charAt(0).toUpperCase() + leaveType.slice(1),
+                            proof: fileData, 
+                            note: note,
+                            approval: 'pending'
+                        };
                         setAttendance([...attendance, newRecord]);
-                        showToast("Izin Terkirim! (Demo Mode) 📨", "success");
+                        alert("Pengajuan Izin Berhasil Dikirim! 📨");
+                        setFile(null); 
+                        setNote('');
+                    } catch (err) {
+                        alert("Gagal menyimpan file! Ukuran file mungkin terlalu besar untuk demo ini.");
                     }
-                    setFile(null); setNote('');
                 };
                 reader.readAsDataURL(file);
             };
 
             return (
                 <div className="max-w-md mx-auto pb-20 fade-in">
-                    <div className="bg-gradient-to-r from-amber-100 to-orange-100 border border-amber-200 p-5 rounded-3xl mb-6 shadow-sm flex items-start gap-4">
-                        <span className="text-3xl filter drop-shadow-sm">💡</span>
-                        <div>
-                            <p className="text-xs font-bold text-orange-600 uppercase mb-1 tracking-wider">Motivasi Hari Ini</p>
-                            <p className="text-sm font-medium text-orange-900 italic leading-relaxed">"{quote}"</p>
-                        </div>
+                    <div className="bg-gradient-to-r from-yellow-100 to-orange-100 border border-yellow-200 p-4 rounded-2xl mb-6 shadow-sm flex items-start gap-3"><span className="text-2xl">💡</span><div><p className="text-xs font-bold text-orange-500 uppercase mb-1">Motivasi Hari Ini</p><p className="text-sm font-medium text-orange-800 italic">"{quote}"</p></div></div>
+                    <div className="bg-white rounded-[2rem] p-6 shadow-xl mb-6 flex items-center gap-4 relative overflow-hidden">
+                        <div className="w-16 h-16 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl shadow-inner">🎓</div>
+                        <div><p className="text-gray-400 text-xs font-bold uppercase">Halo Siswa</p><h2 className="text-2xl font-bold text-gray-800">{user.name.split(' ')[0]}!</h2><span className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-xs font-bold">{user.class}</span></div>
+                    </div>
+                    <div className="flex bg-white p-1 rounded-2xl shadow-sm mb-6 overflow-x-auto">
+                        <button onClick={() => setActiveTab('absen')} className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm whitespace-nowrap transition ${activeTab === 'absen' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400'}`}>📸 Absen</button>
+                        <button onClick={() => setActiveTab('izin')} className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm whitespace-nowrap transition ${activeTab === 'izin' ? 'bg-pink-100 text-pink-600' : 'text-gray-400'}`}>📝 Izin</button>
+                        <button onClick={() => setActiveTab('laporan')} className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm whitespace-nowrap transition ${activeTab === 'laporan' ? 'bg-teal-100 text-teal-600' : 'text-gray-400'}`}>📊 Laporan</button>
+                        <button onClick={() => setActiveTab('rank')} className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm whitespace-nowrap transition ${activeTab === 'rank' ? 'bg-yellow-100 text-yellow-600' : 'text-gray-400'}`}>🏆 Rank</button>
                     </div>
                     
-                    <div className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-indigo-50 mb-8 flex items-center gap-5 relative overflow-hidden border border-white">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-50 to-pink-50 rounded-bl-full opacity-50"></div>
-                        <div className="w-16 h-16 rounded-2xl bg-indigo-100 flex items-center justify-center text-3xl shadow-inner text-indigo-600">🎓</div>
-                        <div className="relative z-10">
-                            <p className="text-gray-400 text-xs font-bold uppercase tracking-wide">Halo Siswa</p>
-                            <h2 className="text-2xl font-bold text-gray-800">{user.name.split(' ')[0]}!</h2>
-                            <span className="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg text-xs font-bold mt-1 inline-block">{user.class}</span>
-                        </div>
-                    </div>
-
-                    <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 mb-8">
-                        <button onClick={() => setActiveTab('absen')} className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'absen' ? 'bg-indigo-50 text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>📸 Absen</button>
-                        <button onClick={() => setActiveTab('izin')} className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'izin' ? 'bg-pink-50 text-pink-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>📝 Izin</button>
-                        <button onClick={() => setActiveTab('rank')} className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === 'rank' ? 'bg-yellow-50 text-yellow-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}>🏆 Peringkat</button>
-                    </div>
-
                     {activeTab === 'absen' && (
-                        <div className="space-y-6 scale-in">
-                            <div className={`rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden transition-all duration-500 ${!todayRecord ? 'bg-slate-500' : todayRecord.approval === 'rejected' ? 'bg-red-500' : todayRecord.approval === 'approved' ? 'bg-teal-500' : 'bg-orange-500'}`}>
-                                <div className="absolute top-0 right-0 p-6 opacity-10"><Icons.Clock className="w-24 h-24"/></div>
-                                <div className="flex justify-between items-start relative z-10">
-                                    <div>
-                                        <p className="text-xs font-bold opacity-80 uppercase mb-1 tracking-widest">Status Hari Ini</p>
-                                        <h3 className="text-3xl font-bold mb-4">{!todayRecord ? 'Belum Absen' : todayRecord.status}</h3>
-                                    </div>
-                                    {todayRecord?.approval === 'pending' && <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold border border-white/30">Menunggu Verifikasi</span>}
-                                </div>
-                                {todayRecord?.type === 'hadir' && (
-                                    <div className="mt-2 flex gap-4 relative z-10">
-                                        <div className="bg-black/10 px-4 py-2 rounded-xl backdrop-blur-sm">
-                                            <p className="text-[10px] opacity-70 uppercase font-bold">Masuk</p>
-                                            <p className="font-mono font-bold text-lg">{todayRecord.timeIn}</p>
-                                        </div>
-                                        <div className="bg-black/10 px-4 py-2 rounded-xl backdrop-blur-sm">
-                                            <p className="text-[10px] opacity-70 uppercase font-bold">Pulang</p>
-                                            <p className="font-mono font-bold text-lg">{todayRecord.timeOut}</p>
-                                        </div>
-                                    </div>
-                                )}
+                        <div className="space-y-6">
+                            <div className={`rounded-3xl p-6 text-white shadow-lg ${!todayRecord ? 'bg-slate-500' : todayRecord.approval === 'rejected' ? 'bg-red-500' : todayRecord.approval === 'approved' ? 'bg-teal-500' : 'bg-orange-500'}`}>
+                                <div className="flex justify-between"><p className="text-xs font-bold opacity-70 uppercase mb-1">Status Hari Ini</p>{todayRecord?.approval === 'pending' && <span className="bg-white/20 px-2 rounded text-xs font-bold">Menunggu Verifikasi</span>}</div>
+                                <h3 className="text-2xl font-bold">{!todayRecord ? 'Belum Absen' : todayRecord.status}</h3>
+                                {todayRecord?.type === 'hadir' && <div className="mt-2 text-sm border-t border-white/20 pt-2">IN: {todayRecord.timeIn} • OUT: {todayRecord.timeOut}</div>}
                             </div>
-
-                            <div className="grid grid-cols-2 gap-5">
-                                <button onClick={() => handleAbsenClick('masuk')} disabled={!!todayRecord} className={`group p-6 rounded-[2rem] flex flex-col items-center gap-4 shadow-xl border-b-4 transition-all active:translate-y-1 active:border-b-0 active:shadow-none ${!!todayRecord ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' : 'bg-white text-indigo-600 border-indigo-100 hover:-translate-y-1 hover:shadow-indigo-100'}`}>
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all ${!!todayRecord ? 'bg-gray-200' : 'bg-indigo-50 group-hover:bg-indigo-600 group-hover:text-white'}`}>☀️</div>
-                                    <span className="font-bold">Masuk</span>
-                                </button>
-                                <button onClick={() => handleAbsenClick('pulang')} disabled={!hasClockedIn || hasClockedOut} className={`group p-6 rounded-[2rem] flex flex-col items-center gap-4 shadow-xl border-b-4 transition-all active:translate-y-1 active:border-b-0 active:shadow-none ${!hasClockedIn || hasClockedOut ? 'bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed' : 'bg-white text-pink-600 border-pink-100 hover:-translate-y-1 hover:shadow-pink-100'}`}>
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl transition-all ${!hasClockedIn || hasClockedOut ? 'bg-gray-200' : 'bg-pink-50 group-hover:bg-pink-600 group-hover:text-white'}`}>🌙</div>
-                                    <span className="font-bold">Pulang</span>
-                                </button>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button onClick={() => handleAbsenClick('masuk')} disabled={!!todayRecord} className={`p-6 rounded-3xl flex flex-col items-center gap-3 shadow-lg border-b-4 transition active:translate-y-1 active:border-b-0 ${!!todayRecord ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'bg-white text-indigo-600 border-indigo-100'}`}><div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center">☀️</div><span className="font-bold">Masuk</span></button>
+                                <button onClick={() => handleAbsenClick('pulang')} disabled={!hasClockedIn || hasClockedOut} className={`p-6 rounded-3xl flex flex-col items-center gap-3 shadow-lg border-b-4 transition active:translate-y-1 active:border-b-0 ${!hasClockedIn || hasClockedOut ? 'bg-gray-100 text-gray-300 cursor-not-allowed' : 'bg-white text-pink-600 border-pink-100'}`}><div className="w-12 h-12 rounded-2xl bg-pink-50 flex items-center justify-center">🌙</div><span className="font-bold">Pulang</span></button>
                             </div>
                         </div>
                     )}
 
                     {activeTab === 'izin' && (
-                        <div className="bg-white rounded-[2rem] p-8 shadow-xl scale-in border border-gray-100">
-                            <h3 className="font-bold text-xl text-gray-800 mb-6 flex items-center gap-2"><Icons.File className="w-5 h-5 text-pink-500"/> Form Pengajuan</h3>
-                            <form onSubmit={handleSubmitLeave} className="space-y-5">
-                                <div className="flex gap-2 p-1 bg-gray-50 rounded-xl">
-                                    {['sakit', 'izin', 'dispen'].map(t => (
-                                        <div key={t} onClick={() => setLeaveType(t)} className={`flex-1 py-2.5 text-center rounded-lg text-sm font-bold capitalize cursor-pointer transition-all ${leaveType === t ? 'bg-white text-pink-600 shadow-sm ring-1 ring-pink-100' : 'text-gray-400 hover:text-gray-600'}`}>{t}</div>
-                                    ))}
-                                </div>
-                                <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center relative hover:bg-gray-50 transition group cursor-pointer">
-                                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400 group-hover:bg-pink-50 group-hover:text-pink-500 transition"><Icons.Upload className="w-6 h-6"/></div>
-                                    <p className="text-xs font-bold text-gray-500">{file ? file.name : "Upload Surat (PDF/Foto)"}</p>
-                                    <input type="file" onChange={e => setFile(e.target.files[0])} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,.pdf" />
-                                </div>
-                                <textarea placeholder="Tulis keterangan detail..." value={note} onChange={e => setNote(e.target.value)} className="w-full bg-gray-50 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-indigo-100 focus:outline-none font-medium resize-none text-gray-700" rows="3"></textarea>
-                                <button type="submit" disabled={!!todayRecord} className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold shadow-xl hover:bg-indigo-600 transition hover:-translate-y-1 disabled:bg-gray-200 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none">Kirim Pengajuan 📤</button>
+                        <div className="bg-white rounded-3xl p-6 shadow-lg fade-in">
+                            <h3 className="font-bold text-lg text-gray-700 mb-4">Form Pengajuan</h3>
+                            <form onSubmit={handleSubmitLeave} className="space-y-4">
+                                <div className="flex gap-2">{['sakit', 'izin', 'dispen'].map(t => (<div key={t} onClick={() => setLeaveType(t)} className={`flex-1 py-2 text-center rounded-xl text-sm font-bold capitalize cursor-pointer border-2 ${leaveType === t ? 'border-pink-500 bg-pink-50 text-pink-600' : 'border-gray-100 text-gray-400'}`}>{t}</div>))}</div>
+                                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center relative hover:bg-gray-50"><Icons.Upload className="w-8 h-8 text-gray-400 mx-auto mb-2"/><p className="text-xs text-gray-500">{file ? file.name : "Upload Bukti Surat (PDF/Foto)"}</p><input type="file" onChange={e => setFile(e.target.files[0])} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,.pdf" /></div>
+                                <textarea placeholder="Keterangan..." value={note} onChange={e => setNote(e.target.value)} className="w-full border-2 border-gray-100 rounded-xl p-3 text-sm focus:border-indigo-300 outline-none" rows="3"></textarea>
+                                <button type="submit" disabled={!!todayRecord} className="w-full bg-pink-500 text-white py-3 rounded-xl font-bold hover:bg-pink-600 disabled:bg-gray-300">Kirim Pengajuan 📤</button>
                             </form>
                         </div>
                     )}
 
-                    {activeTab === 'rank' && (
-                        <div className="space-y-5 scale-in">
-                            <div className="bg-gradient-to-br from-amber-300 to-orange-500 rounded-[2rem] p-6 text-white text-center shadow-lg relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4yKSIvPjwvc3ZnPg==')] opacity-30"></div>
-                                <h3 className="text-2xl font-bold relative z-10">Leaderboard</h3>
-                                <p className="text-amber-100 text-sm relative z-10 font-medium">Siapa yang paling rajin bulan ini?</p>
-                            </div>
-                            <div className="bg-white rounded-[2rem] p-2 shadow-xl border border-gray-100">
-                                {rankings.map((s, index) => (
-                                    <div key={s.id} className={`flex items-center justify-between p-4 mb-1 rounded-2xl transition ${s.id === user.id ? 'bg-amber-50 border border-amber-100' : 'hover:bg-gray-50'}`}>
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-10 h-10 flex items-center justify-center rounded-full font-bold text-sm shadow-sm border-2 border-white ${index===0?'bg-gradient-to-br from-yellow-300 to-yellow-500 text-white':index===1?'bg-gradient-to-br from-gray-300 to-gray-400 text-white':index===2?'bg-gradient-to-br from-orange-300 to-orange-400 text-white':'bg-gray-100 text-gray-500'}`}>
-                                                {index + 1}
-                                            </div>
-                                            <div>
-                                                <p className={`font-bold ${s.id===user.id?'text-amber-700':'text-gray-700'}`}>{s.name}</p>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase">{s.class}</p>
-                                            </div>
-                                        </div>
-                                        <div className="text-center">
-                                            <span className="font-bold text-xl text-indigo-600">{s.count}</span>
-                                            <p className="text-[10px] text-gray-400 font-bold">Hadir</p>
-                                        </div>
+                    {activeTab === 'laporan' && (
+                        <div className="space-y-6 fade-in">
+                            {/* GRAFIK / DIAGRAM */}
+                            <div className="bg-white rounded-3xl p-6 shadow-lg">
+                                <div className="flex items-center gap-2 mb-6">
+                                    <div className="p-2 bg-teal-100 rounded-lg text-teal-600"><Icons.BarChart className="w-6 h-6"/></div>
+                                    <div>
+                                        <h3 className="font-bold text-lg text-gray-800">Statistik Kehadiran</h3>
+                                        <p className="text-xs text-gray-400">Rekapitulasi Semester Ini</p>
                                     </div>
-                                ))}
+                                </div>
+                                <div className="space-y-4">
+                                    {/* Helper component untuk bar */}
+                                    {[
+                                        { label: 'Hadir', val: myStats.hadir, color: 'bg-teal-500', bg: 'bg-teal-100', text: 'text-teal-700' },
+                                        { label: 'Telat', val: myStats.telat, color: 'bg-yellow-500', bg: 'bg-yellow-100', text: 'text-yellow-700' },
+                                        { label: 'Sakit', val: myStats.sakit, color: 'bg-red-500', bg: 'bg-red-100', text: 'text-red-700' },
+                                        { label: 'Izin', val: myStats.izin, color: 'bg-blue-500', bg: 'bg-blue-100', text: 'text-blue-700' },
+                                        { label: 'Dispen', val: myStats.dispen, color: 'bg-purple-500', bg: 'bg-purple-100', text: 'text-purple-700' }
+                                    ].map((item) => (
+                                        <div key={item.label}>
+                                            <div className="flex justify-between text-xs font-bold mb-1">
+                                                <span className="text-gray-500">{item.label}</span>
+                                                <span className={item.text}>{item.val} Kali</span>
+                                            </div>
+                                            <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
+                                                <div className={`h-full rounded-full ${item.color} transition-all duration-1000 ease-out`} style={{ width: `${(item.val / maxStatValue) * 100}%` }}></div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* PENGUMUMAN SEKOLAH */}
+                            <div className="bg-white rounded-3xl p-6 shadow-lg">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="p-2 bg-orange-100 rounded-lg text-orange-600"><Icons.Bell className="w-6 h-6"/></div>
+                                    <h3 className="font-bold text-lg text-gray-800">Pengumuman Sekolah</h3>
+                                </div>
+                                <div className="space-y-4">
+                                    {announcements.length === 0 ? (
+                                        <p className="text-center text-gray-400 text-sm italic py-4">Tidak ada pengumuman baru.</p>
+                                    ) : (
+                                        announcements.map((info) => (
+                                            <div key={info.id} className="border-l-4 border-orange-400 pl-4 py-1 relative">
+                                                <div className="absolute -left-[5px] top-0 w-2 h-2 bg-orange-400 rounded-full"></div>
+                                                <h4 className="font-bold text-gray-800 text-sm">{info.title}</h4>
+                                                <div className="flex items-center gap-1 text-xs text-orange-500 font-bold mb-1">
+                                                    <Icons.Calendar className="w-3 h-3"/> {info.date}
+                                                </div>
+                                                <p className="text-xs text-gray-500">{info.content}</p>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'rank' && (
+                        <div className="space-y-4 fade-in">
+                            <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl p-6 text-white text-center shadow-lg mb-4"><h3 className="text-2xl font-bold">Leaderboard</h3><p className="text-yellow-100 text-sm">Siapa yang paling rajin?</p></div>
+                            <div className="bg-white rounded-3xl p-4 shadow-lg">
+                                {rankings.map((s, index) => (<div key={s.id} className={`flex items-center justify-between p-4 mb-2 rounded-2xl border-b transition ${s.id === user.id ? 'bg-yellow-50 border-yellow-100' : 'hover:bg-gray-50'}`}><div className="flex items-center gap-4"><div className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm shadow-sm ${index===0?'bg-yellow-400 text-white':index===1?'bg-gray-300 text-white':index===2?'bg-orange-300 text-white':'bg-gray-100'}`}>{index+1}</div><div><p className={`font-bold ${s.id===user.id?'text-yellow-700':'text-gray-700'}`}>{s.name}</p></div></div><span className="font-bold text-lg text-indigo-600">{s.count}</span></div>))}
                             </div>
                         </div>
                     )}
@@ -507,7 +437,7 @@
         };
 
         // 4. ADMIN DASHBOARD
-        const AdminDashboard = ({ users, setUsers, attendance, messages, setMessages, showToast }) => {
+        const AdminDashboard = ({ users, setUsers, attendance, messages, setMessages }) => {
             const [view, setView] = useState('dashboard'); 
             const [userTab, setUserTab] = useState('siswa'); 
             const [isModalOpen, setIsModalOpen] = useState(false);
@@ -516,8 +446,8 @@
             const [reportFilter, setReportFilter] = useState('daily'); 
             const [filterDate, setFilterDate] = useState(getTodayDate());
             const [visiblePasswords, setVisiblePasswords] = useState({});
+
             const [msgForm, setMsgForm] = useState({ teacherId: '', studentId: '', text: '' });
-            const [confirmData, setConfirmData] = useState({ open: false, title: '', msg: '', action: null });
 
             const filteredUsers = users.filter(u => u.role === userTab);
 
@@ -525,71 +455,24 @@
                 setVisiblePasswords(prev => ({ ...prev, [id]: !prev[id] }));
             };
 
-            const handleUserSubmit = async (e) => {
+            const handleUserSubmit = (e) => {
                 e.preventDefault();
+                const newUserList = editingId 
+                    ? users.map(u => u.id === editingId ? { ...u, ...formData, role: userTab } : u)
+                    : [...users, { ...formData, id: Date.now(), role: userTab }];
+                
                 try {
-                    let newUserList;
-                    if (isSupabaseActive) {
-                        if (editingId) {
-                            const updatedData = { ...formData, role: userTab };
-                            const { data, error } = await supabase.from('users').update(updatedData).eq('id', editingId).select();
-                            if (error) throw error;
-                            newUserList = users.map(u => u.id === editingId ? data[0] : u);
-                            showToast("Data diperbarui (Online)", "success");
-                        } else {
-                            const newData = { ...formData, id: Date.now(), role: userTab };
-                            const { data, error } = await supabase.from('users').insert([newData]).select();
-                            if (error) {
-                                console.error("Supabase Error:", error);
-                                throw error;
-                            }
-                            newUserList = [...users, data[0]];
-                            showToast("User ditambahkan (Online)", "success");
-                        }
-                    } else {
-                        // Local Storage Fallback
-                        if (editingId) {
-                            newUserList = users.map(u => u.id === editingId ? { ...u, ...formData, role: userTab } : u);
-                            showToast("Data diperbarui (Demo Mode)", "success");
-                        } else {
-                            newUserList = [...users, { ...formData, id: Date.now(), role: userTab }];
-                            showToast("User ditambahkan (Demo Mode)", "success");
-                        }
-                    }
                     setUsers(newUserList); 
                     closeModal();
-                } catch (err) {
-                    console.error(err);
-                    showToast("Gagal: " + (err.message || err.error_description || "Unknown error"), "error");
+                } catch (e) {
+                    alert("Gagal menyimpan! LocalStorage penuh.");
                 }
             };
             const openModal = (user = null) => { setFormData(user ? { ...user } : { username: '', password: '', name: '', class: '' }); setEditingId(user ? user.id : null); setIsModalOpen(true); };
             const closeModal = () => setIsModalOpen(false);
-            
-            const handleDeleteClick = (id) => {
-                setConfirmData({
-                    open: true,
-                    title: "Hapus User?",
-                    msg: "Data user ini akan dihapus permanen. Lanjutkan?",
-                    action: async () => {
-                        try {
-                            if (isSupabaseActive) {
-                                const { error } = await supabase.from('users').delete().eq('id', id);
-                                if (error) throw error;
-                                showToast("User dihapus (Online)", "success");
-                            } else {
-                                showToast("User dihapus (Demo Mode)", "success");
-                            }
-                            setUsers(users.filter(u => u.id !== id));
-                        } catch(err) {
-                            showToast("Gagal menghapus user", "error");
-                        }
-                        setConfirmData({ ...confirmData, open: false });
-                    }
-                });
-            };
+            const handleDelete = (id) => window.confirm("Yakin hapus?") && setUsers(users.filter(u => u.id !== id));
 
-            const handleSendMessage = async (e) => {
+            const handleSendMessage = (e) => {
                 e.preventDefault();
                 const newMessage = {
                     id: Date.now(),
@@ -599,21 +482,9 @@
                     studentId: parseInt(msgForm.studentId),
                     content: msgForm.text
                 };
-                
-                try {
-                    if (isSupabaseActive) {
-                        const { data, error } = await supabase.from('messages').insert([newMessage]).select();
-                        if (error) throw error;
-                        setMessages([...messages, data[0]]);
-                        showToast("Pesan terkirim (Online) 📨", "success");
-                    } else {
-                        setMessages([...messages, newMessage]);
-                        showToast("Pesan terkirim (Demo Mode) 📨", "success");
-                    }
-                    setMsgForm({ teacherId: '', studentId: '', text: '' });
-                } catch(err) {
-                    showToast("Gagal mengirim pesan", "error");
-                }
+                setMessages([...messages, newMessage]);
+                alert("Pesan berhasil dikirim ke Guru! 📨");
+                setMsgForm({ teacherId: '', studentId: '', text: '' });
             };
 
             const todayStats = useMemo(() => {
@@ -659,21 +530,15 @@
                     }
                 });
                 exportToCSV(`Laporan_Admin_${reportFilter}_${filterDate}.csv`, rows);
-                showToast("Laporan berhasil diunduh", "success");
             };
 
             return (
                 <div className="max-w-6xl mx-auto p-6 fade-in">
-                    <ConfirmModal isOpen={confirmData.open} title={confirmData.title} message={confirmData.msg} onConfirm={confirmData.action} onCancel={() => setConfirmData({...confirmData, open: false})} />
-                    
-                    <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-800">Dashboard Admin</h1>
-                            <p className="text-gray-500 mt-1">Kelola sekolah dengan mudah 🏫</p>
-                        </div>
-                        <div className="flex gap-3 mt-4 md:mt-0 flex-wrap justify-center">
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-3xl shadow-sm">
+                        <div><h1 className="text-3xl font-bold text-gray-800">Dashboard Admin</h1><p className="text-gray-500">Kelola sekolah dengan mudah 🏫</p></div>
+                        <div className="flex gap-2 mt-4 md:mt-0 flex-wrap justify-center">
                             {['dashboard', 'users', 'report', 'message'].map(v => (
-                                <button key={v} onClick={() => setView(v)} className={`px-6 py-3 rounded-xl text-sm font-bold capitalize transition-all ${view === v ? 'bg-gray-900 text-white shadow-lg transform scale-105' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+                                <button key={v} onClick={() => setView(v)} className={`px-6 py-2 rounded-full text-sm font-bold capitalize transition ${view === v ? 'bg-indigo-600 text-white shadow-lg transform scale-105' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
                                     {v === 'message' ? 'Kirim Pesan' : v === 'users' ? 'Manajemen' : v === 'report' ? 'Laporan' : 'Ringkasan'}
                                 </button>
                             ))}
@@ -681,101 +546,94 @@
                     </div>
 
                     {view === 'dashboard' && (
-                        <div className="space-y-6 scale-in">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                <div className="bg-white p-8 rounded-[2rem] shadow-lg shadow-indigo-50 border border-indigo-100 hover:-translate-y-2 transition duration-300">
-                                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Total Siswa</p>
-                                    <p className="text-4xl font-bold text-indigo-600 mt-2">{todayStats.totalStudents}</p>
-                                </div>
-                                <div className="bg-white p-8 rounded-[2rem] shadow-lg shadow-teal-50 border border-teal-100 hover:-translate-y-2 transition duration-300">
-                                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Hadir Hari Ini</p>
-                                    <p className="text-4xl font-bold text-teal-600 mt-2">{todayStats.totalHadir}</p>
-                                </div>
-                                <div className="bg-white p-8 rounded-[2rem] shadow-lg shadow-orange-50 border border-orange-100 hover:-translate-y-2 transition duration-300">
-                                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Sakit</p>
-                                    <p className="text-4xl font-bold text-orange-500 mt-2">{todayStats.totalSakit}</p>
-                                </div>
-                                <div className="bg-white p-8 rounded-[2rem] shadow-lg shadow-pink-50 border border-pink-100 hover:-translate-y-2 transition duration-300">
-                                    <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">Izin/Dispen</p>
-                                    <p className="text-4xl font-bold text-pink-500 mt-2">{todayStats.totalIzin}</p>
-                                </div>
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div className="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-indigo-500"><p className="text-gray-400 text-xs font-bold uppercase">Total Siswa</p><p className="text-3xl font-bold text-indigo-600">{todayStats.totalStudents}</p></div>
+                                <div className="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-teal-500"><p className="text-gray-400 text-xs font-bold uppercase">Hadir Hari Ini</p><p className="text-3xl font-bold text-teal-600">{todayStats.totalHadir}</p></div>
+                                <div className="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-orange-500"><p className="text-gray-400 text-xs font-bold uppercase">Sakit</p><p className="text-3xl font-bold text-orange-600">{todayStats.totalSakit}</p></div>
+                                <div className="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-pink-500"><p className="text-gray-400 text-xs font-bold uppercase">Izin/Dispen</p><p className="text-3xl font-bold text-pink-600">{todayStats.totalIzin}</p></div>
                             </div>
                         </div>
                     )}
 
                     {view === 'message' && (
-                        <div className="bg-white rounded-[2rem] shadow-xl p-10 max-w-2xl mx-auto scale-in border border-gray-100">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-8 flex items-center gap-3"><Icons.Message className="w-8 h-8 text-indigo-600"/> Kirim Pesan ke Guru</h2>
+                        <div className="bg-white rounded-3xl shadow-lg p-8 max-w-2xl mx-auto">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><Icons.Message className="w-6 h-6 text-indigo-600"/> Kirim Pesan ke Guru</h2>
                             <form onSubmit={handleSendMessage} className="space-y-6">
-                                <div><label className="block text-sm font-bold text-gray-400 uppercase mb-2 ml-1">Pilih Guru Wali Kelas</label><select required className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-100 outline-none font-medium text-gray-700" value={msgForm.teacherId} onChange={e => setMsgForm({...msgForm, teacherId: e.target.value})}><option value="">-- Pilih Guru --</option>{users.filter(u => u.role === 'guru').map(g => <option key={g.id} value={g.id}>{g.name}</option>)}</select></div>
-                                <div><label className="block text-sm font-bold text-gray-400 uppercase mb-2 ml-1">Siswa Terkait (Perwalian)</label><select required className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-100 outline-none font-medium text-gray-700" value={msgForm.studentId} onChange={e => setMsgForm({...msgForm, studentId: e.target.value})}><option value="">-- Pilih Siswa --</option>{users.filter(u => u.role === 'siswa').map(s => <option key={s.id} value={s.id}>{s.name} - {s.class}</option>)}</select></div>
-                                <div><label className="block text-sm font-bold text-gray-400 uppercase mb-2 ml-1">Isi Pesan</label><textarea required rows="4" className="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-indigo-100 outline-none font-medium text-gray-700 resize-none" placeholder="Tulis pesan mengenai siswa..." value={msgForm.text} onChange={e => setMsgForm({...msgForm, text: e.target.value})}></textarea></div>
-                                <button type="submit" className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-indigo-600 transition shadow-xl flex items-center justify-center gap-2">Kirim Pesan <Icons.Send className="w-5 h-5"/></button>
+                                <div><label className="block text-sm font-bold text-gray-600 mb-2">Pilih Guru Wali Kelas</label><select required className="w-full p-3 bg-gray-50 rounded-xl border-none" value={msgForm.teacherId} onChange={e => setMsgForm({...msgForm, teacherId: e.target.value})}><option value="">-- Pilih Guru --</option>{users.filter(u => u.role === 'guru').map(g => <option key={g.id} value={g.id}>{g.name}</option>)}</select></div>
+                                <div><label className="block text-sm font-bold text-gray-600 mb-2">Siswa Terkait (Perwalian)</label><select required className="w-full p-3 bg-gray-50 rounded-xl border-none" value={msgForm.studentId} onChange={e => setMsgForm({...msgForm, studentId: e.target.value})}><option value="">-- Pilih Siswa --</option>{users.filter(u => u.role === 'siswa').map(s => <option key={s.id} value={s.id}>{s.name} - {s.class}</option>)}</select></div>
+                                <div><label className="block text-sm font-bold text-gray-600 mb-2">Isi Pesan</label><textarea required rows="4" className="w-full p-3 bg-gray-50 rounded-xl border-none" placeholder="Tulis pesan mengenai siswa..." value={msgForm.text} onChange={e => setMsgForm({...msgForm, text: e.target.value})}></textarea></div>
+                                <button type="submit" className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg flex items-center justify-center gap-2"><Icons.Send className="w-5 h-5"/> Kirim Pesan</button>
                             </form>
                         </div>
                     )}
 
                     {view === 'users' && (
-                        <div className="bg-white rounded-[2rem] shadow-xl overflow-hidden scale-in border border-gray-100">
+                        <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
                             <div className="p-6 border-b flex justify-between items-center bg-gray-50">
-                                <div className="flex gap-2 p-1 bg-gray-200 rounded-xl">
-                                    <button onClick={() => setUserTab('siswa')} className={`px-6 py-2.5 rounded-lg font-bold text-sm transition ${userTab === 'siswa' ? 'bg-white text-indigo-600 shadow' : 'bg-transparent text-gray-500'}`}>Data Siswa</button>
-                                    <button onClick={() => setUserTab('guru')} className={`px-6 py-2.5 rounded-lg font-bold text-sm transition ${userTab === 'guru' ? 'bg-white text-indigo-600 shadow' : 'bg-transparent text-gray-500'}`}>Data Guru</button>
+                                <div className="flex gap-2">
+                                    <button onClick={() => setUserTab('siswa')} className={`px-4 py-2 rounded-xl font-bold text-sm transition ${userTab === 'siswa' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500'}`}>Data Siswa</button>
+                                    <button onClick={() => setUserTab('guru')} className={`px-4 py-2 rounded-xl font-bold text-sm transition ${userTab === 'guru' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500'}`}>Data Guru</button>
                                 </div>
-                                <button onClick={() => openModal()} className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg transition transform hover:-translate-y-0.5"><Icons.User className="w-4 h-4"/> Tambah Baru</button>
+                                <button onClick={() => openModal()} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg"><Icons.User className="w-4 h-4"/> Tambah Baru</button>
                             </div>
-                            <div className="p-0"><table className="w-full text-left border-collapse"><thead className="bg-gray-50 text-gray-400 text-xs uppercase font-bold border-b"><tr><th className="p-4 pl-6">Nama</th><th className="p-4">Username</th><th className="p-4">Password</th>{(userTab === 'siswa' || userTab === 'guru') && <th className="p-4">{userTab === 'siswa' ? 'Kelas' : 'Wali Kelas'}</th>}<th className="p-4 text-right pr-6">Aksi</th></tr></thead>
-                            <tbody className="text-sm text-gray-600 divide-y divide-gray-100">{filteredUsers.map(u => (
-                                <tr key={u.id} className="hover:bg-indigo-50/30 transition">
-                                    <td className="p-4 pl-6 font-bold text-gray-800">{u.name}</td>
-                                    <td className="p-4">{u.username}</td>
-                                    <td className="p-4 font-mono flex items-center gap-2">
-                                        <span className="text-gray-400">{visiblePasswords[u.id] ? u.password : '••••••'}</span>
-                                        <button onClick={() => togglePassword(u.id)} className="text-gray-300 hover:text-indigo-500 transition"><Icons.Eye className="w-4 h-4"/></button>
+                            <div className="p-6 overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="text-xs text-gray-400 uppercase font-bold border-b"><tr><th className="p-3">Nama</th><th className="p-3">Username</th><th className="p-3">Password</th>{(userTab === 'siswa' || userTab === 'guru') && <th className="p-3">{userTab === 'siswa' ? 'Kelas' : 'Wali Kelas'}</th>}<th className="p-3 text-right">Aksi</th></tr></thead>
+                            <tbody className="text-sm text-gray-600">{filteredUsers.map(u => (
+                                <tr key={u.id} className="hover:bg-gray-50 border-b">
+                                    <td className="p-3 font-bold text-gray-800">{u.name}</td>
+                                    <td className="p-3">{u.username}</td>
+                                    <td className="p-3 font-mono flex items-center gap-2">
+                                        <span className="text-gray-600">{visiblePasswords[u.id] ? u.password : '••••••'}</span>
+                                        <button onClick={() => togglePassword(u.id)} className="text-gray-400 hover:text-indigo-500"><Icons.Eye className="w-4 h-4"/></button>
                                     </td>
                                     {(userTab === 'siswa' || userTab === 'guru') && (
-                                        <td className="p-4">
-                                            <span className="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-lg text-xs font-bold border border-gray-200">
+                                        <td className="p-3">
+                                            <span className="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-xs font-bold">
                                                 {u.class || '-'}
                                             </span>
                                         </td>
                                     )}
-                                    <td className="p-4 text-right pr-6"><div className="flex justify-end gap-2"><button onClick={() => openModal(u)} className="text-blue-500 hover:bg-blue-50 p-2 rounded-xl transition"><Icons.Edit className="w-4 h-4"/></button><button onClick={() => handleDeleteClick(u.id)} className="text-red-500 hover:bg-red-50 p-2 rounded-xl transition"><Icons.Trash className="w-4 h-4"/></button></div></td>
+                                    <td className="p-3 text-right"><div className="flex justify-end gap-2"><button onClick={() => openModal(u)} className="text-blue-500 hover:bg-blue-50 p-2 rounded-lg"><Icons.Edit className="w-4 h-4"/></button><button onClick={() => handleDelete(u.id)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg"><Icons.Trash className="w-4 h-4"/></button></div></td>
                                 </tr>))}
                             </tbody></table></div>
                         </div>
                     )}
 
                     {view === 'report' && (
-                        <div className="bg-white rounded-[2rem] shadow-xl overflow-hidden p-8 scale-in border border-gray-100">
-                            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                                <h3 className="font-bold text-xl text-gray-800">Laporan Kehadiran</h3>
-                                <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-2xl border border-gray-100">
-                                    <button onClick={handleDownloadReport} className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-100 transition"><Icons.Download className="w-4 h-4"/> Export CSV</button>
-                                    <div className="h-6 w-px bg-gray-300 mx-1"></div>
-                                    <select value={reportFilter} onChange={(e) => setReportFilter(e.target.value)} className="bg-transparent border-none text-sm font-bold text-gray-600 focus:ring-0 cursor-pointer outline-none"><option value="daily">Harian</option><option value="weekly">Mingguan</option><option value="monthly">Bulanan</option></select>
-                                    <input type={reportFilter === 'monthly' ? 'month' : 'date'} value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="bg-transparent border-none text-sm font-bold text-gray-600 focus:ring-0 outline-none"/>
+                        <div className="bg-white rounded-3xl shadow-lg overflow-hidden p-6">
+                            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                                <h3 className="font-bold text-lg text-gray-700">Laporan Kehadiran</h3>
+                                <div className="flex items-center gap-2 bg-gray-50 p-2 rounded-xl">
+                                    <button onClick={handleDownloadReport} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg"><Icons.Download className="w-4 h-4"/> Unduh Laporan</button>
+                                    <select value={reportFilter} onChange={(e) => setReportFilter(e.target.value)} className="bg-white border-none text-sm font-bold text-gray-600 rounded-lg p-2 focus:ring-0 cursor-pointer"><option value="daily">Harian</option><option value="weekly">Mingguan</option><option value="monthly">Bulanan</option></select>
+                                    <input type={reportFilter === 'monthly' ? 'month' : 'date'} value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="bg-white border-none text-sm font-bold text-gray-600 rounded-lg p-2 focus:ring-0"/>
                                 </div>
                             </div>
-                            <div className="overflow-x-auto rounded-2xl border border-gray-100"><table className="w-full text-left border-collapse"><thead className="bg-indigo-50 text-indigo-900 text-xs uppercase font-bold"><tr><th className="p-4 pl-6">Siswa</th>{reportFilter === 'daily' ? (<th className="p-4 text-center">Status</th>) : (<><th className="p-4 text-center">Hadir</th><th className="p-4 text-center">Sakit</th><th className="p-4 text-center pr-6">Izin/Dispen</th></>)}</tr></thead><tbody className="text-sm text-gray-600 divide-y divide-gray-100">{reportData.map(r => (<tr key={r.id} className="hover:bg-gray-50"><td className="p-4 pl-6"><div className="font-bold text-gray-800">{r.name}</div><div className="text-xs text-indigo-400 font-bold mt-0.5">{r.class}</div></td>{reportFilter === 'daily' ? (<td className="p-4 text-center"><span className={`px-3 py-1 rounded-full text-xs font-bold ${r.statusHarian === 'Hadir' ? 'bg-teal-100 text-teal-700' : r.statusHarian === 'Sakit' ? 'bg-orange-100 text-orange-700' : r.statusHarian === '-' ? 'bg-gray-100 text-gray-400' : 'bg-pink-100 text-pink-700'}`}>{r.statusHarian === '-' ? 'Belum Absen' : r.statusHarian}</span></td>) : (<><td className="p-4 text-center font-bold text-teal-600">{r.hadir}</td><td className="p-4 text-center font-bold text-orange-500">{r.sakit}</td><td className="p-4 text-center font-bold text-pink-500 pr-6">{r.izin}</td></>)}</tr>))}</tbody></table></div>
+                            <div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="bg-indigo-50 text-indigo-800 text-xs uppercase font-bold"><tr><th className="p-4 rounded-l-xl">Siswa</th>{reportFilter === 'daily' ? (<th className="p-4 rounded-r-xl text-center">Status</th>) : (<><th className="p-4 text-center">Hadir</th><th className="p-4 text-center">Sakit</th><th className="p-4 text-center rounded-r-xl">Izin/Dispen</th></>)}</tr></thead><tbody className="text-sm text-gray-600">{reportData.map(r => (<tr key={r.id} className="border-b hover:bg-gray-50"><td className="p-4"><div className="font-bold text-gray-800">{r.name}</div><div className="text-xs text-indigo-400 font-bold">{r.class}</div></td>{reportFilter === 'daily' ? (<td className="p-4 text-center"><span className={`px-3 py-1 rounded-full text-xs font-bold ${r.statusHarian === 'Hadir' ? 'bg-teal-100 text-teal-700' : r.statusHarian === 'Sakit' ? 'bg-orange-100 text-orange-700' : r.statusHarian === '-' ? 'bg-gray-100 text-gray-400' : 'bg-blue-100 text-blue-700'}`}>{r.statusHarian === '-' ? 'Belum Absen' : r.statusHarian}</span></td>) : (<><td className="p-4 text-center font-bold text-teal-600">{r.hadir}</td><td className="p-4 text-center font-bold text-orange-600">{r.sakit}</td><td className="p-4 text-center font-bold text-blue-600">{r.izin}</td></>)}</tr>))}</tbody></table></div>
                         </div>
                     )}
 
                     {isModalOpen && (
-                        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[80] p-4 backdrop-blur-sm">
-                            <div className="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-2xl scale-in">
-                                <h3 className="text-2xl font-bold mb-6 text-gray-800">{editingId ? 'Edit' : 'Tambah'} {userTab === 'guru' ? 'Guru' : 'Siswa'}</h3>
+                        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+                            <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl fade-in">
+                                <h3 className="text-xl font-bold mb-4">{editingId ? 'Edit' : 'Tambah'} {userTab === 'guru' ? 'Guru' : 'Siswa'}</h3>
                                 <form onSubmit={handleUserSubmit} className="space-y-4">
-                                    <div className="space-y-1"><label className="text-xs font-bold text-gray-400 uppercase ml-2">Nama Lengkap</label><input required className="w-full p-4 bg-gray-50 rounded-2xl border-none font-medium focus:ring-2 focus:ring-indigo-100 outline-none" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}/></div>
-                                    <div className="space-y-1"><label className="text-xs font-bold text-gray-400 uppercase ml-2">Username</label><input required className="w-full p-4 bg-gray-50 rounded-2xl border-none font-medium focus:ring-2 focus:ring-indigo-100 outline-none" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})}/></div>
-                                    <div className="space-y-1"><label className="text-xs font-bold text-gray-400 uppercase ml-2">Password</label><input required className="w-full p-4 bg-gray-50 rounded-2xl border-none font-medium focus:ring-2 focus:ring-indigo-100 outline-none" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}/></div>
+                                    <input required placeholder="Nama Lengkap" className="w-full p-3 bg-gray-50 rounded-xl border-none font-medium" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}/>
+                                    <input required placeholder="Username" className="w-full p-3 bg-gray-50 rounded-xl border-none font-medium" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})}/>
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 ml-1">Password (Edit untuk mereset)</label>
+                                        <input required placeholder="Password" className="w-full p-3 bg-gray-50 rounded-xl border-none font-medium" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}/>
+                                    </div>
                                     {(userTab === 'siswa' || userTab === 'guru') && (
-                                        <div className="space-y-1">
-                                            <label className="text-xs font-bold text-gray-400 uppercase ml-2">{userTab === 'siswa' ? "Kelas" : "Perwalian"}</label>
-                                            <input required placeholder="Misal: XII RPL 1" className="w-full p-4 bg-gray-50 rounded-2xl border-none font-medium focus:ring-2 focus:ring-indigo-100 outline-none" value={formData.class || ''} onChange={e => setFormData({...formData, class: e.target.value})}/>
-                                        </div>
+                                        <input
+                                            required
+                                            placeholder={userTab === 'siswa' ? "Kelas (Misal: XII RPL 1)" : "Perwalian Kelas (Misal: XII RPL 1)"}
+                                            className="w-full p-3 bg-gray-50 rounded-xl border-none font-medium"
+                                            value={formData.class || ''}
+                                            onChange={e => setFormData({...formData, class: e.target.value})}
+                                        />
                                     )}
-                                    <div className="flex justify-end gap-3 mt-8"><button type="button" onClick={closeModal} className="px-6 py-3 text-gray-500 font-bold hover:bg-gray-100 rounded-xl transition">Batal</button><button type="submit" className="px-6 py-3 bg-gray-900 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-600 transition">Simpan Data</button></div>
+                                    <div className="flex justify-end gap-2 mt-6"><button type="button" onClick={closeModal} className="px-4 py-2 text-gray-500 font-bold hover:bg-gray-100 rounded-xl">Batal</button><button type="submit" className="px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl shadow-lg hover:bg-indigo-700">Simpan</button></div>
                                 </form>
                             </div>
                         </div>
@@ -785,14 +643,14 @@
         };
 
         // 5. GURU DASHBOARD
-        const GuruDashboard = ({ users, user, attendance, setAttendance, messages, showToast }) => {
+        const GuruDashboard = ({ users, user, attendance, setAttendance, messages }) => {
             const [activeTab, setActiveTab] = useState('harian'); 
-            const [validationType, setValidationType] = useState('hadir'); 
+            const [validationType, setValidationType] = useState('hadir'); // 'hadir' or 'izin'
             const [date, setDate] = useState(getTodayDate());
             const [month, setMonth] = useState(getTodayDate().slice(0, 7));
             const [viewImg, setViewImg] = useState(null);
-            const [confirmData, setConfirmData] = useState({ open: false, title: '', msg: '', action: null });
             
+            // --- FILTER SISWA BERDASARKAN KELAS GURU ---
             const myStudents = users.filter(u => u.role === 'siswa' && u.class === user.class);
             const myStudentIds = myStudents.map(s => s.id);
 
@@ -816,28 +674,15 @@
 
             const myMessages = messages.filter(m => m.recipientId === user.id).sort((a, b) => b.id - a.id);
 
+            // --- FIX: Tombol Aksi Langsung Update Tanpa Confirm ---
             const handleAction = (id, status) => { 
-                setConfirmData({
-                    open: true,
-                    title: status === 'approved' ? "Terima Absensi?" : "Tolak Absensi?",
-                    msg: `Anda akan ${status === 'approved' ? 'menerima' : 'menolak'} data ini. Lanjutkan?`,
-                    action: async () => {
-                        try {
-                            if (isSupabaseActive) {
-                                const { error } = await supabase.from('attendance').update({ approval: status }).eq('id', id);
-                                if (error) throw error;
-                                showToast(`Status diperbarui (Online)`, status === 'approved' ? 'success' : 'error');
-                            } else {
-                                showToast(`Status diperbarui (Demo Mode)`, status === 'approved' ? 'success' : 'error');
-                            }
-                            const updated = attendance.map(item => item.id === id ? { ...item, approval: status } : item);
-                            setAttendance(updated);
-                        } catch (err) {
-                            showToast("Gagal memperbarui status", "error");
-                        }
-                        setConfirmData({ ...confirmData, open: false });
-                    }
-                });
+                try {
+                    // Update langsung ke state utama attendance
+                    const updated = attendance.map(item => item.id === id ? { ...item, approval: status } : item);
+                    setAttendance(updated);
+                } catch (e) {
+                    alert("Gagal menyimpan perubahan! Storage penuh.");
+                }
             };
             
             const openImage = (url) => setViewImg(url);
@@ -849,21 +694,15 @@
                     rows.push([s.name, s.class, s.hadir, s.sakit, s.izin, month]);
                 });
                 exportToCSV(`Laporan_Guru_${month}.csv`, rows);
-                showToast("Laporan diunduh", "success");
             };
 
             return (
-                <div className="max-w-6xl mx-auto p-6 fade-in">
-                     <ConfirmModal isOpen={confirmData.open} title={confirmData.title} message={confirmData.msg} onConfirm={confirmData.action} onCancel={() => setConfirmData({...confirmData, open: false})} />
-
-                    <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-3"><span className="text-4xl">👩‍🏫</span> Dashboard Guru</h1>
-                            <p className="text-gray-500 text-sm mt-2 font-bold bg-gray-100 px-3 py-1 rounded-lg inline-block">Kelas Perwalian: {user.class}</p>
-                        </div>
-                        <div className="flex gap-2 mt-4 md:mt-0 bg-gray-100 p-1.5 rounded-2xl overflow-x-auto">
+                <div className="max-w-6xl mx-auto p-4 fade-in">
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-6 bg-white p-6 rounded-3xl shadow-sm">
+                        <div><h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2"><span className="text-3xl">👩‍🏫</span> Dashboard Guru</h1><p className="text-gray-500 text-sm">Kelas Perwalian: {user.class}</p></div>
+                        <div className="flex gap-2 mt-4 md:mt-0 bg-gray-100 p-1 rounded-xl overflow-x-auto">
                             {['harian', 'rekap', 'siswa', 'pesan'].map(t => (
-                                <button key={t} onClick={() => setActiveTab(t)} className={`px-5 py-2.5 rounded-xl text-sm font-bold capitalize whitespace-nowrap transition-all duration-300 ${activeTab === t ? 'bg-white text-indigo-600 shadow-md' : 'text-gray-500 hover:text-indigo-500'}`}>
+                                <button key={t} onClick={() => setActiveTab(t)} className={`px-4 py-2 rounded-lg text-sm font-bold capitalize whitespace-nowrap transition ${activeTab === t ? 'bg-white text-indigo-600 shadow' : 'text-gray-500 hover:text-indigo-500'}`}>
                                     {t === 'harian' ? 'Validasi' : t === 'rekap' ? 'Laporan' : t === 'siswa' ? 'Siswa' : 'Kotak Masuk'}
                                 </button>
                             ))}
@@ -871,20 +710,20 @@
                     </div>
 
                     {activeTab === 'harian' && (
-                        <div className="bg-white rounded-[2rem] shadow-xl overflow-hidden scale-in border border-gray-100">
-                            <div className="p-6 border-b flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/50">
-                                <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
-                                    <button onClick={() => setValidationType('hadir')} className={`px-4 py-2 rounded-lg text-sm font-bold transition ${validationType === 'hadir' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500'}`}>Absensi Hadir</button>
-                                    <button onClick={() => setValidationType('izin')} className={`px-4 py-2 rounded-lg text-sm font-bold transition ${validationType === 'izin' ? 'bg-pink-600 text-white shadow' : 'text-gray-500'}`}>Pengajuan Izin</button>
+                        <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
+                            <div className="p-4 border-b flex flex-col md:flex-row justify-between items-center gap-4">
+                                <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+                                    <button onClick={() => setValidationType('hadir')} className={`px-4 py-2 rounded-md text-sm font-bold transition ${validationType === 'hadir' ? 'bg-indigo-600 text-white shadow' : 'text-gray-500'}`}>Absensi Hadir</button>
+                                    <button onClick={() => setValidationType('izin')} className={`px-4 py-2 rounded-md text-sm font-bold transition ${validationType === 'izin' ? 'bg-pink-600 text-white shadow' : 'text-gray-500'}`}>Pengajuan Izin</button>
                                 </div>
-                                <input type="date" value={date} onChange={e => setDate(e.target.value)} className="p-2.5 rounded-xl border-none bg-gray-100 font-bold text-gray-600 focus:ring-2 focus:ring-indigo-100 outline-none"/>
+                                <input type="date" value={date} onChange={e => setDate(e.target.value)} className="p-2 rounded-xl border bg-gray-50 font-bold text-gray-600"/>
                             </div>
                             
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
-                                    <thead className="bg-indigo-50 text-indigo-900 text-xs uppercase font-bold">
+                                    <thead className="bg-indigo-50 text-indigo-800 text-xs uppercase font-bold">
                                         <tr>
-                                            <th className="p-4 pl-6">Siswa</th>
+                                            <th className="p-4">Siswa</th>
                                             {validationType === 'hadir' ? (
                                                 <>
                                                     <th className="p-4">Jam Masuk</th>
@@ -899,47 +738,47 @@
                                                     <th className="p-4 text-center">Bukti Surat</th>
                                                 </>
                                             )}
-                                            <th className="p-4 text-right pr-6">Aksi / Status</th>
+                                            <th className="p-4 text-right">Aksi / Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="text-sm text-gray-600 divide-y divide-gray-100">
-                                        {dailyData.length === 0 ? <tr><td colSpan="6" className="p-12 text-center italic text-gray-400">Tidak ada data untuk kategori ini</td></tr> : 
+                                    <tbody className="text-sm text-gray-600">
+                                        {dailyData.length === 0 ? <tr><td colSpan="6" className="p-10 text-center italic text-gray-400">Tidak ada data untuk kategori ini</td></tr> : 
                                         dailyData.map(r => (
-                                            <tr key={r.id} className="hover:bg-indigo-50/30 transition">
-                                                <td className="p-4 pl-6">
+                                            <tr key={r.id} className="border-b hover:bg-gray-50 transition">
+                                                <td className="p-4">
                                                     <div className="font-bold text-gray-800">{r.name}</div>
                                                     <div className="text-xs text-indigo-500 font-bold">{r.class}</div>
                                                 </td>
                                                 
                                                 {validationType === 'hadir' ? (
                                                     <>
-                                                        <td className="p-4 font-mono text-xs font-bold">{r.timeIn}</td>
-                                                        <td className="p-4 font-mono text-xs font-bold text-gray-400">{r.timeOut}</td>
+                                                        <td className="p-4 font-mono text-xs">{r.timeIn}</td>
+                                                        <td className="p-4 font-mono text-xs">{r.timeOut}</td>
                                                         <td className="p-4 text-center">
-                                                            {r.proof ? <img src={r.proof} className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md mx-auto cursor-pointer hover:scale-110 transition" onClick={() => openImage(r.proof)}/> : '-'}
+                                                            {r.proof ? <img src={r.proof} className="w-10 h-10 rounded-full object-cover border mx-auto cursor-pointer hover:scale-150 transition" onClick={() => openImage(r.proof)}/> : '-'}
                                                         </td>
                                                         <td className="p-4 text-center">
-                                                            {r.proofOut ? <img src={r.proofOut} className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md mx-auto cursor-pointer hover:scale-110 transition" onClick={() => openImage(r.proofOut)}/> : '-'}
+                                                            {r.proofOut ? <img src={r.proofOut} className="w-10 h-10 rounded-full object-cover border mx-auto cursor-pointer hover:scale-150 transition" onClick={() => openImage(r.proofOut)}/> : '-'}
                                                         </td>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <td className="p-4"><span className="bg-pink-50 text-pink-600 px-3 py-1 rounded-full text-xs font-bold capitalize border border-pink-100">{r.type}</span></td>
-                                                        <td className="p-4 text-xs italic max-w-xs truncate text-gray-500">{r.note || '-'}</td>
+                                                        <td className="p-4"><span className="bg-pink-100 text-pink-700 px-2 py-1 rounded text-xs font-bold capitalize">{r.type}</span></td>
+                                                        <td className="p-4 text-xs italic max-w-xs truncate">{r.note || '-'}</td>
                                                         <td className="p-4 text-center">
-                                                            {r.proof && <button onClick={() => openImage(r.proof)} className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg font-bold hover:bg-indigo-100 transition flex items-center justify-center mx-auto gap-1"><Icons.File className="w-3 h-3"/> Lihat File</button>}
+                                                            {r.proof && <button onClick={() => openImage(r.proof)} className="text-xs text-blue-500 underline flex items-center justify-center mx-auto"><Icons.File className="w-3 h-3 mr-1"/> Lihat File</button>}
                                                         </td>
                                                     </>
                                                 )}
 
-                                                <td className="p-4 text-right pr-6">
+                                                <td className="p-4 text-right">
                                                     {r.approval === 'pending' ? (
                                                         <div className="flex justify-end gap-2">
-                                                            <button onClick={() => handleAction(r.id, 'approved')} className="bg-emerald-500 text-white p-2 rounded-xl hover:bg-emerald-600 transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5" title="Terima"><Icons.Check className="w-4 h-4"/></button>
-                                                            <button onClick={() => handleAction(r.id, 'rejected')} className="bg-red-500 text-white p-2 rounded-xl hover:bg-red-600 transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5" title="Tolak"><Icons.X className="w-4 h-4"/></button>
+                                                            <button onClick={() => handleAction(r.id, 'approved')} className="bg-green-500 text-white p-2 rounded-lg hover:bg-green-600 transition shadow" title="Terima"><Icons.Check className="w-4 h-4"/></button>
+                                                            <button onClick={() => handleAction(r.id, 'rejected')} className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition shadow" title="Tolak"><Icons.X className="w-4 h-4"/></button>
                                                         </div>
                                                     ) : (
-                                                        <span className={`text-xs font-bold px-3 py-1.5 rounded-full border ${r.approval === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                                                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${r.approval === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                                             {r.approval === 'approved' ? 'Diterima' : 'Ditolak'}
                                                         </span>
                                                     )}
@@ -953,41 +792,35 @@
                     )}
 
                     {activeTab === 'rekap' && (
-                        <div className="bg-white rounded-[2rem] shadow-xl overflow-hidden p-8 scale-in border border-gray-100">
-                            <div className="flex justify-between items-center mb-8">
-                                <h3 className="font-bold text-gray-800 text-xl">Laporan Bulanan</h3>
-                                <div className="flex gap-3">
-                                    <button onClick={handleExportGuru} className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-100 transition"><Icons.Download className="w-4 h-4"/> Export CSV</button>
-                                    <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="p-2.5 rounded-xl border-none bg-gray-100 font-bold text-gray-600 focus:ring-2 focus:ring-indigo-100 outline-none"/>
+                        <div className="bg-white rounded-3xl shadow-lg overflow-hidden p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="font-bold text-gray-700">Laporan Bulanan</h3>
+                                <div className="flex gap-2">
+                                    <button onClick={handleExportGuru} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg"><Icons.Download className="w-4 h-4"/> Export Excel</button>
+                                    <input type="month" value={month} onChange={e => setMonth(e.target.value)} className="p-2 rounded-xl border bg-gray-50 font-bold text-gray-600"/>
                                 </div>
                             </div>
-                            <div className="overflow-x-auto rounded-2xl border border-gray-100"><table className="w-full text-left border-collapse"><thead className="bg-gray-50 text-gray-400 text-xs uppercase font-bold"><tr><th className="p-4 pl-6">Siswa</th><th className="p-4 text-center">Hadir</th><th className="p-4 text-center">Sakit</th><th className="p-4 text-center pr-6">Izin</th></tr></thead><tbody className="text-sm text-gray-600 divide-y divide-gray-100">{monthlyStats.map(s => (<tr key={s.id} className="hover:bg-gray-50"><td className="p-4 pl-6"><div className="font-bold text-gray-800">{s.name}</div><div className="text-xs text-indigo-400 font-bold mt-0.5">{s.class}</div></td><td className="p-4 text-center font-bold text-teal-600">{s.hadir}</td><td className="p-4 text-center font-bold text-orange-500">{s.sakit}</td><td className="p-4 text-center font-bold text-pink-500 pr-6">{s.izin}</td></tr>))}</tbody></table></div>
+                            <div className="overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="bg-gray-50 text-gray-700 text-xs uppercase font-bold"><tr><th className="p-4">Siswa</th><th className="p-4 text-center">Hadir</th><th className="p-4 text-center">Sakit</th><th className="p-4 text-center">Izin</th></tr></thead><tbody className="text-sm text-gray-600">{monthlyStats.map(s => (<tr key={s.id} className="border-b hover:bg-gray-50"><td className="p-4"><div className="font-bold text-gray-800">{s.name}</div><div className="text-xs text-indigo-500">{s.class}</div></td><td className="p-4 text-center font-bold text-teal-600">{s.hadir}</td><td className="p-4 text-center font-bold text-orange-500">{s.sakit}</td><td className="p-4 text-center font-bold text-blue-500">{s.izin}</td></tr>))}</tbody></table></div>
                         </div>
                     )}
 
                     {activeTab === 'pesan' && (
-                        <div className="space-y-4 scale-in">
-                            <h3 className="font-bold text-xl text-gray-800 mb-4">Kotak Masuk <span className="text-sm font-normal text-gray-500">(Pesan dari Admin)</span></h3>
+                        <div className="space-y-4">
+                            <h3 className="font-bold text-xl text-gray-800 mb-4">Kotak Masuk (Pesan dari Admin)</h3>
                             {myMessages.length === 0 ? (
-                                <div className="bg-white p-16 rounded-[2rem] text-center border border-gray-100 shadow-sm">
-                                    <div className="text-6xl mb-4">📭</div>
-                                    <p className="text-gray-400 font-medium">Belum ada pesan masuk</p>
-                                </div>
+                                <div className="bg-white p-10 rounded-3xl text-center text-gray-400">Belum ada pesan masuk 📭</div>
                             ) : (
                                 <div className="grid gap-4">
                                     {myMessages.map(msg => {
                                         const studentName = users.find(u => u.id === msg.studentId)?.name || 'Unknown';
                                         return (
-                                            <div key={msg.id} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition relative overflow-hidden group">
-                                                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-500"></div>
-                                                <div className="flex justify-between items-start mb-3 pl-2">
-                                                    <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide">Perihal: {studentName}</span>
-                                                    <span className="text-xs text-gray-400 font-mono">{msg.date}</span>
+                                            <div key={msg.id} className="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-indigo-500 hover:shadow-md transition">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg text-xs font-bold uppercase">Perihal: {studentName}</span>
+                                                    <span className="text-xs text-gray-400">{msg.date}</span>
                                                 </div>
-                                                <p className="text-gray-700 font-medium text-lg pl-2 leading-relaxed">"{msg.content}"</p>
-                                                <div className="mt-4 pt-4 border-t border-gray-50 pl-2">
-                                                    <p className="text-xs text-gray-400 font-bold flex items-center gap-1"><Icons.User className="w-3 h-3"/> Admin Sekolah</p>
-                                                </div>
+                                                <p className="text-gray-700 font-medium text-lg">"{msg.content}"</p>
+                                                <p className="text-xs text-gray-400 mt-3 font-bold">- Dari Admin Sekolah</p>
                                             </div>
                                         );
                                     })}
@@ -996,18 +829,18 @@
                         </div>
                     )}
 
+                    {/* TAB 3: DATA SISWA (Simple View) */}
                     {activeTab === 'siswa' && (
-                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 scale-in">{myStudents.map(s=>(<div key={s.id} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-5 hover:shadow-md transition"><div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-100 to-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-2xl shadow-inner">{s.name.charAt(0)}</div><div><h4 className="font-bold text-gray-800 text-lg">{s.name}</h4><p className="text-xs font-bold text-gray-400 uppercase tracking-wide">{s.class}</p></div></div>))}</div>
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">{myStudents.map(s=>(<div key={s.id} className="bg-white p-6 rounded-3xl shadow-sm flex items-center gap-4"><div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold text-xl">{s.name.charAt(0)}</div><div><h4 className="font-bold text-gray-800">{s.name}</h4><p className="text-sm text-gray-500">{s.class}</p></div></div>))}</div>
                     )}
 
                     {viewImg && (
-                        <div className="fixed inset-0 bg-black/90 z-[100] flex items-center justify-center p-4 fade-in backdrop-blur-sm" onClick={() => setViewImg(null)}>
+                        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 fade-in" onClick={() => setViewImg(null)}>
                             {viewImg.startsWith('data:application/pdf') ? (
-                                <iframe src={viewImg} className="w-full max-w-4xl h-[85vh] bg-white rounded-2xl shadow-2xl"></iframe>
+                                <iframe src={viewImg} className="w-full h-[80vh] bg-white rounded-lg"></iframe>
                             ) : (
-                                <img src={viewImg} className="rounded-2xl max-h-[85vh] shadow-2xl border-4 border-white photo-result"/>
+                                <img src={viewImg} className="rounded-2xl max-h-[80vh] shadow-2xl border-4 border-white photo-result"/>
                             )}
-                            <button className="absolute top-4 right-4 bg-white/20 text-white p-2 rounded-full hover:bg-white/40 transition"><Icons.X className="w-6 h-6"/></button>
                         </div>
                     )}
                 </div>
@@ -1017,83 +850,35 @@
         // 6. MAIN APP
         const App = () => {
             const [user, setUser] = useState(null);
-            const [users, setUsers] = useState(() => JSON.parse(localStorage.getItem('smartattend_users')) || INITIAL_USERS);
-            const [attendance, setAttendance] = useState(() => JSON.parse(localStorage.getItem('smartattend_data')) || []);
-            const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('smartattend_messages')) || []);
-            const [toast, setToast] = useState(null);
+            const [users, setUsers] = useState(() => {
+                try { return JSON.parse(localStorage.getItem('smartattend_users')) || INITIAL_USERS; } catch { return INITIAL_USERS; }
+            });
+            const [attendance, setAttendance] = useState(() => {
+                try { return JSON.parse(localStorage.getItem('smartattend_data')) || INITIAL_ATTENDANCE; } catch { return INITIAL_ATTENDANCE; }
+            });
+            const [messages, setMessages] = useState(() => {
+                try { return JSON.parse(localStorage.getItem('smartattend_messages')) || INITIAL_MESSAGES; } catch { return INITIAL_MESSAGES; }
+            });
+            // State Pengumuman
+            const [announcements, setAnnouncements] = useState(INITIAL_ANNOUNCEMENTS);
 
-            // LocalStorage Sync (Demo Mode)
-            useEffect(() => {
-                if (!isSupabaseActive) {
-                    localStorage.setItem('smartattend_users', JSON.stringify(users));
-                    localStorage.setItem('smartattend_data', JSON.stringify(attendance));
-                    localStorage.setItem('smartattend_messages', JSON.stringify(messages));
-                }
-            }, [users, attendance, messages]);
+            // Safe storage functions
+            useEffect(() => { try { localStorage.setItem('smartattend_users', JSON.stringify(users)); } catch(e) { console.warn('Storage full'); } }, [users]);
+            useEffect(() => { try { localStorage.setItem('smartattend_data', JSON.stringify(attendance)); } catch(e) { console.warn('Storage full'); } }, [attendance]);
+            useEffect(() => { try { localStorage.setItem('smartattend_messages', JSON.stringify(messages)); } catch(e) { console.warn('Storage full'); } }, [messages]);
 
-            // Supabase Fetch (Online Mode)
-            useEffect(() => {
-                if (isSupabaseActive) {
-                    const fetchData = async () => {
-                        try {
-                            // Users
-                            let { data: uData, error: uError } = await supabase.from('users').select('*');
-                            if (uError) throw uError;
-                            if (uData && uData.length > 0) setUsers(uData);
-                            else if (!user) { 
-                                // If DB empty, init default admin
-                                const { error: initError } = await supabase.from('users').insert(INITIAL_USERS);
-                                if (!initError) setUsers(INITIAL_USERS);
-                            }
-
-                            // Attendance
-                            let { data: aData, error: aError } = await supabase.from('attendance').select('*');
-                            if (aError) throw aError;
-                            if (aData) setAttendance(aData);
-
-                            // Messages
-                            let { data: mData, error: mError } = await supabase.from('messages').select('*');
-                            if (mError) throw mError;
-                            if (mData) setMessages(mData);
-
-                        } catch (err) {
-                            console.error("Fetch Error:", err);
-                            // Don't toast here to avoid spam on load, just log
-                        }
-                    };
-                    fetchData();
-                }
-            }, [user]);
-
-            const showToast = (msg, type = 'success') => setToast({ message: msg, type });
-            const closeToast = () => setToast(null);
-
-            if (!user) return (
-                <>
-                    {toast && <Toast message={toast.message} type={toast.type} onClose={closeToast} />}
-                    <Login onLogin={setUser} users={users} showToast={showToast} />
-                </>
-            );
+            if (!user) return <Login onLogin={setUser} users={users} />;
 
             return (
-                <div className="min-h-screen bg-[#f0f4f8] text-gray-800">
-                    {toast && <Toast message={toast.message} type={toast.type} onClose={closeToast} />}
-                    <div className="fixed top-6 left-6 z-40">
-                        <div className="bg-white/80 backdrop-blur-md rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] pl-4 pr-2 py-2 flex items-center gap-3 border border-white/50 transition hover:scale-105">
-                            <span className="font-bold text-indigo-600 flex items-center gap-2 text-sm"><Icons.Smile className="w-5 h-5"/> SmartAttend</span>
-                            {isSupabaseActive ? (
-                                <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold border border-green-200 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Online</span>
-                            ) : (
-                                <span className="bg-gray-100 text-gray-500 text-[10px] px-2 py-0.5 rounded-full font-bold border border-gray-200">Demo Mode</span>
-                            )}
-                            <div className="h-4 w-px bg-gray-300"></div>
-                            <button onClick={() => setUser(null)} className="bg-gray-100 text-gray-500 p-2 rounded-full hover:bg-red-50 hover:text-red-500 transition"><Icons.LogOut className="w-4 h-4"/></button>
-                        </div>
+                <div className="min-h-screen bg-[#f0f4f8]">
+                    <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur rounded-full shadow-lg px-4 py-2 flex items-center gap-4 z-40">
+                        <span className="font-bold text-indigo-600 flex items-center gap-1"><Icons.Smile className="w-5 h-5"/> SmartAttend</span>
+                        <button onClick={() => setUser(null)} className="bg-red-50 text-red-500 p-2 rounded-full hover:bg-red-100"><Icons.LogOut className="w-4 h-4"/></button>
                     </div>
                     <div className="pt-24 px-4 pb-10">
-                        {user.role === 'siswa' && <SiswaDashboard user={user} users={users} attendance={attendance} setAttendance={setAttendance} showToast={showToast} />}
-                        {user.role === 'guru' && <GuruDashboard user={user} users={users} attendance={attendance} setAttendance={setAttendance} messages={messages} showToast={showToast} />}
-                        {user.role === 'admin' && <AdminDashboard users={users} setUsers={setUsers} attendance={attendance} messages={messages} setMessages={setMessages} showToast={showToast} />}
+                        {user.role === 'siswa' && <SiswaDashboard user={user} users={users} attendance={attendance} setAttendance={setAttendance} announcements={announcements} />}
+                        {user.role === 'guru' && <GuruDashboard user={user} users={users} attendance={attendance} setAttendance={setAttendance} messages={messages} />}
+                        {user.role === 'admin' && <AdminDashboard users={users} setUsers={setUsers} attendance={attendance} messages={messages} setMessages={setMessages} />}
                     </div>
                 </div>
             );
