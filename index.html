@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartAttend - Sistem Absensi & Pesan (Fixed)</title>
+    <title>SmartAttend - Sistem Absensi & Pesan (Online)</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Supabase JS Library (Versi JSDelivr - Lebih Stabil) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase JS Library -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -46,38 +46,27 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
 
-        // --- KONFIGURASI SUPABASE (SUDAH DIPERBAIKI) ---
-        const supabaseUrl = 'https://gywksgnfhuvdrpujfcdb.supabase.co'; 
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5d2tzZ25maHV2ZHJwdWpmY2RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM3MzQ2MzYsImV4cCI6MjA3OTMxMDYzNn0.0f6ogvgu0WDixTjPoCbvI96VfLzaLzzFPaNZJt9wHOg';
+        // --- KONFIGURASI SUPABASE (PERMANEN) ---
+        const supabaseUrl = 'https://jypcwcykbnibjvuqlzyk.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cGN3Y3lrYm5pYmp2dXFsenlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MTgxMjUsImV4cCI6MjA3OTM5NDEyNX0.NTOfDuaj9bmCp4ReVwyn3mCazLcx7qbSOZW9LuvEuJg';
         
-        // --- DIAGNOSA KONEKSI ---
+        // Inisialisasi Client
         let supabase = null;
         let isSupabaseActive = false;
-        let statusMessage = "";
 
         try {
             if (typeof window.supabase === 'undefined' || !window.supabase) {
                 console.warn("⚠️ Library Supabase gagal dimuat.");
-                statusMessage = "Lib Gagal Load";
             } 
-            else if (supabaseUrl.includes('MASUKKAN_SUPABASE')) {
-                console.log("⚠️ URL masih default.");
-                statusMessage = "URL Belum Diisi";
-            }
-            else if (!supabaseUrl.startsWith('http')) {
-                console.log("⚠️ Format URL salah.");
-                statusMessage = "Format URL Salah";
-            }
-            else {
-                // Coba inisialisasi
+            else if (supabaseUrl && supabaseUrl.startsWith('http')) {
                 supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
                 isSupabaseActive = true;
-                statusMessage = "Terhubung";
-                console.log("✅ Supabase Aktif & Terkonfigurasi");
+                console.log("✅ Supabase Aktif (Config Permanen)");
+            } else {
+                console.log("⚠️ Konfigurasi Supabase tidak valid.");
             }
         } catch (err) {
             console.error("Supabase Init Error:", err);
-            statusMessage = "Error: " + err.message;
         }
 
         // --- UTILS ---
@@ -550,7 +539,10 @@
                         } else {
                             const newData = { ...formData, id: Date.now(), role: userTab };
                             const { data, error } = await supabase.from('users').insert([newData]).select();
-                            if (error) throw error;
+                            if (error) {
+                                console.error("Supabase Error:", error);
+                                throw error;
+                            }
                             newUserList = [...users, data[0]];
                             showToast("User ditambahkan (Online)", "success");
                         }
@@ -568,7 +560,7 @@
                     closeModal();
                 } catch (err) {
                     console.error(err);
-                    showToast("Gagal menyimpan user", "error");
+                    showToast("Gagal: " + (err.message || err.error_description || "Unknown error"), "error");
                 }
             };
             const openModal = (user = null) => { setFormData(user ? { ...user } : { username: '', password: '', name: '', class: '' }); setEditingId(user ? user.id : null); setIsModalOpen(true); };
