@@ -33,6 +33,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         video { transform: scaleX(-1); border-radius: 1rem; }
+        .photo-result { transform: scaleX(-1); }
     </style>
 </head>
 <body class="text-slate-800 antialiased selection:bg-indigo-200">
@@ -46,6 +47,7 @@
         const getTodayDate = () => new Date().toISOString().split('T')[0];
         const getCurrentTime = () => new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         
+        // Export CSV Function
         const exportToCSV = (filename, rows) => {
             const processRow = (row) => row.map(val => {
                 if (val === null || val === undefined) val = ''; 
@@ -87,10 +89,7 @@
             Download: (p) => <Icon {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></Icon>,
             Message: (p) => <Icon {...p}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></Icon>,
             Send: (p) => <Icon {...p}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></Icon>,
-            Eye: (p) => <Icon {...p}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></Icon>,
-            BarChart: (p) => <Icon {...p}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></Icon>,
-            Bell: (p) => <Icon {...p}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></Icon>,
-            Calendar: (p) => <Icon {...p}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></Icon>
+            Eye: (p) => <Icon {...p}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></Icon>
         };
 
         const MOTIVATION_QUOTES = [
@@ -101,18 +100,13 @@
             "Disiplin adalah jembatan antara cita-cita dan pencapaian. 🌉"
         ];
 
-        // --- DATA AWAL PENGUMUMAN ---
-        const INITIAL_ANNOUNCEMENTS = [
-            { id: 1, title: "Ujian Tengah Semester", date: "2025-03-10", content: "Persiapkan diri kalian untuk UTS. Jadwal lengkap akan ditempel di mading." },
-            { id: 2, title: "Hari Batik Nasional", date: "2025-10-02", content: "Seluruh siswa diwajibkan memakai baju batik bebas sopan." },
-            { id: 3, title: "Class Meeting", date: "2025-12-15", content: "Lomba futsal dan e-sport antar kelas. Daftarkan tim kelasmu!" },
-            { id: 4, title: "Libur Awal Puasa", date: "2025-03-01", content: "Sekolah diliburkan selama 2 hari untuk menyambut bulan Ramadhan." }
-        ];
-
         const INITIAL_USERS = [
             { id: 1, username: 'admin', password: '123', role: 'admin', name: 'Admin Sekolah' },
+            // Guru 1 - Kelas XII RPL 1
             { id: 2, username: 'guru1', password: '123', role: 'guru', name: 'Ibu Guru Cantik', class: 'XII RPL 1' },
+            // Guru 2 - Kelas XII RPL 2 (Data Baru untuk Demo Filter)
             { id: 6, username: 'guru2', password: '123', role: 'guru', name: 'Pak Guru Ganteng', class: 'XII RPL 2' },
+            
             { id: 3, username: 'siswa1', password: '123', role: 'siswa', name: 'Budi Santoso', class: 'XII RPL 1' },
             { id: 4, username: 'siswa2', password: '123', role: 'siswa', name: 'Siti Aminah', class: 'XII RPL 1' },
             { id: 5, username: 'siswa3', password: '123', role: 'siswa', name: 'Doni Tata', class: 'XII RPL 2' },
@@ -136,8 +130,7 @@
                         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                         if (videoRef.current) videoRef.current.srcObject = stream;
                     } catch (err) {
-                        console.error(err);
-                        setError("Kamera tidak terdeteksi! Pastikan izin browser aktif atau gunakan HTTPS.");
+                        setError("Kamera tidak terdeteksi! Pastikan izin browser aktif.");
                     }
                 };
                 startCamera();
@@ -154,7 +147,7 @@
                 ctx.translate(width, 0);
                 ctx.scale(-1, 1);
                 ctx.drawImage(videoRef.current, 0, 0, width, height);
-                onCapture(canvasRef.current.toDataURL('image/jpeg', 0.6));
+                onCapture(canvasRef.current.toDataURL('image/jpeg', 0.7));
             };
 
             return (
@@ -195,6 +188,7 @@
                             <div className="inline-flex p-4 rounded-full bg-gradient-to-tr from-indigo-500 to-pink-500 text-white shadow-lg mb-4"><Icons.Smile className="w-10 h-10" /></div>
                             <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-pink-600 bg-clip-text text-transparent">SmartAttend</h1>
                             <p className="text-gray-500 text-lg font-bold mb-2 font-classic">Absensi Modern Terpadu ✨</p>
+                            <p className="font-aesthetic text-xl text-indigo-600 mt-2">Religion And Knowledge Is Power</p>
                         </div>
 
                         <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
@@ -215,13 +209,14 @@
                             </div>
                             <button type="submit" className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold text-lg shadow-xl hover:bg-indigo-600 transition-all hover:-translate-y-1">Masuk Sebagai {role.charAt(0).toUpperCase() + role.slice(1)} 🚀</button>
                         </form>
+                        {/* Bagian akun demo telah dihapus */}
                     </div>
                 </div>
             );
         };
 
-        // 3. SISWA DASHBOARD (UPDATED with Stats & Announcements)
-        const SiswaDashboard = ({ user, users, attendance, setAttendance, announcements }) => {
+        // 3. SISWA DASHBOARD
+        const SiswaDashboard = ({ user, users, attendance, setAttendance }) => {
             const [activeTab, setActiveTab] = useState('absen'); 
             const [camMode, setCamMode] = useState(null);
             const [quote, setQuote] = useState('');
@@ -235,30 +230,6 @@
             const todayRecord = attendance.find(a => a.studentId === user.id && a.date === today);
             const hasClockedIn = todayRecord && todayRecord.type === 'hadir';
             const hasClockedOut = todayRecord && todayRecord.timeOut !== '-';
-
-            // --- LOGIC GRAFIK ABSENSI ---
-            const myStats = useMemo(() => {
-                const initialStats = { hadir: 0, telat: 0, sakit: 0, izin: 0, dispen: 0 };
-                return attendance.reduce((acc, curr) => {
-                    if (curr.studentId !== user.id) return acc;
-                    
-                    // Logic Telat: Jika Hadir dan jam > 07:30
-                    if (curr.type === 'hadir') {
-                        if (curr.timeIn > '07:30') {
-                            acc.telat += 1;
-                        } else {
-                            acc.hadir += 1;
-                        }
-                    } else if (curr.approval === 'approved' || curr.approval === 'pending') {
-                         // Hitung Izin/Sakit/Dispen jika approved atau pending (agar terlihat di grafik)
-                        if (acc[curr.type] !== undefined) acc[curr.type] += 1;
-                    }
-                    return acc;
-                }, initialStats);
-            }, [attendance, user.id]);
-
-            // Helper untuk max value grafik agar dinamis
-            const maxStatValue = Math.max(...Object.values(myStats), 5); 
 
             const rankings = useMemo(() => {
                 const students = users.filter(u => u.role === 'siswa');
@@ -276,50 +247,41 @@
             };
 
             const handleCapture = (photoData) => {
-                try {
-                    if (camMode === 'masuk') {
-                        setAttendance([...attendance, { id: Date.now(), studentId: user.id, date: today, type: 'hadir', timeIn: getCurrentTime(), timeOut: '-', status: 'Hadir', proof: photoData, approval: 'pending' }]);
-                        alert("Absen Masuk Berhasil! Menunggu verifikasi guru. 📸");
-                    } else {
-                        const updated = attendance.map(a => a.id === todayRecord.id ? { ...a, timeOut: getCurrentTime(), proofOut: photoData } : a);
-                        setAttendance(updated);
-                        alert("Absen Pulang Berhasil! 👋");
-                    }
-                    setCamMode(null);
-                } catch (err) {
-                    alert("Gagal menyimpan! Memori browser penuh. Silakan hubungi admin untuk reset data.");
+                if (camMode === 'masuk') {
+                    setAttendance([...attendance, { id: Date.now(), studentId: user.id, date: today, type: 'hadir', timeIn: getCurrentTime(), timeOut: '-', status: 'Hadir', proof: photoData, approval: 'pending' }]);
+                    alert("Absen Masuk Berhasil! Menunggu verifikasi guru. 📸");
+                } else {
+                    const updated = attendance.map(a => a.id === todayRecord.id ? { ...a, timeOut: getCurrentTime(), proofOut: photoData } : a);
+                    setAttendance(updated);
+                    alert("Absen Pulang Berhasil! 👋");
                 }
+                setCamMode(null);
             };
 
             const handleSubmitLeave = (e) => {
                 e.preventDefault();
                 if (todayRecord) return alert("Anda sudah ada data hari ini!");
                 if (!file) return alert("Wajib upload bukti surat ya!");
-                if (file.size > 500000) return alert("Ukuran file terlalu besar! Maks 500KB.");
 
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    try {
-                        const fileData = event.target.result; 
-                        const newRecord = {
-                            id: Date.now(),
-                            studentId: user.id,
-                            date: today,
-                            type: leaveType,
-                            timeIn: '-',
-                            timeOut: '-',
-                            status: leaveType.charAt(0).toUpperCase() + leaveType.slice(1),
-                            proof: fileData, 
-                            note: note,
-                            approval: 'pending'
-                        };
-                        setAttendance([...attendance, newRecord]);
-                        alert("Pengajuan Izin Berhasil Dikirim! 📨");
-                        setFile(null); 
-                        setNote('');
-                    } catch (err) {
-                        alert("Gagal menyimpan file! Ukuran file mungkin terlalu besar untuk demo ini.");
-                    }
+                    const fileData = event.target.result; 
+                    const newRecord = {
+                        id: Date.now(),
+                        studentId: user.id,
+                        date: today,
+                        type: leaveType,
+                        timeIn: '-',
+                        timeOut: '-',
+                        status: leaveType.charAt(0).toUpperCase() + leaveType.slice(1),
+                        proof: fileData, 
+                        note: note,
+                        approval: 'pending'
+                    };
+                    setAttendance([...attendance, newRecord]);
+                    alert("Pengajuan Izin Berhasil Dikirim! 📨");
+                    setFile(null); 
+                    setNote('');
                 };
                 reader.readAsDataURL(file);
             };
@@ -331,13 +293,11 @@
                         <div className="w-16 h-16 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl shadow-inner">🎓</div>
                         <div><p className="text-gray-400 text-xs font-bold uppercase">Halo Siswa</p><h2 className="text-2xl font-bold text-gray-800">{user.name.split(' ')[0]}!</h2><span className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-xs font-bold">{user.class}</span></div>
                     </div>
-                    <div className="flex bg-white p-1 rounded-2xl shadow-sm mb-6 overflow-x-auto">
-                        <button onClick={() => setActiveTab('absen')} className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm whitespace-nowrap transition ${activeTab === 'absen' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400'}`}>📸 Absen</button>
-                        <button onClick={() => setActiveTab('izin')} className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm whitespace-nowrap transition ${activeTab === 'izin' ? 'bg-pink-100 text-pink-600' : 'text-gray-400'}`}>📝 Izin</button>
-                        <button onClick={() => setActiveTab('laporan')} className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm whitespace-nowrap transition ${activeTab === 'laporan' ? 'bg-teal-100 text-teal-600' : 'text-gray-400'}`}>📊 Laporan</button>
-                        <button onClick={() => setActiveTab('rank')} className={`flex-1 py-3 px-2 rounded-xl font-bold text-sm whitespace-nowrap transition ${activeTab === 'rank' ? 'bg-yellow-100 text-yellow-600' : 'text-gray-400'}`}>🏆 Rank</button>
+                    <div className="flex bg-white p-1 rounded-2xl shadow-sm mb-6">
+                        <button onClick={() => setActiveTab('absen')} className={`flex-1 py-3 rounded-xl font-bold text-sm transition ${activeTab === 'absen' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400'}`}>📸 Absen</button>
+                        <button onClick={() => setActiveTab('izin')} className={`flex-1 py-3 rounded-xl font-bold text-sm transition ${activeTab === 'izin' ? 'bg-pink-100 text-pink-600' : 'text-gray-400'}`}>📝 Izin</button>
+                        <button onClick={() => setActiveTab('rank')} className={`flex-1 py-3 rounded-xl font-bold text-sm transition ${activeTab === 'rank' ? 'bg-yellow-100 text-yellow-600' : 'text-gray-400'}`}>🏆 Peringkat</button>
                     </div>
-                    
                     {activeTab === 'absen' && (
                         <div className="space-y-6">
                             <div className={`rounded-3xl p-6 text-white shadow-lg ${!todayRecord ? 'bg-slate-500' : todayRecord.approval === 'rejected' ? 'bg-red-500' : todayRecord.approval === 'approved' ? 'bg-teal-500' : 'bg-orange-500'}`}>
@@ -351,7 +311,6 @@
                             </div>
                         </div>
                     )}
-
                     {activeTab === 'izin' && (
                         <div className="bg-white rounded-3xl p-6 shadow-lg fade-in">
                             <h3 className="font-bold text-lg text-gray-700 mb-4">Form Pengajuan</h3>
@@ -363,66 +322,6 @@
                             </form>
                         </div>
                     )}
-
-                    {activeTab === 'laporan' && (
-                        <div className="space-y-6 fade-in">
-                            {/* GRAFIK / DIAGRAM */}
-                            <div className="bg-white rounded-3xl p-6 shadow-lg">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <div className="p-2 bg-teal-100 rounded-lg text-teal-600"><Icons.BarChart className="w-6 h-6"/></div>
-                                    <div>
-                                        <h3 className="font-bold text-lg text-gray-800">Statistik Kehadiran</h3>
-                                        <p className="text-xs text-gray-400">Rekapitulasi Semester Ini</p>
-                                    </div>
-                                </div>
-                                <div className="space-y-4">
-                                    {/* Helper component untuk bar */}
-                                    {[
-                                        { label: 'Hadir', val: myStats.hadir, color: 'bg-teal-500', bg: 'bg-teal-100', text: 'text-teal-700' },
-                                        { label: 'Telat', val: myStats.telat, color: 'bg-yellow-500', bg: 'bg-yellow-100', text: 'text-yellow-700' },
-                                        { label: 'Sakit', val: myStats.sakit, color: 'bg-red-500', bg: 'bg-red-100', text: 'text-red-700' },
-                                        { label: 'Izin', val: myStats.izin, color: 'bg-blue-500', bg: 'bg-blue-100', text: 'text-blue-700' },
-                                        { label: 'Dispen', val: myStats.dispen, color: 'bg-purple-500', bg: 'bg-purple-100', text: 'text-purple-700' }
-                                    ].map((item) => (
-                                        <div key={item.label}>
-                                            <div className="flex justify-between text-xs font-bold mb-1">
-                                                <span className="text-gray-500">{item.label}</span>
-                                                <span className={item.text}>{item.val} Kali</span>
-                                            </div>
-                                            <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden">
-                                                <div className={`h-full rounded-full ${item.color} transition-all duration-1000 ease-out`} style={{ width: `${(item.val / maxStatValue) * 100}%` }}></div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* PENGUMUMAN SEKOLAH */}
-                            <div className="bg-white rounded-3xl p-6 shadow-lg">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <div className="p-2 bg-orange-100 rounded-lg text-orange-600"><Icons.Bell className="w-6 h-6"/></div>
-                                    <h3 className="font-bold text-lg text-gray-800">Pengumuman Sekolah</h3>
-                                </div>
-                                <div className="space-y-4">
-                                    {announcements.length === 0 ? (
-                                        <p className="text-center text-gray-400 text-sm italic py-4">Tidak ada pengumuman baru.</p>
-                                    ) : (
-                                        announcements.map((info) => (
-                                            <div key={info.id} className="border-l-4 border-orange-400 pl-4 py-1 relative">
-                                                <div className="absolute -left-[5px] top-0 w-2 h-2 bg-orange-400 rounded-full"></div>
-                                                <h4 className="font-bold text-gray-800 text-sm">{info.title}</h4>
-                                                <div className="flex items-center gap-1 text-xs text-orange-500 font-bold mb-1">
-                                                    <Icons.Calendar className="w-3 h-3"/> {info.date}
-                                                </div>
-                                                <p className="text-xs text-gray-500">{info.content}</p>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     {activeTab === 'rank' && (
                         <div className="space-y-4 fade-in">
                             <div className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-3xl p-6 text-white text-center shadow-lg mb-4"><h3 className="text-2xl font-bold">Leaderboard</h3><p className="text-yellow-100 text-sm">Siapa yang paling rajin?</p></div>
@@ -461,12 +360,8 @@
                     ? users.map(u => u.id === editingId ? { ...u, ...formData, role: userTab } : u)
                     : [...users, { ...formData, id: Date.now(), role: userTab }];
                 
-                try {
-                    setUsers(newUserList); 
-                    closeModal();
-                } catch (e) {
-                    alert("Gagal menyimpan! LocalStorage penuh.");
-                }
+                setUsers(newUserList); 
+                closeModal();
             };
             const openModal = (user = null) => { setFormData(user ? { ...user } : { username: '', password: '', name: '', class: '' }); setEditingId(user ? user.id : null); setIsModalOpen(true); };
             const closeModal = () => setIsModalOpen(false);
@@ -577,7 +472,7 @@
                                 </div>
                                 <button onClick={() => openModal()} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-2 shadow-lg"><Icons.User className="w-4 h-4"/> Tambah Baru</button>
                             </div>
-                            <div className="p-6 overflow-x-auto"><table className="w-full text-left border-collapse"><thead className="text-xs text-gray-400 uppercase font-bold border-b"><tr><th className="p-3">Nama</th><th className="p-3">Username</th><th className="p-3">Password</th>{(userTab === 'siswa' || userTab === 'guru') && <th className="p-3">{userTab === 'siswa' ? 'Kelas' : 'Wali Kelas'}</th>}<th className="p-3 text-right">Aksi</th></tr></thead>
+                            <div className="p-6"><table className="w-full text-left border-collapse"><thead className="text-xs text-gray-400 uppercase font-bold border-b"><tr><th className="p-3">Nama</th><th className="p-3">Username</th><th className="p-3">Password</th>{(userTab === 'siswa' || userTab === 'guru') && <th className="p-3">{userTab === 'siswa' ? 'Kelas' : 'Wali Kelas'}</th>}<th className="p-3 text-right">Aksi</th></tr></thead>
                             <tbody className="text-sm text-gray-600">{filteredUsers.map(u => (
                                 <tr key={u.id} className="hover:bg-gray-50 border-b">
                                     <td className="p-3 font-bold text-gray-800">{u.name}</td>
@@ -676,13 +571,9 @@
 
             // --- FIX: Tombol Aksi Langsung Update Tanpa Confirm ---
             const handleAction = (id, status) => { 
-                try {
-                    // Update langsung ke state utama attendance
-                    const updated = attendance.map(item => item.id === id ? { ...item, approval: status } : item);
-                    setAttendance(updated);
-                } catch (e) {
-                    alert("Gagal menyimpan perubahan! Storage penuh.");
-                }
+                // Update langsung ke state utama attendance
+                const updated = attendance.map(item => item.id === id ? { ...item, approval: status } : item);
+                setAttendance(updated);
             };
             
             const openImage = (url) => setViewImg(url);
@@ -836,6 +727,7 @@
 
                     {viewImg && (
                         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 fade-in" onClick={() => setViewImg(null)}>
+                            {/* FIX: Penanganan PDF vs Gambar */}
                             {viewImg.startsWith('data:application/pdf') ? (
                                 <iframe src={viewImg} className="w-full h-[80vh] bg-white rounded-lg"></iframe>
                             ) : (
@@ -850,22 +742,13 @@
         // 6. MAIN APP
         const App = () => {
             const [user, setUser] = useState(null);
-            const [users, setUsers] = useState(() => {
-                try { return JSON.parse(localStorage.getItem('smartattend_users')) || INITIAL_USERS; } catch { return INITIAL_USERS; }
-            });
-            const [attendance, setAttendance] = useState(() => {
-                try { return JSON.parse(localStorage.getItem('smartattend_data')) || INITIAL_ATTENDANCE; } catch { return INITIAL_ATTENDANCE; }
-            });
-            const [messages, setMessages] = useState(() => {
-                try { return JSON.parse(localStorage.getItem('smartattend_messages')) || INITIAL_MESSAGES; } catch { return INITIAL_MESSAGES; }
-            });
-            // State Pengumuman
-            const [announcements, setAnnouncements] = useState(INITIAL_ANNOUNCEMENTS);
+            const [users, setUsers] = useState(() => JSON.parse(localStorage.getItem('smartattend_users')) || INITIAL_USERS);
+            const [attendance, setAttendance] = useState(() => JSON.parse(localStorage.getItem('smartattend_data')) || INITIAL_ATTENDANCE);
+            const [messages, setMessages] = useState(() => JSON.parse(localStorage.getItem('smartattend_messages')) || INITIAL_MESSAGES);
 
-            // Safe storage functions
-            useEffect(() => { try { localStorage.setItem('smartattend_users', JSON.stringify(users)); } catch(e) { console.warn('Storage full'); } }, [users]);
-            useEffect(() => { try { localStorage.setItem('smartattend_data', JSON.stringify(attendance)); } catch(e) { console.warn('Storage full'); } }, [attendance]);
-            useEffect(() => { try { localStorage.setItem('smartattend_messages', JSON.stringify(messages)); } catch(e) { console.warn('Storage full'); } }, [messages]);
+            useEffect(() => localStorage.setItem('smartattend_users', JSON.stringify(users)), [users]);
+            useEffect(() => localStorage.setItem('smartattend_data', JSON.stringify(attendance)), [attendance]);
+            useEffect(() => localStorage.setItem('smartattend_messages', JSON.stringify(messages)), [messages]);
 
             if (!user) return <Login onLogin={setUser} users={users} />;
 
@@ -876,7 +759,7 @@
                         <button onClick={() => setUser(null)} className="bg-red-50 text-red-500 p-2 rounded-full hover:bg-red-100"><Icons.LogOut className="w-4 h-4"/></button>
                     </div>
                     <div className="pt-24 px-4 pb-10">
-                        {user.role === 'siswa' && <SiswaDashboard user={user} users={users} attendance={attendance} setAttendance={setAttendance} announcements={announcements} />}
+                        {user.role === 'siswa' && <SiswaDashboard user={user} users={users} attendance={attendance} setAttendance={setAttendance} />}
                         {user.role === 'guru' && <GuruDashboard user={user} users={users} attendance={attendance} setAttendance={setAttendance} messages={messages} />}
                         {user.role === 'admin' && <AdminDashboard users={users} setUsers={setUsers} attendance={attendance} messages={messages} setMessages={setMessages} />}
                     </div>
