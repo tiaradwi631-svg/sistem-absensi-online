@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartAttend - Sistem Absensi & Pesan (Stable)</title>
+    <title>SmartAttend - Sistem Absensi & Pesan (Final Report Fix)</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Supabase JS Library (JSDelivr - Lebih Cepat & Stabil) -->
+    <!-- Supabase JS Library (JSDelivr) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- React & ReactDOM -->
@@ -114,7 +114,7 @@
         // --- UI COMPONENTS ---
         const Toast = ({ message, type, onClose }) => {
             useEffect(() => {
-                const timer = setTimeout(onClose, 6000); // Lama tampil 6 detik agar terbaca
+                const timer = setTimeout(onClose, 6000); 
                 return () => clearTimeout(timer);
             }, [onClose]);
 
@@ -273,7 +273,7 @@
             const rankings = useMemo(() => {
                 const students = users.filter(u => u.role === 'siswa');
                 const stats = students.map(s => {
-                    const count = attendance.filter(a => a.studentId === s.id && a.type === 'hadir' && a.approval === 'approved').length;
+                    const count = attendance.filter(a => String(a.studentId) === String(s.id) && a.type === 'hadir' && a.approval === 'approved').length;
                     return { ...s, count };
                 });
                 return stats.sort((a, b) => b.count - a.count);
@@ -322,7 +322,6 @@
                     }
                 } catch (err) {
                     console.error(err);
-                    // Pesan Error Lebih Detail
                     const errorMsg = err.message || "Gagal menyimpan.";
                     if (errorMsg.includes("row-level security")) {
                         showToast("Gagal: RLS Supabase Aktif. Matikan dulu RLS di Supabase.", "error");
@@ -437,6 +436,26 @@
                                     <span className="font-bold">Pulang</span>
                                 </button>
                             </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'izin' && (
+                        <div className="bg-white rounded-[2rem] p-8 shadow-xl scale-in border border-gray-100">
+                            <h3 className="font-bold text-xl text-gray-800 mb-6 flex items-center gap-2"><Icons.File className="w-5 h-5 text-pink-500"/> Form Pengajuan</h3>
+                            <form onSubmit={handleSubmitLeave} className="space-y-5">
+                                <div className="flex gap-2 p-1 bg-gray-50 rounded-xl">
+                                    {['sakit', 'izin', 'dispen'].map(t => (
+                                        <div key={t} onClick={() => setLeaveType(t)} className={`flex-1 py-2.5 text-center rounded-lg text-sm font-bold capitalize cursor-pointer transition-all ${leaveType === t ? 'bg-white text-pink-600 shadow-sm ring-1 ring-pink-100' : 'text-gray-400 hover:text-gray-600'}`}>{t}</div>
+                                    ))}
+                                </div>
+                                <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center relative hover:bg-gray-50 transition group cursor-pointer">
+                                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400 group-hover:bg-pink-50 group-hover:text-pink-500 transition"><Icons.Upload className="w-6 h-6"/></div>
+                                    <p className="text-xs font-bold text-gray-500">{file ? file.name : "Upload Surat (PDF/Foto)"}</p>
+                                    <input type="file" onChange={e => setFile(e.target.files[0])} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*,.pdf" />
+                                </div>
+                                <textarea placeholder="Tulis keterangan detail..." value={note} onChange={e => setNote(e.target.value)} className="w-full bg-gray-50 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-indigo-100 focus:outline-none font-medium resize-none text-gray-700" rows="3"></textarea>
+                                <button type="submit" disabled={!!todayRecord} className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold shadow-xl hover:bg-indigo-600 transition hover:-translate-y-1 disabled:bg-gray-200 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none">Kirim Pengajuan 📤</button>
+                            </form>
                         </div>
                     )}
 
@@ -602,11 +621,15 @@
             const reportData = useMemo(() => {
                 const students = users.filter(u => u.role === 'siswa');
                 return students.map(student => {
-                    let filteredAttendance = attendance.filter(a => a.studentId === student.id);
+                    // Fix: Pastikan perbandingan ID aman (String vs Number)
+                    let filteredAttendance = attendance.filter(a => String(a.studentId) === String(student.id));
+                    
                     if (reportFilter === 'daily') { 
                         filteredAttendance = filteredAttendance.filter(a => a.date === filterDate); 
                     } else if (reportFilter === 'monthly') { 
-                        filteredAttendance = filteredAttendance.filter(a => a.date.startsWith(filterDate.slice(0, 7))); 
+                        // Fix: Filter bulan (YYYY-MM)
+                        const monthStr = filterDate.slice(0, 7);
+                        filteredAttendance = filteredAttendance.filter(a => a.date && a.date.startsWith(monthStr)); 
                     }
                     else if (reportFilter === 'weekly') {
                         const selected = new Date(filterDate);
@@ -617,8 +640,17 @@
                             return d >= oneWeekAgo && d <= selected;
                         });
                     }
+                    
+                    // Ambil status harian (jika ada)
                     const statusHarian = filteredAttendance.length > 0 ? filteredAttendance[0].status : '-';
-                    return { ...student, statusHarian, hadir: filteredAttendance.filter(a => a.type === 'hadir').length, sakit: filteredAttendance.filter(a => a.type === 'sakit').length, izin: filteredAttendance.filter(a => ['izin', 'dispen'].includes(a.type)).length };
+                    
+                    return { 
+                        ...student, 
+                        statusHarian, 
+                        hadir: filteredAttendance.filter(a => a.type === 'hadir').length, 
+                        sakit: filteredAttendance.filter(a => a.type === 'sakit').length, 
+                        izin: filteredAttendance.filter(a => ['izin', 'dispen'].includes(a.type)).length 
+                    };
                 });
             }, [users, attendance, reportFilter, filterDate]);
 
@@ -719,6 +751,21 @@
                                     <td className="p-4 text-right pr-6"><div className="flex justify-end gap-2"><button onClick={() => openModal(u)} className="text-blue-500 hover:bg-blue-50 p-2 rounded-xl transition"><Icons.Edit className="w-4 h-4"/></button><button onClick={() => handleDeleteClick(u.id)} className="text-red-500 hover:bg-red-50 p-2 rounded-xl transition"><Icons.Trash className="w-4 h-4"/></button></div></td>
                                 </tr>))}
                             </tbody></table></div>
+                        </div>
+                    )}
+
+                    {view === 'report' && (
+                        <div className="bg-white rounded-[2rem] shadow-xl overflow-hidden p-8 scale-in border border-gray-100">
+                            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                                <h3 className="font-bold text-xl text-gray-800">Laporan Kehadiran</h3>
+                                <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-2xl border border-gray-100">
+                                    <button onClick={handleDownloadReport} className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-emerald-100 transition"><Icons.Download className="w-4 h-4"/> Export CSV</button>
+                                    <div className="h-6 w-px bg-gray-300 mx-1"></div>
+                                    <select value={reportFilter} onChange={(e) => setReportFilter(e.target.value)} className="bg-transparent border-none text-sm font-bold text-gray-600 focus:ring-0 cursor-pointer outline-none"><option value="daily">Harian</option><option value="weekly">Mingguan</option><option value="monthly">Bulanan</option></select>
+                                    <input type={reportFilter === 'monthly' ? 'month' : 'date'} value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="bg-transparent border-none text-sm font-bold text-gray-600 focus:ring-0 outline-none"/>
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto rounded-2xl border border-gray-100"><table className="w-full text-left border-collapse"><thead className="bg-indigo-50 text-indigo-900 text-xs uppercase font-bold"><tr><th className="p-4 pl-6">Siswa</th>{reportFilter === 'daily' ? (<th className="p-4 text-center">Status</th>) : (<><th className="p-4 text-center">Hadir</th><th className="p-4 text-center">Sakit</th><th className="p-4 text-center pr-6">Izin/Dispen</th></>)}</tr></thead><tbody className="text-sm text-gray-600 divide-y divide-gray-100">{reportData.map(r => (<tr key={r.id} className="hover:bg-gray-50"><td className="p-4 pl-6"><div className="font-bold text-gray-800">{r.name}</div><div className="text-xs text-indigo-400 font-bold mt-0.5">{r.class}</div></td>{reportFilter === 'daily' ? (<td className="p-4 text-center"><span className={`px-3 py-1 rounded-full text-xs font-bold ${r.statusHarian === 'Hadir' ? 'bg-teal-100 text-teal-700' : r.statusHarian === 'Sakit' ? 'bg-orange-100 text-orange-700' : r.statusHarian === '-' ? 'bg-gray-100 text-gray-400' : 'bg-pink-100 text-pink-700'}`}>{r.statusHarian === '-' ? 'Belum Absen' : r.statusHarian}</span></td>) : (<><td className="p-4 text-center font-bold text-teal-600">{r.hadir}</td><td className="p-4 text-center font-bold text-orange-500">{r.sakit}</td><td className="p-4 text-center font-bold text-pink-500 pr-6">{r.izin}</td></>)}</tr>))}</tbody></table></div>
                         </div>
                     )}
 
@@ -984,48 +1031,41 @@
             const [toast, setToast] = useState(null);
             const [supabaseClient, setSupabaseClient] = useState(null);
             const [isOnline, setIsOnline] = useState(false);
-            const [onlineStatusMsg, setOnlineStatusMsg] = useState('Menghubungkan...');
+            const [onlineStatusMsg, setOnlineStatusMsg] = useState('Memuat...');
 
-            // Initialize Supabase on mount with retry logic
+            // Smart Loader for Supabase
             useEffect(() => {
-                let retryCount = 0;
-                const maxRetries = 5;
-
-                const initSupabaseClient = () => {
-                    try {
-                        // Cek variabel global window.supabase atau window.Supabase (kadang beda casing di UMD)
-                        const sbLib = window.supabase || window.Supabase;
-
-                        if (typeof sbLib !== 'undefined' && sbLib && supabaseUrl.startsWith('http')) {
-                            // Coba akses createClient dari default export atau langsung
-                            const createClient = sbLib.createClient || (sbLib.default && sbLib.default.createClient);
-                            
-                            if (typeof createClient === 'function') {
-                                const client = createClient(supabaseUrl, supabaseKey);
+                const checkSupabase = () => {
+                    const sb = window.supabase || window.Supabase; // Cek kedua kemungkinan casing
+                    if (typeof sb !== 'undefined' && sb) {
+                        const clientFunc = sb.createClient || (sb.default && sb.default.createClient);
+                        if (typeof clientFunc === 'function') {
+                            try {
+                                const client = clientFunc(supabaseUrl, supabaseKey);
                                 setSupabaseClient(client);
                                 setIsOnline(true);
                                 setOnlineStatusMsg("Online");
-                                console.log("✅ Supabase Connected");
+                                console.log("✅ Supabase Connected via SmartLoader");
                                 return true;
+                            } catch (err) {
+                                console.error("Init failed:", err);
                             }
                         }
-                        console.warn("Library Supabase belum siap, mencoba lagi...");
-                        return false;
-                    } catch (err) {
-                        console.error("Init Error:", err);
-                        return false;
                     }
+                    return false;
                 };
 
-                // Initial attempt
-                if (!initSupabaseClient()) {
+                // Coba langsung
+                if (!checkSupabase()) {
+                    // Jika gagal, coba lagi setiap 1 detik (Max 10 detik)
+                    let attempts = 0;
                     const interval = setInterval(() => {
-                        retryCount++;
-                        if (initSupabaseClient() || retryCount > maxRetries) {
+                        attempts++;
+                        if (checkSupabase() || attempts > 10) {
                             clearInterval(interval);
-                            if (retryCount > maxRetries) setOnlineStatusMsg("Offline (Lib Error)");
+                            if (attempts > 10) setOnlineStatusMsg("Offline (Lib Gagal)");
                         }
-                    }, 1500); // Retry every 1.5s
+                    }, 1000);
                     return () => clearInterval(interval);
                 }
             }, []);
@@ -1048,7 +1088,6 @@
                             let { data: uData, error: uError } = await supabaseClient.from('users').select('*');
                             if (!uError && uData && uData.length > 0) setUsers(uData);
                             else if (!uError && (!uData || uData.length === 0)) {
-                                // Init admin if empty
                                 await supabaseClient.from('users').insert(INITIAL_USERS);
                                 setUsers(INITIAL_USERS);
                             }
@@ -1067,8 +1106,7 @@
                     };
                     fetchData();
                     
-                    // Simple polling for updates
-                    const poll = setInterval(fetchData, 10000);
+                    const poll = setInterval(fetchData, 5000);
                     return () => clearInterval(poll);
                 }
             }, [user, isOnline, supabaseClient]);
